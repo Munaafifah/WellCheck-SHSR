@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Doctor Appointments</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    
+    <style>
+        /* Keep all your existing styles here */
+        body {
+            background-color: #f0f2f5;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 100%;
+            padding: 0 30px;
+            margin-top: 30px;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, #0d6efd 0%, #0099ff 100%);
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar .card {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar .card-title {
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav-link {
+            color: white !important;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 4px 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+        }
+
+        .content-area {
+            width: 100%;
+            max-width: 100%;
+            padding: 30px;
+            margin: 0;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            color: #0d6efd;
+            font-weight: 600;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        /* Adjust table width */
+.custom-table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+        .custom-table thead {
+            background: linear-gradient(135deg, #0d6efd 0%, #0099ff 100%);
+            color: white;
+        }
+
+        .custom-table th {
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            padding: 15px;
+        }
+
+        .custom-table td {
+            padding: 15px;
+            vertical-align: middle;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-expired {
+            background-color: #e9ecef;
+            color: #6c757d;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            border: none;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-section {
+            margin-top: -10px;
+        }
+
+        #searchResult {
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .nav-tabs .nav-link {
+            min-width: 200px;
+            text-align: center;
+            color: #495057 !important;
+            border: none;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            background-color: #e9ecef;
+            color: #0d6efd !important;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: #0d6efd !important;  /* Blue color for active tab */
+            background: white;  /* White background for active tab */
+            border-bottom: 3px solid #0d6efd;
+            font-weight: 700;  /* Bolder font for active tab */
+        }
+        
+        .tab-badge {
+            background-color: #0d6efd;  /* Blue background for badge */
+            color: white;  /* White text for badge */
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-left: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Center the tabs */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 1.5rem;
+            padding: 0;
+            width: 100%;
+        }
+
+        .nav-tabs .nav-item {
+            margin: 0 10px;
+        }
+
+        .tab-badge {
+            background-color:rgb(48, 50, 53);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-left: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Add hover effect to table rows */
+.custom-table tbody tr {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.custom-table tbody tr:hover {
+    background-color:rgb(165, 190, 215);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(13, 110, 253, 0.1);
+    
+}
+
+/* Enhance button hover effects */
+.btn-success:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+}
+
+/* Style for status badges on hover */
+.status-badge {
+    transition: all 0.3s ease;
+}
+
+.custom-table tr:hover .status-badge {
+    transform: scale(1.05);
+}
+
+/* Enhanced hover effects for specific status badges */
+.custom-table tr:hover .status-approved {
+    box-shadow: 0 2px 4px rgba(21, 87, 36, 0.2);
+}
+
+.custom-table tr:hover .status-pending {
+    box-shadow: 0 2px 4px rgba(133, 100, 4, 0.2);
+}
+
+.custom-table tr:hover .status-cancelled {
+    box-shadow: 0 2px 4px rgba(114, 28, 36, 0.2);
+}
+
+.custom-table tr:hover .status-expired {
+    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.2);
+}
+
+/* Enhance text visibility on hover */
+.custom-table tbody tr:hover td {
+    color: #000;
+}
+
+/* Add subtle animation to action buttons on row hover */
+.custom-table tr:hover .btn {
+    transform: translateY(-1px);
+    transition: all 0.3s ease;
+}
+
+.pagination-container {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0 0 15px 15px;
+    border-top: 1px solid #dee2e6;
+}
+
+.page-link {
+    color: #0d6efd;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.page-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    transform: translateY(-1px);
+}
+
+.page-link:focus {
+    box-shadow: none;
+}
+
+.form-select {
+    border-radius: 6px;
+    padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.pagination {
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination-info {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.no-results {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.page-link.active {
+    background-color: #0d6efd;
+    color: white !important;
+    border-color: #0d6efd;
+}
+
+/* Adjust main column width */
+.col-9 {
+    width: 100%;
+    max-width: 100%;
+    flex: 0 0 100%;
+}
+
+/* Enhance table responsiveness */
+.table-responsive {
+    margin: 0;
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .main-container {
+        padding: 0 15px;
+    }
+    
+    .nav-tabs .nav-link {
+        min-width: 150px;
+        padding: 0.75rem 1.5rem;
+    }
+    
+    .content-area {
+        padding: 20px;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="container main-container">
+        <div class="row g-4">
+            
+            <!-- Main Content -->
+            <div class="col-9">
+                <div class="content-area">
+                    <h1 class="page-title">
+                        <i class="fas fa-calendar-check me-3"></i>Appointments
+                    </h1>
+
+                    <!-- Back Button -->
+            <a href="javascript:history.back()" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                Back
+            </a>
+
+                
+            <!-- Tabs Navigation -->
+            <ul class="nav nav-tabs mb-4" id="appointmentTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">
+                        Active Appointments
+                        <span class="tab-badge" th:text="${activeCount}">0</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="expired-tab" data-bs-toggle="tab" data-bs-target="#expired" type="button" role="tab">
+                        Expired Appointments
+                        <span class="tab-badge" th:text="${expiredCount}">0</span>
+                    </button>
+                </li>
+            </ul>
+
+                    <!-- Search Section -->
+                    <div class="search-section mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                        
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Search Term</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-search"></i>
+                                            </span>
+                                            <input type="text" class="form-control" id="searchInput" placeholder="Enter search term..." />
+                                            <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
+                                                <i class="fas fa-times"></i> Clear
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-muted mt-2" id="searchResult"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:if="${message}" class="alert alert-info" th:text="${message}"></div>
+                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+
+
+                    <!-- Tab Content -->
+<div class="tab-content" id="appointmentTabsContent">
+    <!-- Active Appointments Tab -->
+    <div class="tab-pane fade show active" id="active" role="tabpanel">
+        <div class="table-responsive">
+            <table class="table custom-table" id="activeTable">
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>User Email</th>
+                        <th>Doctor ID</th>
+                        <th>Hospital ID</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Payment Status</th>
+                        <th>Appointment Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="appointment : ${appointments}" th:if="${appointment.statusAppointment != 'Expired'}">
+                        <td th:text="${appointment.userId}"></td>
+                        <td th:text="${appointment.email}"></td>
+                        <td th:text="${appointment.doctorId}"></td>
+                        <td th:text="${appointment.hospitalId}"></td>
+                        <td th:text="${appointment.appointmentDate}"></td>
+                        <td th:text="${appointment.appointmentTime}"></td>
+                        <td>
+                            <span class="status-badge"
+                                th:classappend="${appointment.statusPayment == 'Paid' ? 'status-approved' : 'status-pending'}"
+                                th:text="${appointment.statusPayment}">
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge"
+                                th:classappend="${appointment.statusAppointment == 'Approved' ? 'status-approved' : 
+                                              (appointment.statusAppointment == 'Cancelled' ? 'status-cancelled' : 
+                                              (appointment.statusAppointment == 'Expired' ? 'status-expired' : 'status-pending'))}"
+                                th:text="${appointment.statusAppointment}">
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-info btn-sm" 
+                                        onclick="viewDetails(this)"
+                                        th:data-id="${appointment.appointmentId}"
+                                        th:data-email="${appointment.email}"
+                                        th:data-type-sickness="${appointment.typeOfSickness}"
+                                        th:data-notes="${appointment.additionalNotes}"
+                                        th:data-insurance="${appointment.insuranceProvider}"
+                                        th:data-policy="${appointment.insurancePolicyNumber}"
+                                        th:data-cost="${appointment.appointmentCost}"
+                                        th:data-timestamp="${appointment.timestamp}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <th:block th:if="${appointment.statusAppointment != 'Expired'}">
+                                    <button class="btn btn-success btn-sm"
+                                        th:if="${appointment.statusAppointment != 'Approved'}"
+                                        onclick="updateStatus(this)"
+                                        th:data-id="${appointment.appointmentId}"
+                                        data-status="Approved">
+                                        <i class="fas fa-check me-1"></i> Approve
+                                    </button>
+                                    <button class="btn btn-danger btn-sm"
+                                        th:if="${appointment.statusAppointment != 'Cancelled'}"
+                                        onclick="updateStatus(this)"
+                                        th:data-id="${appointment.appointmentId}"
+                                        data-status="Cancelled">
+                                        <i class="fas fa-times me-1"></i> Cancel
+                                    </button>
+                                </th:block>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Active Appointments Pagination -->
+        <div class="row align-items-center mb-3">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <label class="me-2">Rows per page:</label>
+                    <select class="form-select w-auto" id="activeRowsPerPage">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="pagination-info mt-3">
+            Showing <span id="activeStartIndex">0</span> to <span id="activeEndIndex">0</span> of 
+            <span id="activeTotalItems">0</span> entries
+        </div>
+        <div id="activeNoResults" class="no-results" style="display: none;">
+            No matching results found.
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination" id="activePagination"></ul>
+        </nav>
+    </div>
+
+    <!-- Expired Appointments Tab -->
+    <div class="tab-pane fade" id="expired" role="tabpanel">
+        <div class="table-responsive">
+            <table class="table custom-table" id="expiredTable">
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>User Email</th>
+                        <th>Doctor ID</th>
+                        <th>Hospital ID</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Payment Status</th>
+                        <th>Appointment Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="appointment : ${appointments}" th:if="${appointment.statusAppointment == 'Expired'}">
+                        <td th:text="${appointment.userId}"></td>
+                        <td th:text="${appointment.email}"></td>
+                        <td th:text="${appointment.doctorId}"></td>
+                        <td th:text="${appointment.hospitalId}"></td>
+                        <td th:text="${appointment.appointmentDate}"></td>
+                        <td th:text="${appointment.appointmentTime}"></td>
+                        <td>
+                            <span class="status-badge"
+                                th:classappend="${appointment.statusPayment == 'Paid' ? 'status-approved' : 'status-pending'}"
+                                th:text="${appointment.statusPayment}">
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-expired">
+                                Expired
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-info btn-sm" 
+                                    onclick="viewDetails(this)"
+                                    th:data-id="${appointment.appointmentId}"
+                                    th:data-email="${appointment.email}"
+                                    th:data-type-sickness="${appointment.typeOfSickness}"
+                                    th:data-notes="${appointment.additionalNotes}"
+                                    th:data-insurance="${appointment.insuranceProvider}"
+                                    th:data-policy="${appointment.insurancePolicyNumber}"
+                                    th:data-cost="${appointment.appointmentCost}"
+                                    th:data-timestamp="${appointment.timestamp}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Expired Appointments Pagination -->
+        <div class="row align-items-center mb-3">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <label class="me-2">Rows per page:</label>
+                    <select class="form-select w-auto" id="expiredRowsPerPage">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="pagination-info mt-3">
+            Showing <span id="expiredStartIndex">0</span> to <span id="expiredEndIndex">0</span> of 
+            <span id="expiredTotalItems">0</span> entries
+        </div>
+        <div id="expiredNoResults" class="no-results" style="display: none;">
+            No matching results found.
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination" id="expiredPagination"></ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Appointment Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="mb-3">Basic Information</h6>
+                        <p><strong>Appointment ID:</strong> <span id="modal-id"></span></p>
+                        <p><strong>Email:</strong> <span id="modal-email"></span></p>
+                        <p><strong>Type of Sickness:</strong> <span id="modal-sickness"></span></p>
+                        <p><strong>Additional Notes:</strong> <span id="modal-notes"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="mb-3">Additional Information</h6>
+                        <p><strong>Insurance Provider:</strong> <span id="modal-insurance"></span></p>
+                        <p><strong>Policy Number:</strong> <span id="modal-policy"></span></p>
+                        <p><strong>Appointment Cost:</strong> $<span id="modal-cost"></span></p>
+                        <p><strong>Created:</strong> <span id="modal-timestamp"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Appointment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editAppointmentForm">
+                    <input type="hidden" id="edit-appointment-id">
+                    <input type="hidden" id="edit-user-id">
+                    
+                    <div class="mb-3">
+                        <label for="edit-date" class="form-label">New Date</label>
+                        <input type="date" class="form-control" id="edit-date" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-time" class="form-label">New Time</label>
+                        <input type="time" class="form-control" id="edit-time" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Contact Information</label>
+                        <p id="patient-contact" class="form-text">Loading contact information...</p>
+                        <p id="patient-emergency-contact" class="form-text">Loading emergency contact...</p>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveAppointment()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        function updateStatus(button) {
+            const appointmentId = button.getAttribute("data-id");
+            const newStatus = button.getAttribute("data-status");
+        
+            // Show loading state
+            button.disabled = true;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        
+            $.ajax({
+                url: "/doctor/api/appointments/updateStatus",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    appointmentId: appointmentId,
+                    newStatus: newStatus,
+                }),
+                success: function (response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        // Show error message in a Bootstrap alert
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+                        alertDiv.innerHTML = `
+                            ${response.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        `;
+                        
+                        // Insert the alert before the table
+                        const tableContainer = button.closest('.table-responsive');
+                        tableContainer.parentNode.insertBefore(alertDiv, tableContainer);
+                        
+                        // Reset button state
+                        button.disabled = false;
+                        button.innerHTML = originalText;
+                        
+                        // Auto-dismiss alert after 5 seconds
+                        setTimeout(() => {
+                            alertDiv.remove();
+                        }, 5000);
+                    }
+                },
+                error: function () {
+                    // Show generic error message
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-danger alert-dismissible fade show mt-3';
+                    alertDiv.innerHTML = `
+                        Error updating appointment status
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    
+                    const tableContainer = button.closest('.table-responsive');
+                    tableContainer.parentNode.insertBefore(alertDiv, tableContainer);
+                    
+                    // Reset button state
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                    
+                    setTimeout(() => {
+                        alertDiv.remove();
+                    }, 5000);
+                }
+            });
+        }
+
+        let appointments = [];
+
+        function initializeSearch() {
+            const activeTable = document.querySelector("#activeTable");
+            const expiredTable = document.querySelector("#expiredTable");
+            const activeRows = activeTable.querySelectorAll("tbody tr");
+            const expiredRows = expiredTable.querySelectorAll("tbody tr");
+
+            // Reset appointments array
+            appointments = [];
+
+            // Process active appointments
+            activeRows.forEach((row) => {
+                appointments.push({
+                    element: row,
+                    appointmentId: row.querySelector("td:nth-child(1)").textContent.trim(),
+                    userId: row.querySelector("td:nth-child(2)").textContent.trim(),
+                    email: row.querySelector("td:nth-child(3)").textContent.trim(),
+                    doctorId: row.querySelector("td:nth-child(4)").textContent.trim(),
+                    isExpired: false
+                });
+            });
+
+            // Process expired appointments
+            expiredRows.forEach((row) => {
+                appointments.push({
+                    element: row,
+                    appointmentId: row.querySelector("td:nth-child(1)").textContent.trim(),
+                    userId: row.querySelector("td:nth-child(2)").textContent.trim(),
+                    email: row.querySelector("td:nth-child(3)").textContent.trim(),
+                    doctorId: row.querySelector("td:nth-child(4)").textContent.trim(),
+                    isExpired: true
+                });
+            });
+
+            document.getElementById("searchInput").addEventListener("input", performSearch);
+        }
+
+        function performSearch() {
+            const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+            const activeTab = document.getElementById("active-tab").classList.contains("active");
+            
+            let visibleCount = 0;
+
+            appointments.forEach((appointment) => {
+                if (activeTab === !appointment.isExpired) {
+                    let visible = 
+                        appointment.appointmentId.toLowerCase().includes(searchTerm) ||
+                        appointment.userId.toLowerCase().includes(searchTerm) ||
+                        appointment.email.toLowerCase().includes(searchTerm) ||
+                        appointment.doctorId.toLowerCase().includes(searchTerm);
+
+                    appointment.element.style.display = visible ? "" : "none";
+                    if (visible) visibleCount++;
+                }
+            });
+
+            updateSearchResults(visibleCount, searchTerm);
+        }
+
+
+        function updateSearchResults(visibleCount, searchTerm) {
+            const resultText = searchTerm 
+                ? `Found ${visibleCount} matching appointments` 
+                : "";
+            document.getElementById("searchResult").textContent = resultText;
+        }
+
+        function clearSearch() {
+            document.getElementById("searchInput").value = "";
+            appointments.forEach((appointment) => {
+                appointment.element.style.display = "";
+            });
+            document.getElementById("searchResult").textContent = "";
+        }
+
+
+        document.addEventListener("DOMContentLoaded", initializeSearch);
+
+        ////////////////////////
+
+        class TablePagination {
+            constructor(tableId, options = {}) {
+                this.table = document.getElementById(tableId);
+                this.options = {
+                    itemsPerPage: options.itemsPerPage || 5,
+                    searchInputId: options.searchInputId || 'searchInput',
+                    paginationContainerId: options.paginationContainerId || 'pagination',
+                    noResultsId: options.noResultsId || 'noResults',
+                    startIndexId: options.startIndexId || 'startIndex',
+                    endIndexId: options.endIndexId || 'endIndex',
+                    totalItemsId: options.totalItemsId || 'totalItems',
+                    rowsPerPageId: options.rowsPerPageId || 'rowsPerPage'
+                };
+        
+                this.currentPage = 1;
+                this.filteredRows = [];
+                this.searchTerm = '';
+                
+                this.elements = {
+                    tableBody: this.table.querySelector('tbody'),
+                    searchInput: document.getElementById(this.options.searchInputId),
+                    paginationContainer: document.getElementById(this.options.paginationContainerId),
+                    noResults: document.getElementById(this.options.noResultsId),
+                    startIndexSpan: document.getElementById(this.options.startIndexId),
+                    endIndexSpan: document.getElementById(this.options.endIndexId),
+                    totalItemsSpan: document.getElementById(this.options.totalItemsId),
+                    rowsPerPageSelect: document.getElementById(this.options.rowsPerPageId)
+                };
+        
+                this.allRows = Array.from(this.elements.tableBody.querySelectorAll('tr'));
+                this.filteredRows = this.allRows;
+                
+                this.initialize();
+            }
+        
+            initialize() {
+                // Set up search functionality
+                if (this.elements.searchInput) {
+                    this.elements.searchInput.addEventListener('input', (e) => {
+                        this.searchTerm = e.target.value.toLowerCase();
+                        this.performGlobalSearch();
+                    });
+                }
+        
+                // Set up rows per page functionality
+                if (this.elements.rowsPerPageSelect) {
+                    this.elements.rowsPerPageSelect.addEventListener('change', (e) => {
+                        this.options.itemsPerPage = parseInt(e.target.value);
+                        this.currentPage = 1;
+                        this.performGlobalSearch();
+                    });
+                }
+        
+                this.updatePagination();
+                this.showPage(1);
+            }
+        
+            performGlobalSearch() {
+                // First, show all rows to ensure we search through everything
+                this.allRows.forEach(row => row.style.display = '');
+        
+                // Filter rows based on search term
+                this.filteredRows = this.allRows.filter(row => {
+                    const cells = Array.from(row.getElementsByTagName('td'));
+                    return cells.some(cell => cell.textContent.toLowerCase().includes(this.searchTerm));
+                });
+        
+                // Update pagination and display
+                this.currentPage = 1;
+                this.updatePagination();
+                this.showPage(1);
+        
+                // Update search results message
+                if (this.elements.noResults) {
+                    this.elements.noResults.style.display = 
+                        this.filteredRows.length === 0 ? 'block' : 'none';
+                }
+        
+                // Update the search result count
+                const searchResult = document.getElementById('searchResult');
+                if (searchResult) {
+                    if (this.searchTerm) {
+                        searchResult.textContent = `Found ${this.filteredRows.length} matching appointments`;
+                    } else {
+                        searchResult.textContent = '';
+                    }
+                }
+            }
+        
+            showPage(pageNum) {
+                const start = (pageNum - 1) * this.options.itemsPerPage;
+                const end = start + this.options.itemsPerPage;
+        
+                // Hide all rows first
+                this.allRows.forEach(row => row.style.display = 'none');
+        
+                // Show only filtered rows for current page
+                this.filteredRows.slice(start, end).forEach(row => row.style.display = '');
+        
+                // Update pagination info
+                if (this.elements.startIndexSpan && this.elements.endIndexSpan && this.elements.totalItemsSpan) {
+                    this.elements.startIndexSpan.textContent = this.filteredRows.length === 0 ? 0 : start + 1;
+                    this.elements.endIndexSpan.textContent = Math.min(end, this.filteredRows.length);
+                    this.elements.totalItemsSpan.textContent = this.filteredRows.length;
+                }
+        
+                this.currentPage = pageNum;
+                this.updateActivePageButton();
+            }
+        
+            updatePagination() {
+                const totalPages = Math.ceil(this.filteredRows.length / this.options.itemsPerPage);
+        
+                let paginationHTML = '';
+        
+                // Only show pagination if there are results
+                if (this.filteredRows.length > 0) {
+                    paginationHTML = `
+                        <li class="page-item ${this.currentPage === 1 ? 'disabled' : ''}">
+                            <a class="page-link" href="#" data-page="${this.currentPage - 1}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>`;
+        
+                    // Add page numbers
+                    for (let i = 1; i <= totalPages; i++) {
+                        paginationHTML += `
+                            <li class="page-item">
+                                <a class="page-link ${i === this.currentPage ? 'active' : ''}" 
+                                   href="#" data-page="${i}">${i}</a>
+                            </li>`;
+                    }
+        
+                    paginationHTML += `
+                        <li class="page-item ${this.currentPage === totalPages ? 'disabled' : ''}">
+                            <a class="page-link" href="#" data-page="${this.currentPage + 1}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>`;
+                }
+        
+                this.elements.paginationContainer.innerHTML = paginationHTML;
+        
+                // Add click handlers
+                this.elements.paginationContainer.querySelectorAll('.page-link').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const pageNum = parseInt(button.getAttribute('data-page'));
+                        if (!isNaN(pageNum) && pageNum > 0 && pageNum <= totalPages) {
+                            this.showPage(pageNum);
+                        }
+                    });
+                });
+            }
+        
+            updateActivePageButton() {
+                this.elements.paginationContainer.querySelectorAll('.page-link').forEach(button => {
+                    button.classList.remove('active');
+                    if (parseInt(button.getAttribute('data-page')) === this.currentPage) {
+                        button.classList.add('active');
+                    }
+                });
+            }
+        
+            reset() {
+                this.searchTerm = '';
+                if (this.elements.searchInput) {
+                    this.elements.searchInput.value = '';
+                }
+                this.currentPage = 1;
+                this.filteredRows = this.allRows;
+                if (this.elements.rowsPerPageSelect) {
+                    this.options.itemsPerPage = parseInt(this.elements.rowsPerPageSelect.value);
+                }
+                this.updatePagination();
+                this.showPage(1);
+        
+                // Clear search result message
+                const searchResult = document.getElementById('searchResult');
+                if (searchResult) {
+                    searchResult.textContent = '';
+                }
+            }
+        }
+        
+        // Function to clear search
+        function clearSearch() {
+            document.getElementById("searchInput").value = "";
+            const searchResult = document.getElementById("searchResult");
+            if (searchResult) {
+                searchResult.textContent = "";
+            }
+            
+            // Reset both tables
+            window.activePagination.reset();
+            window.expiredPagination.reset();
+        }
+        
+        // Initialize pagination for both tables when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize pagination for active appointments table
+            window.activePagination = new TablePagination('activeTable', {
+                itemsPerPage: 5,
+                searchInputId: 'searchInput',
+                paginationContainerId: 'activePagination',
+                noResultsId: 'activeNoResults',
+                startIndexId: 'activeStartIndex',
+                endIndexId: 'activeEndIndex',
+                totalItemsId: 'activeTotalItems',
+                rowsPerPageId: 'activeRowsPerPage'
+            });
+        
+            // Initialize pagination for expired appointments table
+            window.expiredPagination = new TablePagination('expiredTable', {
+                itemsPerPage: 5,
+                searchInputId: 'searchInput',
+                paginationContainerId: 'expiredPagination',
+                noResultsId: 'expiredNoResults',
+                startIndexId: 'expiredStartIndex',
+                endIndexId: 'expiredEndIndex',
+                totalItemsId: 'expiredTotalItems',
+                rowsPerPageId: 'expiredRowsPerPage'
+            });
+        
+            // Handle tab changes
+            const tabLinks = document.querySelectorAll('[data-bs-toggle="tab"]');
+            tabLinks.forEach(tab => {
+                tab.addEventListener('shown.bs.tab', (event) => {
+                    const searchTerm = document.getElementById('searchInput').value;
+                    if (event.target.id === 'active-tab') {
+                        if (searchTerm) {
+                            window.activePagination.performGlobalSearch();
+                        } else {
+                            window.activePagination.reset();
+                        }
+                    } else {
+                        if (searchTerm) {
+                            window.expiredPagination.performGlobalSearch();
+                        } else {
+                            window.expiredPagination.reset();
+                        }
+                    }
+                });
+            });
+        });
+
+function viewDetails(button) {
+    // Get data from button attributes
+    const appointmentId = button.getAttribute('data-id');
+    const email = button.getAttribute('data-email');
+    const typeSickness = button.getAttribute('data-type-sickness');
+    const notes = button.getAttribute('data-notes');
+    const insurance = button.getAttribute('data-insurance');
+    const policy = button.getAttribute('data-policy');
+    const cost = button.getAttribute('data-cost');
+    const timestamp = button.getAttribute('data-timestamp');
+
+    // Update modal content
+    document.getElementById('modal-id').textContent = appointmentId;
+    document.getElementById('modal-email').textContent = email;
+    document.getElementById('modal-sickness').textContent = typeSickness;
+    document.getElementById('modal-notes').textContent = notes;
+    document.getElementById('modal-insurance').textContent = insurance;
+    document.getElementById('modal-policy').textContent = policy;
+    document.getElementById('modal-cost').textContent = cost;
+    document.getElementById('modal-timestamp').textContent = timestamp;
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+    modal.show();
+}
+
+    </script>
+
+
+</body>
+</html>
