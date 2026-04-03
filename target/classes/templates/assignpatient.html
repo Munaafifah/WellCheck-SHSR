@@ -38,7 +38,8 @@ and open the template in the editor.
             <div class="col ">
                 <div class="d-flex shadow flex-column flex-shrink-0 p-3 bg-primary bg-opacity-25 rounded">
                     <div class="card bg-primary bg-opacity-25 rounded">
-                        <img class="card-img-top" src="/image/img_avatar1.png" alt="Card image">
+                                         <img th:src="'data:' + ${doctor.profilePictureType} + ';base64,' + ${doctor.profilePicture}"
+     alt="Doctor Profile" class="card-img-top" />
                         <div class="card-body">
                             <h3 class="card-title" th:text="${doctor.name}"></h3>
                             <p class="card-text" th:text="${doctor.position}"></p>
@@ -52,7 +53,7 @@ and open the template in the editor.
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a th:href="@{/doctor/myPatient(pageNo=0)}" class="nav-link link-dark f">
+                            <a th:href="@{/doctor/myPatient}" class="nav-link link-dark f">
                                 My Patient
                             </a>
                         </li>
@@ -67,6 +68,10 @@ and open the template in the editor.
                                 List of Assigned Patient
                             </a>
                         </li>
+                        
+                          <li>
+    <a th:href="@{/doctor/predictionReview}" class="nav-link link-dark f">Prediction Review</a>
+</li>
                         <!---izzat-->
                         <li>
                             <form th:action="@{/logout}" method="post" hidden="true" name="logoutForm">

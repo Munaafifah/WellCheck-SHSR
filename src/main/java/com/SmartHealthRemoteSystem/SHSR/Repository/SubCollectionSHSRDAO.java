@@ -1,6 +1,6 @@
 package com.SmartHealthRemoteSystem.SHSR.Repository;
 
-import com.SmartHealthRemoteSystem.SHSR.SendDailyHealth.HealthStatus;
+// import com.SmartHealthRemoteSystem.SHSR.SendDailyHealth.HealthStatus;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;

@@ -1,36 +1,58 @@
+
 package com.SmartHealthRemoteSystem.SHSR.Service;
 
-import com.SmartHealthRemoteSystem.SHSR.Repository.SHSRDAO;
-import com.SmartHealthRemoteSystem.SHSR.User.User;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.SmartHealthRemoteSystem.SHSR.Repository.SHSRDAO;
+import com.SmartHealthRemoteSystem.SHSR.User.User;
+// import com.SmartHealthRemoteSystem.SHSR.User.UserWithDetails;
+
 @Service
 public class UserService {
-    
     private final SHSRDAO<User> userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final PatientService patientService;
+    private final DoctorService doctorService;
+    // private final PharmacistService pharmacistService;
 
-    public UserService(SHSRDAO<User> userRepository) {
-        this.userRepository = userRepository;
-    }
+
+    public UserService(SHSRDAO<User> userRepository,
+                   PasswordEncoder passwordEncoder,
+                   PatientService patientService,
+                   DoctorService doctorService               /* ← stop here */
+) {
+    this.userRepository   = userRepository;
+    this.passwordEncoder  = passwordEncoder;
+    this.patientService   = patientService;
+    this.doctorService    = doctorService;
+}
+
+
 
     public String updateUser(User user) throws ExecutionException, InterruptedException {
         return userRepository.update(user);
     }
 
     public String createUser(User user) throws ExecutionException, InterruptedException {
-        //to check whether userId is taken or not
         List<User> userList = userRepository.getAll();
-        for(User user1:userList){
-            if(user.getUserId().equals(user1.getUserId()) || (user.getEmail() != null && user.getEmail().equals(user1.getEmail()))){
-                return "Failed to create user with id " + user.getUserId() + ",please choose another Id";
-            }
+        
+        boolean isTaken = userList.stream()
+                .anyMatch(existingUser -> 
+                    existingUser.getUserId().equals(user.getUserId()) || 
+                    (user.getEmail() != null && user.getEmail().equals(existingUser.getEmail()))
+                );
+        
+        if (isTaken) {
+            return "Failed to create user. ID or Email already exists.";
         }
+
+        user.setPassword(passwordEncoder.encode(user.getPassword())); // Encrypt password
         return userRepository.save(user);
     }
 
@@ -47,19 +69,49 @@ public class UserService {
     }
 
     public List<User> getAdminList() throws ExecutionException, InterruptedException {
-        List<User> userList = userRepository.getAll();
-        for(int i = userList.size()-1; i >= 0; i--){
-            if(!userList.get(i).getRole().equals("ADMIN")){
-                userList.remove(i);
-            }
-        }
-        return userList;
-    }
-    public List<User> searchUsers(String keyword) throws ExecutionException, InterruptedException {
-        List<User> allUsers = userRepository.getAll();
-
-        return allUsers.stream()
-                .filter(user -> user.getUserId().contains(keyword) || user.getName().contains(keyword)) // adjust fields as needed
+        return userRepository.getAll()
+                .stream()
+                .filter(user -> "ADMIN".equals(user.getRole()))
                 .collect(Collectors.toList());
     }
+ 
+    public List<User> searchUsers(String keyword) throws ExecutionException, InterruptedException {
+        return userRepository.getAll()
+                .stream()
+                .filter(user -> user.getUserId().contains(keyword) || user.getName().contains(keyword))
+                .collect(Collectors.toList());
+    }
+    // public List<UserWithDetails> getAllUsersWithDetails() throws ExecutionException, InterruptedException {
+    //     List<User> users = userRepository.getAll();
+    //     List<UserWithDetails> userWithDetailsList = new ArrayList<>();
+    
+    //     for (User user : users) {
+    //         Object details = null;
+    
+    //         switch (user.getRole()) {
+    //             case "PATIENT":
+    //                 details = patientService.getPatientById(user.getUserId());
+    //                 if (details == null) details = new Object();
+    //                 break;
+    //             case "DOCTOR":
+    //                 details = doctorService.getDoctor(user.getUserId());
+    //                 if (details == null) details = new Object();
+    //                 break;
+    //             case "PHARMACIST":
+    //                 details = pharmacistService.getPharmacist(user.getUserId());
+    //                 if (details == null) details = new Object();
+    //                 break;
+    //             default:
+    //                 details = null;
+    //         }
+    
+    //         userWithDetailsList.add(new UserWithDetails(user, details));
+    //     }
+    
+    //     return userWithDetailsList;
+    // }
+    
+    
+    
+
 }

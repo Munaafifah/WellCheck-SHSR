@@ -20,7 +20,8 @@
             <div class="col ">
                 <div class="d-flex shadow flex-column flex-shrink-0 p-3 bg-primary bg-opacity-25 rounded">
                     <div class="card bg-primary bg-opacity-25 rounded">
-                        <img class="card-img-top" src="/image/img_avatar1.png" alt="Card image" >
+                       <img th:src="${patient.profilePicture} != null ? 'data:' + ${patient.profilePictureType} + ';base64,' + ${patient.profilePicture} : '/image/img_avatar1.png'"
+                                 alt="Profile Picture" class="card-img-top" />
                         <div class="card-body">
                             <h3 class="card-title"></h3>
                             <p style=" font-size: 12px;">Patient Contact No. :<span>Kesh</span></p>

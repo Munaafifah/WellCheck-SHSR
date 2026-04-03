@@ -1,11 +1,20 @@
 package com.SmartHealthRemoteSystem.SHSR.Medicine;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "Medicine") // Optional: you can name the collection
 public class Medicine {
 
-    private String medName;
+    @Id
     private String medId;
+
+    private String medName;
     private int quantity;
+    private String medType;     // You may want to include this if your UI uses it
     private String patientId;
+
+    // --- Constructors ---
 
     public Medicine() {
     }
@@ -25,35 +34,45 @@ public class Medicine {
         this.quantity = quantity;
     }
 
-    public void setMedName(String medName) {
-        this.medName = medName;
-    }
+    // --- Getters & Setters ---
 
-    public String getMedName() {
-        return medName;
+    public String getMedId() {
+        return medId;
     }
 
     public void setMedId(String medId) {
         this.medId = medId;
     }
 
-    public String getMedId() {
-        return medId;
+    public String getMedName() {
+        return medName;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setMedName(String medName) {
+        this.medName = medName;
     }
 
     public int getQuantity() {
         return quantity;
     }
 
-    public void setPatientId(String patientId) {
-        this.patientId = patientId;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public String getMedType() {
+        return medType;
+    }
+
+    public void setMedType(String medType) {
+        this.medType = medType;
     }
 
     public String getPatientId() {
         return patientId;
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
     }
 }

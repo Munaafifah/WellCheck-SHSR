@@ -1,0 +1,17 @@
+<h3>Manual Diagnosis Requests</h3>
+<table class="table">
+    <thead>
+        <tr><th>Patient Name</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+        <tr th:each="patient : ${requests}">
+            <td th:text="${patient.name}">Patient Name</td>
+            <td>
+                <form th:action="@{/doctor/startManualDiagnosis}" method="get">
+                    <input type="hidden" name="patientId" th:value="${patient.userId}" />
+                    <button class="btn btn-sm btn-primary">Start Manual Diagnosis</button>
+                </form>
+            </td>
+        </tr>
+    </tbody>
+</table>

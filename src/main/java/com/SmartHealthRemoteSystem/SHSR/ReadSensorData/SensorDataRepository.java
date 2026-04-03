@@ -1,112 +1,94 @@
 package com.SmartHealthRemoteSystem.SHSR.ReadSensorData;
 
-import com.SmartHealthRemoteSystem.SHSR.Repository.SHSRDAO;
-import com.SmartHealthRemoteSystem.SHSR.Repository.SubCollectionSHSRDAO;
-import com.SmartHealthRemoteSystem.SHSR.Service.PatientService;
-import com.SmartHealthRemoteSystem.SHSR.User.Doctor.Doctor;
-import com.SmartHealthRemoteSystem.SHSR.User.Patient.Patient;
-import com.SmartHealthRemoteSystem.SHSR.User.Patient.PatientRepository;
-import com.SmartHealthRemoteSystem.SHSR.User.User;
-import com.google.api.core.ApiFuture;
-import com.google.cloud.Timestamp;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.WriteResult;
-import com.google.firebase.cloud.FirestoreClient;
-import com.google.firebase.database.*;
-import lombok.SneakyThrows;
+import com.SmartHealthRemoteSystem.SHSR.Sensor.MongoDBConnection;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
+import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @Repository
-public class SensorDataRepository implements SHSRDAO<SensorData> {
-    private final String COL_NAME = "SensorData";
+public class SensorDataRepository {
 
-    @Override
-    public SensorData get(String sensorDataId) throws ExecutionException, InterruptedException {
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        DocumentReference documentReference = dbFirestore.collection(COL_NAME).document(sensorDataId);
-        ApiFuture<DocumentSnapshot> future = documentReference.get();
-        DocumentSnapshot document = future.get();
-        SensorData tempSensorData;
-        if (document.exists()) {
-            tempSensorData = document.toObject(SensorData.class);
-            return tempSensorData;
+    private static final String COLLECTION_NAME = "SensorData";
+
+    // Injected MongoDBConnection, managed by Spring
+    @Autowired
+    private MongoDBConnection mongoDBConnection;
+
+    // ✅ Get sensor data by ID
+    public SensorData get(String sensorDataId) {
+        MongoDatabase db = mongoDBConnection.connect();
+        Document doc = db.getCollection(COLLECTION_NAME)
+                .find(new Document("sensorDataId", sensorDataId))
+                .first();
+
+        if (doc != null) {
+            System.out.println("✅ Sensor data document found: " + doc.toJson());
+            return SensorData.fromDocument(doc);
         } else {
+            System.out.println("❌ No document found for sensorDataId: " + sensorDataId);
             return null;
         }
     }
 
-    @Override
-    public List<SensorData> getAll() throws ExecutionException, InterruptedException {
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        Iterable<DocumentReference> documentReference = dbFirestore.collection(COL_NAME).document("").collection("SensorDataHistory").listDocuments();
-        Iterator<DocumentReference> iterator = documentReference.iterator();
-
-        List<SensorData> sensorDataList = new ArrayList<>();
-        SensorData sensorData;
-        while (iterator.hasNext()) {
-            DocumentReference documentReference1=iterator.next();
-            ApiFuture<DocumentSnapshot> future = documentReference1.get();
-            DocumentSnapshot document = future.get();
-            sensorData = document.toObject(SensorData.class);
-            sensorDataList.add(sensorData);
+    // ✅ Get all sensors (for admin/debug)
+    public List<SensorData> getAll() {
+        MongoDatabase db = mongoDBConnection.connect();
+        List<SensorData> list = new ArrayList<>();
+        for (Document doc : db.getCollection(COLLECTION_NAME).find()) {
+            list.add(SensorData.fromDocument(doc));
         }
-
-        return sensorDataList;
+        return list;
     }
 
-    @Override
-    public String save(SensorData sensorData) throws ExecutionException, InterruptedException {
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        //auto create data ID by firebase
-        DocumentReference addedDocRef = dbFirestore.collection(COL_NAME).document();
-        sensorData.setSensorDataId(addedDocRef.getId());
-        ApiFuture<WriteResult> collectionsApiFuture =
-                addedDocRef.set(sensorData);
-        ApiFuture<WriteResult> writeResult = addedDocRef.update("timestamp", collectionsApiFuture.get().getUpdateTime());
-
-        return addedDocRef.getId();
+    // ✅ Save new sensor data (initial creation)
+    public String save(SensorData sensorData) {
+        MongoDatabase db = mongoDBConnection.connect();
+        sensorData.setTimestamp(Instant.now());
+        db.getCollection(COLLECTION_NAME).insertOne(sensorData.toDocument());
+        return sensorData.getSensorDataId();
     }
 
-    @Override
-    public String update(SensorData sensorData) throws ExecutionException, InterruptedException {
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        DocumentReference addedDocRef = dbFirestore.collection(COL_NAME).document(sensorData.getSensorDataId());
-        ApiFuture<WriteResult> collectionsApiFuture = null;
-        if(!(sensorData.getEcgReading() != 0)){
-            collectionsApiFuture =addedDocRef.update("ecgReading", sensorData.getEcgReading());
-        }
-        if (!(sensorData.getOxygenReading() != 0)){
-            collectionsApiFuture =  addedDocRef.update("oxygenReading", sensorData.getOxygenReading());
-        }
-        if (sensorData.getBodyTemperature() != null){
-            collectionsApiFuture = addedDocRef.update("bodyTemperature", sensorData.getBodyTemperature());
-        }
-        if (sensorData.getHeart_Rate() != 0){
-            collectionsApiFuture = addedDocRef.update("Heart_Rate", sensorData.getHeart_Rate());
-        }//mg, ijat, keng, faruq, din
-        if (collectionsApiFuture != null) {
-            ApiFuture<WriteResult> writeResult = addedDocRef.update("timestamp", collectionsApiFuture.get().getUpdateTime());
-            return writeResult.get().getUpdateTime().toString();
-        }
-        return Timestamp.now().toString();
+    // ✅ Update real-time sensor data (overwrite latest)
+    public String update(SensorData sensorData) {
+        MongoDatabase db = mongoDBConnection.connect();
+        Document updateDoc = new Document();
+        updateDoc.append("heart_Rate", sensorData.getHeart_Rate());
+        updateDoc.append("bodyTemperature", sensorData.getBodyTemperature());
+        updateDoc.append("ecgReading", sensorData.getEcgReading());
+        updateDoc.append("oxygenReading", sensorData.getOxygenReading());
+        updateDoc.append("timestamp", Instant.now());
+
+        db.getCollection(COLLECTION_NAME)
+          .updateOne(new Document("sensorDataId", sensorData.getSensorDataId()),
+                     new Document("$set", updateDoc));
+
+        return "Updated successfully.";
     }
 
-    @Override
-    public String delete(String sensorDataId) throws ExecutionException, InterruptedException {
-        Firestore dbFirestore = FirestoreClient.getFirestore();
-        if(get(sensorDataId) == null){
-            ApiFuture<WriteResult> writeResult = dbFirestore.collection(COL_NAME).document(sensorDataId).delete();
-            return "The sensorData with Id " + sensorDataId + " is not exist.";
-            
-        }
-        ApiFuture<WriteResult> writeResult = dbFirestore.collection(COL_NAME).document(sensorDataId).delete();
-        return "Document with Sensor Data Id " + sensorDataId + " has been deleted";
+    // ✅ Add nested history reading into history array
+    public boolean addToHistory(String sensorDataId, HistorySensorData newEntry) {
+        MongoDatabase db = mongoDBConnection.connect();
+        Document historyDoc = newEntry.toDocument();
+        db.getCollection(COLLECTION_NAME).updateOne(
+            Filters.eq("sensorDataId", sensorDataId),
+            Updates.push("history", historyDoc)
+        );
+        return true;
+    }
+
+    // ✅ Delete sensor (optional)
+    public String delete(String sensorDataId) {
+        MongoDatabase db = mongoDBConnection.connect();
+        db.getCollection(COLLECTION_NAME)
+          .deleteOne(new Document("sensorDataId", sensorDataId));
+        return "Deleted sensorDataId: " + sensorDataId;
     }
 }

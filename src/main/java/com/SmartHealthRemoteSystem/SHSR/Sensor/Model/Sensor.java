@@ -1,56 +1,47 @@
+
+//MongoDB//
+
 package com.SmartHealthRemoteSystem.SHSR.Sensor.Model;
 
-import java.time.Instant;
-import org.bson.Document;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
+import com.SmartHealthRemoteSystem.SHSR.ReadSensorData.HistorySensorData;
+
+import java.time.Instant;
+import java.util.List;
+
+@Document(collection = "Sensor")
 public class Sensor {
+
     private String sensorDataId;
-    private double Heart_Rate;
+   // In Sensor.java
+    @Field("uniqueKey")
+    private String uniqueKey;
+
+
+    private double heart_Rate;
     private double bodyTemperature;
     private double ecgReading;
     private double oxygenReading;
-    private String timestamp;
+    private Instant timestamp;
 
-    // Default constructor
     public Sensor() {
-        this.timestamp = Instant.now().toString();
+        this.timestamp = Instant.now();
     }
 
-    // Full constructor
-    public Sensor(String sensorDataId, double Heart_Rate, double bodyTemperature, 
-                 double ecgReading, double oxygenReading) {
+    public Sensor(String sensorDataId, String uniqueKey, double heart_Rate,
+                  double bodyTemperature, double ecgReading, double oxygenReading) {
         this.sensorDataId = sensorDataId;
-        this.Heart_Rate = Heart_Rate;
+        this.uniqueKey = uniqueKey;
+        this.heart_Rate = heart_Rate;
         this.bodyTemperature = bodyTemperature;
         this.ecgReading = ecgReading;
         this.oxygenReading = oxygenReading;
-        this.timestamp = Instant.now().toString();
+        this.timestamp = Instant.now();
     }
 
-    // Convenience constructor from MongoDB Document
-    public static Sensor fromDocument(Document doc) {
-        Sensor sensor = new Sensor();
-        sensor.setSensorDataId(doc.getString("sensorDataId"));
-        sensor.setHeart_Rate(doc.getDouble("Heart_Rate"));
-        sensor.setBodyTemperature(doc.getDouble("bodyTemperature"));
-        sensor.setEcgReading(doc.getDouble("ecgReading"));
-        sensor.setOxygenReading(doc.getDouble("oxygenReading"));
-        sensor.setTimestamp(doc.getString("timestamp"));
-        return sensor;
-    }
-
-    // Convert to MongoDB Document
-    public Document toDocument() {
-        return new Document()
-            .append("sensorDataId", sensorDataId)
-            .append("Heart_Rate", Heart_Rate)
-            .append("bodyTemperature", bodyTemperature)
-            .append("ecgReading", ecgReading)
-            .append("oxygenReading", oxygenReading)
-            .append("timestamp", timestamp);
-    }
-
-    // Getters and Setters
+    // Getters and setters
     public String getSensorDataId() {
         return sensorDataId;
     }
@@ -59,12 +50,20 @@ public class Sensor {
         this.sensorDataId = sensorDataId;
     }
 
-    public double getHeart_Rate() {
-        return Heart_Rate;
+    public String getUniqueKey() {
+        return uniqueKey;
     }
 
-    public void setHeart_Rate(double Heart_Rate) {
-        this.Heart_Rate = Heart_Rate;
+    public void setUniqueKey(String uniqueKey) {
+        this.uniqueKey = uniqueKey;
+    }
+
+    public double getHeart_Rate() {
+        return heart_Rate;
+    }
+
+    public void setHeart_Rate(double heart_Rate) {
+        this.heart_Rate = heart_Rate;
     }
 
     public double getBodyTemperature() {
@@ -91,11 +90,16 @@ public class Sensor {
         this.oxygenReading = oxygenReading;
     }
 
-    public String getTimestamp() {
+    public Instant getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public List<HistorySensorData> getHistory() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getHistory'");
     }
 }

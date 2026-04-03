@@ -1,76 +1,98 @@
 package com.SmartHealthRemoteSystem.SHSR.ReadSensorData;
 
-import com.google.cloud.Timestamp;
+import java.time.Instant;
+import java.util.Date;
+
+import org.bson.Document;
 
 public class HistorySensorData {
-    private Double ecgReading;
-    private Double bodyTemperature;
-    private Timestamp timestamp;
-    private String sensorDataId;
-    private Double oxygenReading;
-    private int Heart_Rate;//mg, ijat, keng, faruq, din
 
+    private double heart_Rate;
+    private double bodyTemperature;
+    private double ecgReading;
+    private double oxygenReading;
+    private Instant timestamp;
 
     public HistorySensorData() {
+        this.timestamp = Instant.now();
     }
 
-    public HistorySensorData( int Heart_Rate, Double bodyTemperature,Double ecgReading,Double OxygenReading, String sensorDataId, Timestamp timestamp) {//din
-        this.ecgReading = ecgReading;
+    public HistorySensorData(double heart_Rate, double bodyTemperature, double ecgReading, double oxygenReading) {
+        this.heart_Rate = heart_Rate;
         this.bodyTemperature = bodyTemperature;
-        this.timestamp = timestamp;
-        this.sensorDataId = sensorDataId;
-        this.oxygenReading= OxygenReading;
-        this.Heart_Rate = Heart_Rate;
-
-    }
-
-    public void SetHistorySensorData( int Heart_Rate, Double bodyTemperature,Double ecgReading,Double OxygenReading, String sensorDataId, Timestamp timestamp) {//din
         this.ecgReading = ecgReading;
-        this.bodyTemperature = bodyTemperature;
-        this.timestamp = timestamp;
-        this.sensorDataId = sensorDataId;
-        this.oxygenReading= OxygenReading;
-        this.Heart_Rate = Heart_Rate;//mg, ijat, keng, faruq, din
-
+        this.oxygenReading = oxygenReading;
+        this.timestamp = Instant.now();
     }
 
-    public Double getEcgReading() {
-        return ecgReading;
+    // ✅ Getters & Setters
+    public double getHeart_Rate() {
+        return heart_Rate;
     }
 
-    public void setEcgReading(Double ecgReading) {
-        this.ecgReading = ecgReading;
+    public void setHeart_Rate(double heart_Rate) {
+        this.heart_Rate = heart_Rate;
     }
 
-    public Double getBodyTemperature() {
+    public double getBodyTemperature() {
         return bodyTemperature;
     }
 
-    public void setBodyTemperature(Double bodyTemperature) {
+    public void setBodyTemperature(double bodyTemperature) {
         this.bodyTemperature = bodyTemperature;
     }
 
-    public void setOxygenReading(Double OxygenReading){this.oxygenReading=OxygenReading;}
+    public double getEcgReading() {
+        return ecgReading;
+    }
 
-    public Double getOxygenReading(){return oxygenReading;}
+    public void setEcgReading(double ecgReading) {
+        this.ecgReading = ecgReading;
+    }
 
-    public void setHeart_Rate(int Heart_Rate){this.Heart_Rate=Heart_Rate;}//mg, ijat, keng, faruq, din
+    public double getOxygenReading() {
+        return oxygenReading;
+    }
 
-    public int getHeart_Rate(){return Heart_Rate;}//mg, ijat, keng, faruq, din
+    public void setOxygenReading(double oxygenReading) {
+        this.oxygenReading = oxygenReading;
+    }
 
-    public Timestamp getTimestamp() {
+    public Instant getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
+    public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
     }
 
-    public String getSensorDataId() {
-        return sensorDataId;
+    // ✅ Convert to MongoDB Document (for nested save)
+    public Document toDocument() {
+        return new Document("heart_Rate", heart_Rate)
+                .append("bodyTemperature", bodyTemperature)
+                .append("ecgReading", ecgReading)
+                .append("oxygenReading", oxygenReading)
+                .append("timestamp", timestamp.toString());
     }
 
-    public void setSensorDataId(String sensorDataId) {
-        this.sensorDataId = sensorDataId;
+    public static HistorySensorData fromDocument(Document doc) {
+    HistorySensorData h = new HistorySensorData();
+    h.setHeart_Rate(doc.getDouble("heart_Rate"));
+    h.setBodyTemperature(doc.getDouble("bodyTemperature"));
+    h.setEcgReading(doc.getDouble("ecgReading"));
+    h.setOxygenReading(doc.getDouble("oxygenReading"));
+
+    Object rawTimestamp = doc.get("timestamp");
+
+    if (rawTimestamp instanceof String) {
+        h.setTimestamp(Instant.parse((String) rawTimestamp)); // if it's a String
+    } else if (rawTimestamp instanceof Date) {
+        h.setTimestamp(((Date) rawTimestamp).toInstant()); // if it's a Date
+    } else {
+        h.setTimestamp(Instant.now()); // fallback just in case
     }
+
+    return h;
+}
+
 }

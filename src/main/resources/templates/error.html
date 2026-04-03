@@ -1,42 +1,37 @@
-<!--DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <title>Error Page</title>
 
-     <!--Google font --
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Montserrat:200,400,700" rel="stylesheet">
 
-      <!--Google font --
+    <!-- Your error CSS -->
     <link type="text/css" rel="stylesheet" th:href="@{/css/errorCSS.css}" />
 
-
+    <!-- Optional: legacy browser support -->
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-
-
 </head>
 
 <body>
-<script>
-    alert("You cannot view this page" +
-        "\n Please contact your admin for further information")
-</script>
-<div id="notfound">
-    <div class="notfound">
-        <div class="notfound-404">
-            <h1>Oops!</h1>
-            <h2>You cannot view this page</h2>
+    <script>
+        alert("You cannot view this page.\nPlease contact your admin for further information.");
+    </script>
 
+    <div id="notfound">
+        <div class="notfound">
+            <div class="notfound-404">
+                <h1>Oops!</h1>
+                <h2>You cannot view this page</h2>
+            </div>
+            <a th:href="@{/login}">Go To Homepage</a>
         </div>
-        <a th:href="@{/login}">Go To Homepage</a>
     </div>
-</div>
-
 </body>
 
 </html>

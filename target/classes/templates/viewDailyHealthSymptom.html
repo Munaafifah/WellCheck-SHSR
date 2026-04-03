@@ -1,199 +1,162 @@
 <!doctype html>
-
 <html lang="en"
       xmlns:th="https://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .f:hover{background-color: #e6e6e6;}
+        .f:hover { background-color: #e6e6e6; }
     </style>
     <title>View Daily Health</title>
 </head>
 <body>
 
-<div class="container shadow p-3 mb-5  bg-primary bg-opacity-25 rounded" style="position: relative; top: 50px;">
+<div class="container shadow p-3 mb-5 bg-primary bg-opacity-25 rounded" style="position: relative; top: 50px;">
     <div class="container overflow-hidden">
         <div class="row gx-5">
-            <div class="col ">
+            <!-- Sidebar -->
+            <div class="col">
                 <div class="d-flex shadow flex-column flex-shrink-0 p-3 bg-primary bg-opacity-25 rounded">
                     <a th:href="@{/patient}" class="card-link" style="text-decoration: none; color: black;">
                         <div class="card bg-primary bg-opacity-25 rounded">
-                            <img class="card-img-top" src="/image/img_avatar1.png" alt="Card image" >
+                            <img th:if="${patient.profilePicture != null}"
+                                 th:src="${'data:' + patient.profilePictureType + ';base64,' + patient.profilePicture}"
+                                 alt="Profile Picture" class="card-img-top" />
+                            <img th:if="${patient.profilePicture == null}"
+                                 th:src="@{/image/img_avatar1.png}"
+                                 alt="Profile Picture" class="card-img-top" />
                             <div class="card-body">
-                                <h3 class="card-title">rakesh</h3>
-                                <p style=" font-size: 12px;">Patient Contact No. :<span>012345690</span></p>
-                                <p style=" font-size: 12px;">Patient Address : <span>aaabbb</span></p>
-                                <p style=" font-size: 12px;">Emergency Contact No. : <span>sheesh</span></p>
+                                <h3 class="card-title" th:text="${patient.name}">Patient Name</h3>
+                                <p style="font-size: 12px;">Patient Contact No.: <span th:text="${patient.contact}">-</span></p>
+                                <p style="font-size: 12px;">Patient Address: <span th:text="${patient.address}">-</span></p>
+                                <p style="font-size: 12px;">Emergency Contact No.: <span th:text="${patient.emergencyContact}">-</span></p>
                             </div>
                         </div>
                     </a>
                     <hr>
                     <ul class="nav nav-pills flex-column mb-auto">
-                        <li class="nav-item">
-                            <a href="#" class="nav-link active" aria-current="page">
-                                Dashboard
-                            </a>
-                        </li>
-                        <li>
-                            <!-- <form th:action="@{/viewPatientHealthStatus/b(patientId=${patient.userId},doctorId=${doctor.userId})}" method="post" name="viewPatient" class="viewPatientForm">
-                                <input type="text" th:value="${doctor.userId}" th:name="doctorId" id="doctorId"  hidden="hidden">
-                                <input type="text" th:value="${patient.userId}" th:name="patientId" id="patientId" hidden="hidden"> -->
-                                <a role="button" class="nav-link link-dark f">View</a> 
-                            <!-- </form> -->
+    <li class="nav-item">
+        <a href="#" class="nav-link">Dashboard</a>
+    </li>
+    <li>
+        <a class="nav-link active" aria-current="page">View</a>
+    </li>
 
-                        </li>
+                       <li>
+                        <a th:href="@{/patient/editProfile(patientId=${patient?.userId})}" class="nav-link link-dark f">
+                            Edit Profile 
+                        </a>
+                    </li>
                         <li>
-                            <a class="nav-link link-dark f" name="editProfile">
-                                Edit Profile
-                            </a>
-                        </li>
+                        <a th:href="@{/patient/sensorDashboard(patientId=${patient?.userId}, role='patient')}" class="nav-link link-dark f">
+                        Health Condition
+                        </a>
+
+                    </li>
                         <li>
-                            <a  class="nav-link link-dark f" name="HealthCondition">Health Condition</a>
-                                
-                            </a>
-                        </li>
-                        <li>
-                            <form th:action="@{/logout}" method="post" hidden="true" name="logoutForm">
-                                <button>Logout</button>
-                            </form>
-                            <a href="javascript: document.logoutForm.submit()" class="nav-link link-dark f">
-                                Logout
-                            </a>
+                            <form th:action="@{/logout}" method="post" hidden="true" name="logoutForm"></form>
+                            <a href="javascript: document.logoutForm.submit()" class="nav-link link-dark f">Logout</a>
                         </li>
                     </ul>
-
                 </div>
             </div>
+
+            <!-- Main Content -->
             <div class="col-9">
-                
-                <form th:action="@{/patient/backDashboard}"   method="post">
-                    <div>
-                        <input type="hidden" th:value="${patient.userId}" th:name="patientId">
-                        <input type="hidden" th:value="${doctor.userId}" th:name="doctorId">
-                    </div>
-        
-                    <div list-group-item class="m-3 d-flex justify-content-left align-items-center " >
-                        <input class="btn btn-secondary confirmBtn " value="Back" type="submit">
+                <form th:action="@{/patient/backDashboard}" method="post">
+                    <input type="hidden" th:name="patientId" th:value="${patient.userId}" />
+                    <input type="hidden" th:name="doctorId" th:value="${doctor.userId}" />
+                    <div class="m-3 d-flex justify-content-left align-items-center">
+                        <input class="btn btn-secondary" value="Back" type="submit">
                     </div>
                 </form>
 
-                <h1 d-flex justify-content-start>History of health status</h1>
-                    <h3 th:if="${patient}" th:text="${patient.name}">Name: </h3>
-                    <h3 th:if="${patient}" th:text="${patient.contact}">Contact number: </h3>
-                   <table class="table" >
-                       <legend> History of your daily health</legend>
-                        <!-- search button -->
-                        <input type="text" placeholder="Enter keyword to search" id="search-input" style="width: 50%" >
-                        <!-- search button end -->
-                       <thead>
-                            <tr>
-                                <td>Timestamp</td>
-                                <td>Notes</td>
-                                <td>Action</td>
-                            </tr>
-                       </thead>
-                       <tr th:if="${healthStatusList}" th:each="healthStatus : ${healthStatusList}">
-                            <td><span th:text="${#dates.format(healthStatus.timestamp, 'dd MMM yyyy HH:mm')}"></span></td>
-                            <td th:text="${healthStatus.additionalNotes}"></td>
-                            <td>
-                                    <form th:action="@{/viewPatientHealthStatus/deletesymptom}" method="post">
-                                      <input type="hidden" th:name="healthstatus" th:value="${healthStatus.healthStatusId}"/>
-                                      <input type="hidden" th:name="patientId" th:value="${patient.userId}"/>
-                                      <input type="hidden" th:name="doctorId" th:value="${doctor.userId}"/>
-                                      <a role="button" th:href="@{/viewPatientHealthStatus/deletesymptom(patientId=${patient.userId},doctorId=${doctor.userId})}" class="nav-link link-dark f"></a>                                       <button class="btn btn-danger" type="submit">Delete</button>
+                <h1>History of health status</h1>
+                <h3 th:text="${patient.name}"></h3>
+                <h3 th:text="${patient.contact}"></h3>
 
-                                    </form>
-                            </td>
-                            
-                       </tr>
-                       </table>
+                <legend>History of your daily health</legend>
+                <input type="text" placeholder="Enter keyword to search" id="search-input" style="width: 50%" class="mb-2" />
 
-                <!-- paging button start -->
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Symptoms</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+<tr th:each="entry : ${healthStatusList}">
+    <td><span th:text="${#dates.format(entry.value.timestamp, 'dd MMM yyyy HH:mm')}"></span></td>
+    <td>
+        <ul>
+            <li th:each="symptom : ${entry.value.symptomsList}" th:text="${symptom}"></li>
+        </ul>
+    </td>
+    <td>
+        <form th:action="@{/viewPatientHealthStatus/deletesymptom}" method="post">
+            <input type="hidden" th:name="healthstatus" th:value="${entry.key}" />
+            <input type="hidden" th:name="patientId" th:value="${patient.userId}" />
+            <input type="hidden" th:name="doctorId" th:value="${doctor.userId}" />
+            <button class="btn btn-danger" type="submit">Delete</button>
+        </form>
+    </td>
+</tr>
+</tbody>
+
+                </table>
+
+                <!-- Pagination Controls -->
                 <div class="d-flex justify-content-center align-items-center">
-                    <nav aria-label="Page navigation example" th:if="${totalPage>1}">
+                    <nav th:if="${totalPage > 1}">
                         <ul class="pagination">
-                            <a class="page-link" th:href="@{/viewPatientHealthStatus/b(patientId=${patient.userId},doctorId=${doctor.userId},pageNo=${prevPage})}">&lt</a>
-                            <li class="page-item" th:each="i: ${#numbers.sequence(1,totalPage)}">
-                                <a class="page-link" th:href="@{/viewPatientHealthStatus/b(patientId=${patient.userId},doctorId=${doctor.userId},pageNo=${i})}" >[[${i}]]</a>
+                            <li class="page-item">
+                                <a class="page-link" th:href="@{/viewPatientHealthStatus/b(patientId=${patient.userId},doctorId=${doctor.userId},pageNo=${prevPage})}">&lt;</a>
                             </li>
-                            <a class="page-link" th:href="@{/viewPatientHealthStatus/b(patientId=${patient.userId},doctorId=${doctor.userId},pageNo=${nextPage})}" >&gt</a>
+                            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPage)}">
+                                <a class="page-link" th:href="@{/viewPatientHealthStatus/b(patientId=${patient.userId},doctorId=${doctor.userId},pageNo=${i})}"
+                                   th:text="${i}"></a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" th:href="@{/viewPatientHealthStatus/b(patientId=${patient.userId},doctorId=${doctor.userId},pageNo=${nextPage})}">&gt;</a>
+                            </li>
                         </ul>
                     </nav>
                 </div>
                 <div class="d-flex justify-content-center align-items-center bg-primary bg-opacity-25 shadow-lg rounded">
-                    <p class="btn "><b>Page: <scope th:text="${currentPage}"></scope></b></p>
+                    <p class="btn"><b>Page: <span th:text="${currentPage}"></span></b></p>
                 </div>
-                <!-- paging button end -->
-                </div>
-
             </div>
-
         </div>
     </div>
 </div>
 
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script type="text/javascript">
-
-    function formatTimestamp(timestamp) {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    }
-    
-
-    const timestamps = document.getElementsByClassName('timestamp');
-    for (const timestamp of timestamps) {
-    timestamp.textContent = formatTimestamp(timestamp.textContent);
-    }
-
-    
-    //search function
-    // Get the search input element and the table element
+    // Search functionality
     const searchInput = document.getElementById("search-input");
-const table = document.getElementsByTagName("table")[0];
-
-// Add an event listener to the search input element to listen for changes
-searchInput.addEventListener("input", function() {
-    // Get the search query
-    const searchQuery = this.value.toLowerCase();
-    // Get all the rows in the table
-    const rows = table.getElementsByTagName("tr");
-    // Loop through each row
-    for (let i = 0; i < rows.length; i++) {
-        // Get the columns in the current row
-        const columns = rows[i].getElementsByTagName("td");
-        // Initialize a flag to check if the row should be hidden
-        let hideRow = true;
-        // Loop through each column
-        for (let j = 0; j < columns.length; j++) {
-            // Get the text content of the current column
-            const columnText = columns[j].textContent.toLowerCase();
-            // Check if the column text contains the search query
-            if (columnText.indexOf(searchQuery) !== -1) {
-                // If it does, set the flag to false and break out of the loop
-                hideRow = false;
-                break;
+    const table = document.getElementsByTagName("table")[0];
+    searchInput.addEventListener("input", function () {
+        const searchQuery = this.value.toLowerCase();
+        const rows = table.getElementsByTagName("tr");
+        for (let i = 1; i < rows.length; i++) {
+            const columns = rows[i].getElementsByTagName("td");
+            let hideRow = true;
+            for (let j = 0; j < columns.length; j++) {
+                const columnText = columns[j].textContent.toLowerCase();
+                if (columnText.indexOf(searchQuery) !== -1) {
+                    hideRow = false;
+                    break;
+                }
             }
+            rows[i].style.display = hideRow ? "none" : "";
         }
-        // If the flag is true, hide the row
-        if (hideRow) {
-            rows[i].style.display = "none";
-        } else {
-            // If the flag is false, show the row
-            rows[i].style.display = "";
-        }
-    }
     });
-
-
 </script>
 </body>
 </html>

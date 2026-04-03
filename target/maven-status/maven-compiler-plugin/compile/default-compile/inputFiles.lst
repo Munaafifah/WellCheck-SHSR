@@ -1,41 +1,107 @@
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Medicine\MedicineRepository.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ReadSensorData\SensorData.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ViewPatientHealthStatus\ViewPatientHealthStatusController.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\UserService.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\AssignPatient\AssignPatientController.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\WebConfiguration\MyUserDetails.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\SendDailyHealth\HealthStatus.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\AssignPatient\AssignPatientServices.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ReadSensorData\ReadSensorDataController.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Patient\PatientController.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\SendDailyHealth\SendHealthStatusController.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\WebConfiguration\SuccessHandler.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Doctor\Doctor.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Doctor\DoctorRepository.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\SendPrescriptions\SendPrescriptionController.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Doctor\DoctorController.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ReadSensorData\SensorDataRepository.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\WebConfiguration\MyUserDetailsService.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Patient\PatientService.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Shsr\ApplicationService\FirebaseInitializer.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ReadSensorData\SensorDataService.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\SendDailyHealth\HealthStatusService.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Patient\Patient.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Patient\PatientRepository.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\UserRepository.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ViewDoctorPrescription\PrescriptionRepository.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\admin\AdminController.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Shsr\ApplicationService\FirebaseCredential.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Login\LoginController.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Medicine\Medicine.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\registerPatient\registerPatientController.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Repository\SubCollectionSHSRDAO.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Medicine\MedicineService.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Doctor\DoctorService.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\User.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\WebConfiguration\SecurityConfiguration.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ShsrApplication.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Repository\SHSRDAO.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ViewDoctorPrescription\PrescriptionService.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ViewDoctorPrescription\Prescription.java
-D:\OneDrive\OneDrive - Universiti Teknologi Malaysia (UTM)\sem 5\SECJ3104-Application Devolopment\project\Smart-Health-Remote-System\SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\SendDailyHealth\HealthStatusRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Sensor\Model\Sensor.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Prediction\DoctorPrediction.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Sensor\Service\SensorRegistrationHandler.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\updateStatusAppointment\Service\AppointmentHandler.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Login\LoginController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Sensor\Repository\SensorRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Sensor\Controller\UniqueKeyController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\MailService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\updateStatusAppointment\Model\Appointment.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\updateStatusAppointment\Service\MongoDBConnection.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Sensor\Service\UniqueKeyGenerator.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\DiseaseDescriptionService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\SendPrescriptions\SendPrescriptionController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\SendDailyHealth\HealthStatusDocumentWrapper.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Sensor\Repository\TemperatureSensorRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Sensor\Controller\SensorDashboardController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\DiagnosisService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Prediction\DoctorPredictionRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Prediction\PredictionController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ReadSensorData\ReadSensorDataController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\MyUserDetailsService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\MongoUserRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ProvideDiagnosis\DiagnosisRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Medicine\MedicineController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Prediction\PredictionWrapper.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Shsr\ApplicationService\FirebaseCredential.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\User.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ViewDoctorPrescription\Prescription.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ProvideDiagnosis\DiagnosisRequestController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ReadSensorData\SensorData.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Pharmacist\MongoPharmacistRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\DoctorService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\SymptomWeightService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\ref\addValueEventListener.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\PharmacistService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Symptoms\SymptomsController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\WebConfiguration\SecurityConfiguration.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\WebConfiguration\MyUserDetails.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Repository\SubCollectionSHSRDAO.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Pharmacist\PharmacistController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\admin\AdminController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\MedicineService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Mail\MailController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Patient\Patient.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\Transactional.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ReadSensorData\HistorySensorData.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Patient\PatientController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ProfileImage\ImageController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Prediction\Prediction.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Symptoms\MongoSymptomRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Sensor\Model\PatientSensorStatus.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\SendDailyHealth\HealthStatusRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\WebConfiguration\SuccessHandler.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ProvideDiagnosis\Diagnosis.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ReadSensorData\SerialReader.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ViewDoctorPrescription\PrescriptionRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\SendDailyHealth\HealthStatus.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Shsr\ApplicationService\FirebaseInitializer.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\UserService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Medicine\Medicine.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Sensor\MongoDBConnection.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Pagination\PaginationInfo.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Mail\MailStructure.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\DoctorPredictionService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\UserRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\AssignPatientServices.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\PatientService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ViewDoctorPrescription\PrescribeMedicine.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Symptoms\Symptom.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Repository\SHSRDAO.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Doctor\Doctor.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\WebConfiguration\AppConfig.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ShsrApplication.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\updateStatusAppointment\Controller\AppointmentController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ReadSensorData\SensorDataRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\DiseasePrecautionService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ViewPatientHealthStatus\ViewPatientHealthStatusController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Medicine\MedicineRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Doctor\DoctorController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Doctor\MongoDoctorRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\PredictionService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\updateStatusAppointment\Service\EmailService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\SendDailyHealth\SendHealthStatusController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\UserWithDetails.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\SymptomsService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Sensor\Controller\SensorController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\AssignPatient\AssignPatientController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\ViewDailyHealth\ViewDailyHealthSymptomController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\SensorDataService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Sensor\Model\TemperatureSensorData.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Utility\MigrationUtility.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\registerPatient\RegisterPatientController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\PrescriptionService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Patient\MongoPatientRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Sensor\Controller\EcgSensorDashboardController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Medicine\MongoMedicineRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Sensor\Controller\TemperatureSensorDashboardController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\SerialReader\TemperatureSerialReader.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Prediction\PredictionRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Service\HealthStatusService.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Symptoms\SymptomRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Prediction\PredictionRestController.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Pharmacist\Pharmacist.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\Sensor\RegistrationResult.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Pharmacist\PharmacistRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Patient\PatientRepository.java
+C:\Users\User\OneDrive - Universiti Teknologi Malaysia (UTM)\Documents\Sensor Deploy\WellCheck-SHSR\src\main\java\com\SmartHealthRemoteSystem\SHSR\User\Doctor\DoctorRepository.java

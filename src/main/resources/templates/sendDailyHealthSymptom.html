@@ -33,7 +33,15 @@
             <div class="col ">
                 <div class="d-flex shadow flex-column flex-shrink-0 p-3 bg-primary bg-opacity-25 rounded">
                     <div class="card bg-primary bg-opacity-25 rounded">
-                        <img class="card-img-top" src="/image/img_avatar1.png" alt="Card image" >
+                        <!-- Image Display Logic -->
+                        <img th:if="${patient.profilePicture != null}"
+                             th:src="${'data:' + patient.profilePictureType + ';base64,' + patient.profilePicture}"
+                             alt="Profile Picture" class="card-img-top" />
+
+                        <img th:if="${patient.profilePicture == null}"
+                             th:src="@{/image/img_avatar1.png}" 
+                             alt="Profile Picture" class="card-img-top" />
+                             
                         <div class="card-body">
                             <h3 class="card-title" th:text="${patient.name}"></h3>
                             <p style=" font-size: 12px;">Patient Contact No. : <span th:text="${patient.contact}"></span></p>
@@ -48,9 +56,12 @@
                                 Dashboard
                             </a>
                         </li>
-                        <li>
-                            <a th:href="@{Diagnosis(patientId=${patient.userId}, doctorId=${doctor.userId})}" class="nav-link link-dark f">Diagnosis History</a>
-                        </li>
+                        <li th:if="${doctor != null}">
+    <a th:href="@{Diagnosis(patientId=${patient.userId}, doctorId=${doctor.userId})}" class="nav-link link-dark f">
+        Diagnosis History
+    </a>
+</li>
+
                         <li>
                             <form th:action="@{/logout}" method="post" hidden="true" name="logoutForm">
                                 <button>Logout</button>

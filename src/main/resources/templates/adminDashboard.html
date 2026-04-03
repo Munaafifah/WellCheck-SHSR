@@ -22,7 +22,10 @@
             <ul class="admin_sidebar_links">
                 <li><a href="#" class="admin_sidebar_link">User List</a></li>
                 <li>
-                    <button type="button" class="admin_sidebar_link" id="addUserBtn">Add user</button>
+                    <button type="button" id="addUserBtn" class="btn admin_sidebar_link">
+                        Add User
+                    </button>
+                    
                 </li>
                 <li>
                     <a th:href="@{/generateUniqueKey}" class="admin_sidebar_link">
@@ -56,21 +59,33 @@
             <div class="admin_user_table ">
                 <div class="admin_table_nav">
                     <div>
-                        <button type="button" class="patientBtn admin_navBtn admin_navBtn_active">Patient</button>
-                        <button type="button" class="doctorBtn admin_navBtn">Doctor</button>
-                        <button type="button" class="adminBtn admin_navBtn">Admin</button>
-                        <button type="button" class="pharmacistBtn admin_navBtn">Pharmacist</button>
+                        <button type="button" class="patientBtn admin_navBtn"
+        th:classappend="${currentTab} == 'patient' ? ' admin_navBtn_active'">Patient</button>
 
-                        <button type="button" class="asspatBtn admin_navBtn">Assigned Patient</button>
+<button type="button" class="doctorBtn admin_navBtn"
+        th:classappend="${currentTab} == 'doctor' ? ' admin_navBtn_active'">Doctor</button>
+
+<button type="button" class="adminBtn admin_navBtn"
+        th:classappend="${currentTab} == 'admin' ? ' admin_navBtn_active'">Admin</button>
+
+<button type="button" class="pharmacistBtn admin_navBtn"
+        th:classappend="${currentTab} == 'pharmacist' ? ' admin_navBtn_active'">Pharmacist</button>
+
+<button type="button" class="asspatBtn admin_navBtn"
+        th:classappend="${currentTab} == 'assigned' ? ' admin_navBtn_active'">Assigned Patient</button>
+
+                       
+
                         
                     </div>
                 </div>
                 <hr class="admin_line">
 
-    <!--IZZATI CODE-->
+
 
 <!--patient table-->
-<div class="user_table tableActive">
+<div class="user_table"
+     th:classappend="${currentTab} == 'patient' ? ' tableActive'">
     <!-- search bar patient -->
     <div style="padding-left: 10;">
         <input type="text" placeholder="Enter keyword to search" id="search-input-patient" style="width: 50%; padding-left: 10px;" class="search-input">
@@ -109,6 +124,7 @@
                 <td class="text-center"th:text="${patient.sensorDataId}" data-column="sensorDataId"></td>
                 <td class="text-center">
                     <button type="button" class="btn btn-warning editUserBtn editPatient">Edit</button>
+                    
                     <button type="button" class="btn btn-danger deleteUserBtn">Delete</button>
                 </td>
             </tr>
@@ -117,19 +133,36 @@
     <!-- paging button start -->
     <!-- Pagination for Patient List -->
     <div class="d-flex justify-content-center align-items-center">
-        <nav aria-label="Patient Pagination" th:if="${patientPagination.totalPage > 1}">
+        <th:block th:if="${patientPagination != null and patientPagination.totalPage > 1}">
+            <nav aria-label="Patient Pagination">
+        
+        
             <ul class="pagination">
-                <li class="page-item" th:class="${patientPagination.prevPage < 1 ? 'disabled' : ''}">
-                    <a class="page-link" th:href="@{/admin?pageNo=1}">&lt;</a>
-                </li>
-                <li th:each="i: ${#numbers.sequence(1, patientPagination.totalPage)}" class="page-item">
-                    <a class="page-link" th:href="@{'/admin?pageNo=' + __${i}__}" th:text="${i}"></a>
-                </li>
-                <li class="page-item" th:class="${patientPagination.nextPage > patientPagination.totalPage} ? 'disabled'">
-                    <a class="page-link" th:href="@{'/admin?pageNo=' + __${patientPagination.totalPage}__}">&gt;</a>
-                </li>
-            </ul>
+    <!-- Previous button -->
+    <li class="page-item" th:classappend="${patientPagination.currentPage == 1} ? ' disabled'">
+        <a class="page-link"
+           th:href="@{'/admin?pageNo=' + ${patientPagination.currentPage - 1} + '&tab=patient'}">&laquo;</a>
+    </li>
+
+    <!-- Page number buttons -->
+    <li th:each="i : ${#numbers.sequence(1, patientPagination.totalPage)}" class="page-item"
+        th:classappend="${i == patientPagination.currentPage} ? ' active'">
+        <a class="page-link"
+           th:href="@{'/admin?pageNo=' + ${i} + '&tab=patient'}"
+           th:text="${i}"></a>
+    </li>
+
+    <!-- Next button -->
+    <li class="page-item" th:classappend="${patientPagination.currentPage == patientPagination.totalPage} ? ' disabled'">
+        <a class="page-link"
+           th:href="@{'/admin?pageNo=' + ${patientPagination.currentPage + 1} + '&tab=patient'}">&raquo;</a>
+    </li>
+</ul>
+
+
         </nav>
+    
+</th:block>
     </div>
 
     <div class="d-flex justify-content-center align-items-center bg-primary bg-opacity-25 shadow-lg rounded">
@@ -140,10 +173,13 @@
 
 <!-- Your existing HTML code -->
 
-<!--IZZATI CODE-->
-                </div>
+
+</div>
+
+                
                 <!--doctor table-->
-                <div class="user_table">
+            <div class="user_table"
+     th:classappend="${currentTab} == 'doctor' ? ' tableActive'">
                     <!-- search bar doctor -->
                     <div style="padding-left: 10;">
                         <input type="text" placeholder="Enter keyword to search" id="search-input-doctor" style="width: 50%; padding-left: 10px;" class="search-input">
@@ -156,7 +192,7 @@
                             <th scope="col" style="width: 10%;" class="text-center">User Id</th>
                             <th scope="col" style="width: 15%;" class="text-center">Name</th>
                             <th scope="col" style="width: 15%;" class="text-center">Contact No</th>
-                           
+                            <th scope="col" style="width: 10%;" class="text-center">Email</th>
                             <th scope="col" style="width: 15%;" class="text-center">Hospital</th>
                             <th scope="col" style="width: 10%;" class="text-center">Position</th>
                             <th scope="col" style="width: 50%;" class="text-center">Action</th>
@@ -169,7 +205,8 @@
                             <td class="text-center"th:text="${doctor.userId}" data-column="userId"></td>
                             <td class="text-center"th:text="${doctor.name}" data-column="name"></td>
                             <td class="text-center"th:text="${doctor.contact}" data-column="contact"></td>
-                           
+                            <td class="text-center" th:text="${doctor.email}" data-column="email"></td> <!-- Add this -->
+
                             <td class="text-center" th:text="${doctor.hospital}" data-column="hospital"></td>
                             <td class="text-center" th:text="${doctor.position}" data-column="position"></td>
                             <td class="text-center">
@@ -179,22 +216,34 @@
                         </tr>
                         </tbody>
                     </table>
-                    <!--IZZATI CODE-->
+                   
                     <!-- paging button start -->
                     <!-- Pagination for Doctor List -->
                     <div class="d-flex justify-content-center align-items-center">
-                        <nav aria-label="Doctor Pagination" th:if="${doctorPagination.totalPage > 1}">
-                            <ul class="pagination">
-                                <li class="page-item" th:class="${doctorPagination.prevPage < 1 ? 'disabled' : ''}">
-                                    <a class="page-link" th:href="@{/admin?pageNo=1}">&lt;</a>
-                                </li>
-                                <li th:each="i: ${#numbers.sequence(1, doctorPagination.totalPage)}" class="page-item">
-                                    <a class="page-link" th:href="@{'/admin?pageNo=' + __${i}__}"  th:text="${i}"></a>
-                                </li>
-                                <li class="page-item" th:class="${doctorPagination.nextPage > doctorPagination.totalPage} ? 'disabled'">
-                                    <a class="page-link" th:href="@{'/admin?pageNo=' + __${doctorPagination.totalPage}__}">&gt;</a>
-                                </li>
-                            </ul>
+                        <nav aria-label="Doctor Pagination" th:if="${doctorPagination != null and doctorPagination.totalPage > 1}">
+                           <ul class="pagination">
+    <!-- Previous page button -->
+    <li class="page-item" th:classappend="${doctorPagination.currentPage == 1} ? ' disabled'">
+        <a class="page-link"
+           th:href="@{'/admin?pageNo=' + ${doctorPagination.currentPage - 1} + '&tab=doctor'}">&laquo;</a>
+    </li>
+
+    <!-- Page number buttons -->
+    <li th:each="i : ${#numbers.sequence(1, doctorPagination.totalPage)}" class="page-item"
+        th:classappend="${i == doctorPagination.currentPage} ? ' active'">
+        <a class="page-link"
+           th:href="@{'/admin?pageNo=' + ${i} + '&tab=doctor'}"
+           th:text="${i}"></a>
+    </li>
+
+    <!-- Next page button -->
+    <li class="page-item" th:classappend="${doctorPagination.currentPage == doctorPagination.totalPage} ? ' disabled'">
+        <a class="page-link"
+           th:href="@{'/admin?pageNo=' + ${doctorPagination.currentPage + 1} + '&tab=doctor'}">&raquo;</a>
+    </li>
+</ul>
+
+
                         </nav>
                     </div>
 
@@ -206,7 +255,8 @@
                 </div>
 
                  <!--pharmacist table-->
-                 <div class="user_table">
+                 <div class="user_table"
+     th:classappend="${currentTab} == 'pharmacist' ? ' tableActive'">
                     <!-- search bar pharmacsit -->
                     <div style="padding-left: 10;">
                         <input type="text" placeholder="Enter keyword to search" id="search-input-pharmacist" style="width: 50%; padding-left: 10px;" class="search-input">
@@ -247,18 +297,30 @@
                     <!-- paging button start -->
                     <!-- Pagination for Pharmacist List -->
                     <div class="d-flex justify-content-center align-items-center">
-                        <nav aria-label="Pharmacist Pagination" th:if="${pharmacistPagination.totalPage > 1}">
-                            <ul class="pagination">
-                                <li class="page-item" th:class="${pharmacistPagination.prevPage < 1 ? 'disabled' : ''}">
-                                    <a class="page-link" th:href="@{/admin?pageNo=1}">&lt;</a>
-                                </li>
-                                <li th:each="i: ${#numbers.sequence(1, pharmacistPagination.totalPage)}" class="page-item">
-                                    <a class="page-link" th:href="@{'/admin?pageNo=' + __${i}__}" th:text="${i}"></a>
-                                </li>
-                                <li class="page-item" th:class="${pharmacistPagination.nextPage > pharmacistPagination.totalPage} ? 'disabled'">
-                                    <a class="page-link" th:href="@{'/admin?pageNo=' + __${pharmacistPagination.totalPage}__}">&gt;</a>
-                                </li>
-                            </ul>
+    <nav aria-label="Pharmacist Pagination" th:if="${pharmacistPagination != null and pharmacistPagination.totalPage > 1}">
+        <ul class="pagination">
+        <!-- Previous button -->
+        <li class="page-item" th:classappend="${pharmacistPagination.currentPage == 1} ? ' disabled'">
+            <a class="page-link"
+               th:href="@{'/admin?pageNo=' + ${pharmacistPagination.currentPage - 1} + '&tab=pharmacist'}">&laquo;</a>
+        </li>
+
+        <!-- Page number buttons -->
+        <li th:each="i: ${#numbers.sequence(1, pharmacistPagination.totalPage)}"
+            class="page-item" th:classappend="${i == pharmacistPagination.currentPage} ? ' active'">
+            <a class="page-link"
+               th:href="@{'/admin?pageNo=' + ${i} + '&tab=pharmacist'}"
+               th:text="${i}"></a>
+        </li>
+
+        <!-- Next button -->
+        <li class="page-item" th:classappend="${pharmacistPagination.currentPage == pharmacistPagination.totalPage} ? ' disabled'">
+            <a class="page-link"
+               th:href="@{'/admin?pageNo=' + ${pharmacistPagination.currentPage + 1} + '&tab=pharmacist'}">&raquo;</a>
+        </li>
+    </ul>
+</nav>
+
                         </nav>
                     </div>
 
@@ -268,8 +330,11 @@
                     <!-- paging button end -->
                 </div>
 
+                
+
                 <!--Admin Table-->
-                <div class="user_table">
+                <div class="user_table"
+     th:classappend="${currentTab} == 'admin' ? ' tableActive'">
                     <!-- search bar admin -->
                     <div style="padding-left: 10;">
                         <input type="text" placeholder="Enter keyword to search" id="search-input-admin" style="width: 50%; padding-left: 10px;" class="search-input">
@@ -298,76 +363,162 @@
                            
                             <td class="text-center" th:text="${admin.role}" data-column="role"></td>
                             <td class="text-center">
-                                <button type="button" class="btn btn-warning editUserBtn editDoctor">Edit</button>
+                                <button type="button" class="btn btn-warning editUserBtn">Edit</button> <!-- For Admin -->
                                 <button type="button" class="btn btn-danger deleteUserBtn">Delete</button>
                             </td>
                         </tr>
                         </tbody>
                     </table>
-                    <!--IZZATI CODE-->
+                  
                     <!-- paging button start -->
                     <!-- Pagination for Admin List -->
                     <div class="d-flex justify-content-center align-items-center">
-                        <nav aria-label="Admin Pagination" th:if="${adminPagination.totalPage > 1}">
-                            <ul class="pagination">
-                                <li class="page-item" th:class="${adminPagination.prevPage < 1 ? 'disabled' : ''}">
-                                    <a class="page-link" th:href="@{/admin?pageNo=1}">&lt;</a>
-                                </li>
-                                <li th:each="i: ${#numbers.sequence(1, adminPagination.totalPage)}" class="page-item">
-                                    <a class="page-link" th:href="@{'/admin?pageNo=' + __${i}__}"  th:text="${i}"></a>
-                                </li>
-                                <li class="page-item" th:class="${adminPagination.nextPage > adminPagination.totalPage} ? 'disabled'">
-                                    <a class="page-link" th:href="@{'/admin?pageNo=' + __${adminPagination.totalPage}__}">&gt;</a>
-                                </li>
-                            </ul>
+    <nav aria-label="Admin Pagination" th:if="${adminPagination != null and adminPagination.totalPage > 1}">
+        <ul class="pagination">
+        <!-- Previous button -->
+        <li class="page-item" th:classappend="${adminPagination.currentPage == 1} ? ' disabled'">
+            <a class="page-link"
+               th:href="@{'/admin?pageNo=' + ${adminPagination.currentPage - 1} + '&tab=admin'}">&laquo;</a>
+        </li>
+
+        <!-- Page number buttons -->
+        <li th:each="i: ${#numbers.sequence(1, adminPagination.totalPage)}"
+            class="page-item" th:classappend="${i == adminPagination.currentPage} ? ' active'">
+            <a class="page-link"
+               th:href="@{'/admin?pageNo=' + ${i} + '&tab=admin'}"
+               th:text="${i}"></a>
+        </li>
+
+        <!-- Next button -->
+        <li class="page-item" th:classappend="${adminPagination.currentPage == adminPagination.totalPage} ? ' disabled'">
+            <a class="page-link"
+               th:href="@{'/admin?pageNo=' + ${adminPagination.currentPage + 1} + '&tab=admin'}">&raquo;</a>
+        </li>
+    </ul>
+</nav>
+
+
                         </nav>
                     </div>
 
                     <div class="d-flex justify-content-center align-items-center bg-primary bg-opacity-25 shadow-lg rounded">
                         <p class="btn"><b>Page: <span th:text="${adminPagination.currentPage}"></span></b></p>
                     </div>
-                    <!--IZZATI CODE-->
+                    
                     <!-- paging button end -->
                 </div>
 
-                                  <!--Assigned Patient table-->
-                                  <div class="user_table">
-                                    <table class="table table table-striped">
-                                        <thead>
-                                        <tr>
-                                            <th scope="col" class="text-center">No</th>
-                                            <th scope="col" class="text-center">Assigned by Doctor</th>
-                                            <th scope="col" class="text-center">Patient ID</th>
-                                            <th scope="col" class="text-center">Patient Name</th>
-                                            <th scope="col" class="text-center">Status</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody id="adminTable">
-                                        <!--javascript retrieving all the data from database-->
-                                        <script>
-                                            
-                                        </script>
-                                        <tr class="text-center" th:each="patient : ${patientList}">
-                                            <th class="text-center" scope="row" th:text="${patientStat.index}+1"></th>
-                                            <td class="text-center" th:text="${patient.assigned_doctor}"></td>
-                                        <td class="text-center" th:text="${patient.userId}"></td>
-                                        <td class="text-center" th:text="${patient.name}"></td>
-                                        <td class="text-center" th:text="${patient.Status}"></td>
-                                            
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        
+              <!--Assigned Patient table-->
+<div class="user_table"
+     th:classappend="${currentTab} == 'assigned' ? ' tableActive'">
+    <!-- 🔽 Filter dropdown -->
+    <div class="d-flex justify-content-end mb-3">
+        <select id="filterAssigned" class="form-select" style="width: 200px;">
+            <option value="all">All Patients</option>
+            <option value="assigned">Assigned Patients</option>
+            <option value="unassigned">Unassigned Patients</option>
+        </select>
+    </div>
+
+    <!-- Assigned Patient Table -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col" class="text-center">No</th>
+                <th scope="col" class="text-center">Assigned by Doctor</th>
+                <th scope="col" class="text-center">Patient ID</th>
+                <th scope="col" class="text-center">Patient Name</th>
+                <th scope="col" class="text-center">Status</th>
+            </tr>
+        </thead>
+
+        <!-- ✅ Assigned Patients Table -->
+        <tbody id="assignedPatientTable">
+            <tr class="text-center" th:each="patient, patientStat : ${assignedPatients}">
+                <th class="text-center" scope="row"
+                    th:text="${patientStat.index + 1 + (assignedPagination.pageSize * (assignedPagination.currentPage - 1))}"></th>
+                <td class="text-center"
+                    th:text="${patient.assigned_doctor != null and !patient.assigned_doctor.isEmpty()} ? ${patient.assigned_doctor} : 'Not Assigned'"></td>
+                <td class="text-center" th:text="${patient.userId}"></td>
+                <td class="text-center" th:text="${patient.name}"></td>
+                <td class="text-center" th:text="${patient.status}"></td>
+            </tr>
+        </tbody>
+
+        <!-- ✅ Unassigned Patients Table (hidden by default) -->
+        <tbody id="unassignedPatientTable" style="display:none;">
+            <tr class="text-center" th:each="patient, patientStat : ${unassignedPatients}">
+                <th class="text-center" scope="row"
+                    th:text="${patientStat.index + 1 + (unassignedPagination.pageSize * (unassignedPagination.currentPage - 1))}"></th>
+                <td class="text-center">Not Assigned</td>
+                <td class="text-center" th:text="${patient.userId}"></td>
+                <td class="text-center" th:text="${patient.name}"></td>
+                <td class="text-center" th:text="${patient.status}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- ✅ Pagination Controls -->
+    <div class="d-flex justify-content-center align-items-center mt-3">
+        <!-- Assigned Pagination -->
+        <nav th:if="${assignedPagination != null and assignedPagination.totalPage > 1}" id="assignedPagination">
+
+            <ul class="pagination">
+                <li class="page-item" th:classappend="${assignedPagination.currentPage == 1} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{'/admin?pageNo=' + ${assignedPagination.currentPage - 1} + '&tab=assigned'}">&laquo;</a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(1, assignedPagination.totalPage)}"
+                    class="page-item" th:classappend="${i == assignedPagination.currentPage} ? 'active'">
+                    <a class="page-link"
+                       th:href="@{'/admin?pageNo=' + ${i} + '&tab=assigned'}"
+                       th:text="${i}"></a>
+                </li>
+                <li class="page-item" th:classappend="${assignedPagination.currentPage == assignedPagination.totalPage} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{'/admin?pageNo=' + ${assignedPagination.currentPage + 1} + '&tab=assigned'}">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Unassigned Pagination -->
+        <nav th:if="${unassignedPagination != null and unassignedPagination.totalPage > 1}" id="unassignedPagination" style="display: none;">
+            <ul class="pagination">
+                <li class="page-item" th:classappend="${unassignedPagination.currentPage == 1} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{'/admin?pageNo=' + ${unassignedPagination.currentPage - 1} + '&tab=assigned&filter=unassigned'}">&laquo;</a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(1, unassignedPagination.totalPage)}"
+                    class="page-item" th:classappend="${i == unassignedPagination.currentPage} ? 'active'">
+                    <a class="page-link"
+                       th:href="@{'/admin?pageNo=' + ${i} + '&tab=assigned&filter=unassigned'}"
+                       th:text="${i}"></a>
+                </li>
+                <li class="page-item" th:classappend="${unassignedPagination.currentPage == unassignedPagination.totalPage} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{'/admin?pageNo=' + ${unassignedPagination.currentPage + 1} + '&tab=assigned&filter=unassigned'}">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Current Page Display -->
+    <div class="d-flex justify-content-center align-items-center bg-primary bg-opacity-25 shadow-lg rounded">
+        <p class="btn">
+            <b>Page: 
+                <span th:text="${assignedPagination.currentPage}" id="assignedCurrentPage"></span>
+            </b>
+        </p>
+    </div>
+</div>
+</div>
+
         <!--add user page-->
         <div class="add_user_page">
             <div class="add_user_page-content">
-                <h4 class="add_user_page-title">User Form</h4>
-                <h4 class="add_user_page-title">Update User</h4>
-                <form th:action="@{/admin/adduser}"  method="post" name="adduser" id="adduser">
-                    <input type="hidden" class="form-control" id="action" name="action" >
+                <h4 class="add_user_page-title" id="userFormTitle">User Form</h4>
+                    <form method="post" id="adduser">
+                    <input type="hidden" name="action" id="action" value="add" />
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="userId">User Id</label>
@@ -467,10 +618,10 @@
                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 
                 
-                <div class="add_user_page-buttons">
-                    <button type="button" class="btn btn-primary confirmBtn" id="confirmAddUserBtn">Confirm</button>
-                    <button type="button" class="btn btn-secondary" id="cancelBtnAddUser">Cancel</button>
-                </div>
+                    <div class="add_user_page-buttons">
+                        <button type="button" class="btn btn-primary" id="confirmAddUserBtn">Confirm</button>
+                        <button type="button" class="btn btn-secondary" id="cancelBtnAddUser">Cancel</button>
+                    </div>
 
             </form>
             </div>
@@ -485,9 +636,10 @@
                         made after this will need <br>to update it manually</p>
                 </div>
                 <div class="confirmation_deleteUser_page-buttons">
-                    <form th:action="@{/admin/deleteuser}" th:method="delete" hidden="true" id="deleteUserForm">
+                    <form th:action="@{/admin/deleteuser}" method="post" hidden="true" id="deleteUserForm">
                         <input type="text" name="userIdToBeDelete" id="userIdToBeDelete">
                         <input type="text" name="userRoleToBeDelete" id="userRoleToBeDelete">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                     </form>
                     <button type="button" class="btn btn-primary confirmBtn" id="confirmDeleteUserBtn">Confirm</button>
                     <button type="button" class="btn btn-secondary" id="cancelDeleteUserBtn">Cancel</button>
@@ -499,5 +651,6 @@
 </div>
 
 <script th:src="@{/js/adminDashboard.js}"></script>
+
 </body>
 </html>

@@ -1,14 +1,13 @@
 package com.SmartHealthRemoteSystem.SHSR;
 
 
-import com.SmartHealthRemoteSystem.SHSR.User.Patient.Patient;
-import com.SmartHealthRemoteSystem.SHSR.User.Patient.PatientRepository;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
-
+  
 @SpringBootApplication
+@ComponentScan(basePackages = "com.SmartHealthRemoteSystem.SHSR")
 public class ShsrApplication{
 
 
@@ -17,5 +16,6 @@ public class ShsrApplication{
 
 	}
 }
+
 
 //trying

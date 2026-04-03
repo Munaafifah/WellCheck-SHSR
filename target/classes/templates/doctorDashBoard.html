@@ -15,7 +15,7 @@
     <title>Doctor's Dashboard</title>
 </head>
 <body>
-
+  
 
 
 <div class="container shadow p-3 mb-5  bg-primary bg-opacity-25 rounded" style="position: relative; top: 50px;">
@@ -25,7 +25,8 @@
                 <div class="d-flex shadow flex-column flex-shrink-0 p-3 bg-primary bg-opacity-25 rounded">
                     <a th:href="@{/doctor}" class="card-link" style="text-decoration: none; color: black;">
                         <div class="card bg-primary bg-opacity-25 rounded">
-                            <img class="card-img-top" th:src="@{/image/img_avatar1.png}" alt="Card image">
+                           <img th:src="'data:' + ${doctor.profilePictureType} + ';base64,' + ${doctor.profilePicture}"
+     alt="Doctor Profile" class="card-img-top" />
                             <div class="card-body">
                                 <h3 class="card-title" th:text="${doctor.name}" > </h3>
                                 <p class="card-text" th:text="${doctor.position}"></p>
@@ -40,7 +41,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a th:href="@{/doctor/myPatient(pageNo=1)}" class="nav-link link-dark f">
+                           <a th:href="@{/doctor/myPatient}" class="nav-link link-dark f">
                                 My Patient
                             </a>
                         </li>
@@ -49,18 +50,21 @@
                                 Assign Patient
                             </a>
                         </li>
-                        <!---izzat-->
+                       
                         <li>
                             <a th:href="@{/patient/list}"class="nav-link link-dark f">
                                 List of Assigned Patient
                             </a>
                         </li>
-                        <!---izzat-->
-                        <li>
-                            <a th:href="@{/doctor/prediction}"class="nav-link link-dark f">
-                                Prediction Tool
-                            </a>
-                        </li>
+                        
+                          <li>
+    <a th:href="@{/doctor/predictionReview}" class="nav-link link-dark f">Prediction Review</a>
+</li>
+
+
+ 
+                       
+                     
                         <li>
 
                             <form th:action="@{/logout}" method="post" th:hidden="true" name="logoutForm">

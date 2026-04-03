@@ -1,15 +1,24 @@
 package com.SmartHealthRemoteSystem.SHSR.User;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document(collection = "User")
 public class User {
+
+    @Id
     private String userId;
+
     private String name;
-    private String password;
+
     private String contact;
+
+    private String password;
+
     private String role;
+
+    @Indexed(unique = true)
     private String email;
 
     public User() {
@@ -24,21 +33,7 @@ public class User {
         this.email = email;
     }
 
-    public User(String name, String password, String contact, String role, String email) {
-        this.name = name;
-        this.password = password;
-        this.contact = contact;
-        this.role = role;
-        this.email = email;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
+    // Getters and Setters
 
     public String getUserId() {
         return userId;
@@ -46,14 +41,6 @@ public class User {
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getName() {
@@ -70,6 +57,22 @@ public class User {
 
     public void setContact(String contact) {
         this.contact = contact;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public String getEmail() {

@@ -26,98 +26,104 @@
 </head>
 <body>
 
-<div class="container shadow p-3 mb-5  bg-primary bg-opacity-25 rounded" style="position: relative; top: 50px;">
-    <div class="container overflow-hidden">
-        <div class="row gx-5">
-            <div class="col ">
-                <div class="d-flex shadow flex-column flex-shrink-0 p-3 bg-primary bg-opacity-25 rounded">
-                    <a th:href="@{/doctor}" class="card-link" style="text-decoration: none; color: black;">
-                        <div class="card bg-primary bg-opacity-25 rounded">
-                            <!--<img class="card-img-top" th:src="'data:image/png;base64,' + ${doctor.profilePicture}" alt="Card image" > -->
-                            <img class="card-img-top" th:src="@{/image/img_avatar1.png}" alt="Card image">
-                            <div class="card-body">
-                                <h3 class="card-title">fikrilamin </h3>
-                                <p class="card-text" >Heart Specialist</p>
-                            </div>
+<div class="container shadow p-3 mb-5 bg-primary bg-opacity-25 rounded" style="position: relative; top: 50px;">
+    <div class="row">
+        <!-- Sidebar: Doctor Profile and Task Menu -->
+        <div class="col-md-4">
+            <div class="d-flex flex-column p-3 bg-primary bg-opacity-25 rounded h-100">
+                <a th:href="@{/doctor}" class="card-link text-decoration-none text-dark">
+                    <div class="card bg-primary bg-opacity-25 rounded">
+                        <div th:if="${doctor != null}">
+                            <img class="card-img-top" th:src="'data:' + ${doctor.profilePictureType} + ';base64,' + ${doctor.profilePicture}" alt="Doctor Image"/>
                         </div>
-                    </a>
-                    <hr>
-                    <ul class="nav nav-pills flex-column mb-auto">
-                        <li class="nav-item">
-                            <a class="nav-link link-dark f">
+                        <div class="card-body">
+                            <h3 class="card-title" th:text="${doctor.name}">Doctor Name</h3>
+                            <p class="card-text" th:text="${doctor.position}">Specialist</p>
+                        </div>
+                    </div>
+                </a>
+                <hr>
+                <ul class="nav nav-pills flex-column">
+                     <li class="nav-item">
+                            <a th:href="@{/doctor/updateProfile}" class="nav-link link-dark f">
                                 Edit Profile
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a  class="nav-link link-dark f">
+                           <a th:href="@{/doctor/myPatient}" class="nav-link link-dark f">
                                 My Patient
                             </a>
                         </li>
                         <li>
-                            <a class="nav-link link-dark f">
+                            <a th:href="@{/assignpatient}" class="nav-link link-dark f">
                                 Assign Patient
                             </a>
                         </li>
-                        <!---izzat-->
+                       
                         <li>
-                            <a class="nav-link link-dark f">
+                            <a th:href="@{/patient/list}"class="nav-link link-dark f">
                                 List of Assigned Patient
                             </a>
                         </li>
-                        <!---izzat-->
-                        <li>
+                        
+                          <li>
+    <a th:href="@{/doctor/predictionReview}" class="nav-link link-dark f">Prediction Review</a>
+</li>
 
-                            <form th:action="@{/logout}" method="post" th:hidden="true" name="logoutForm">
-                                <input type="submit" value="Logout" />
-                            </form>
-                            <a href="javascript: document.logoutForm.submit()" class="nav-link link-dark f">
-                                Logout
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+
+ 
+                       
+                     
+                        <li>
+                        <form th:action="@{/logout}" method="post" th:hidden="true" name="logoutForm">
+                            <input type="submit" value="Logout" />
+                        </form>
+                        <a href="javascript: document.logoutForm.submit()" class="nav-link link-dark f">Logout</a>
+                    </li>
+                </ul>
             </div>
-            <div class="col-9">
-                <h2>Prescription History</h2>
-                <br>
-                <!-- search button -->
-                <!-- <input type="text" placeholder="Enter keyword to search" id="search-input" style="width: 50%" class="search-input" > -->
-                <form th:action="@{/doctor/myPatient}" method="get">
-                    <input type="text" name="searchQuery" placeholder="Enter keyword to search" th:value="${searchQuery}" style="width: 50%">
-                    <input type="hidden" name="pageNo" th:value="${currentPage}">
-                    <input type="hidden" name="pageSize" th:value="${pageSize}">
-                    <button type="submit" class="btn btn-primary">Search</button>
-                </form>
-                <!-- search button end-->
-                <br>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Prescription</th>
-                            <th>Diagnosis/Ailment</th>
-                            <th>Medicines</th> <!-- New column for medicines -->
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Loop through prescription history and display each prescription -->
-                        <tr th:each="prescription, stat : ${prescriptionHistory}">
-                            <td th:text="${prescription.prescriptionDescription}"></td>
-                            <td th:text="${prescription.diagnosisAilmentDescription}"></td>
-                            <td th:text="${#strings.listJoin(prescription.medicineList, ', ')}"></td> <!-- Displaying medicines -->
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        </div>
+
+        <!-- Main Content: Prescription History -->
+        <div class="col-md-8">
+            <h2>Prescription History</h2>
+            <form th:action="@{/prescription/history}" method="get" class="mb-3">
+                <input type="text" name="searchQuery" placeholder="Enter keyword to search"
+                       th:value="${searchQuery}" style="width: 50%">
+                <input type="hidden" name="pageNo" th:value="${currentPage}">
+                <input type="hidden" name="pageSize" th:value="${pageSize}">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Prescription</th>
+                        <th>Diagnosis/Ailment</th>
+                        <th>Medicines</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="prescription, stat : ${prescriptionHistory}">
+                        <td th:text="${prescription.prescriptionDescription}"></td>
+                        <td th:text="${prescription.diagnosisAilmentDescription}"></td>
+                        <td th:text="${#strings.listJoin(prescription.medicineList, ', ')}"></td>
+                        <td th:text="${#temporals.format(prescription.timestamp, 'yyyy-MM-dd HH:mm')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+
             <!-- Pagination Controls -->
-            <nav aria-label="Patient navigation">
+            <nav aria-label="Pagination">
                 <ul class="pagination justify-content-center">
-                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
                         <a class="page-link" th:href="@{/prescription/history(pageNo=${currentPage - 1}, pageSize=${pageSize}, searchQuery=${searchQuery})}">Previous</a>
                     </li>
-                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active' : ''">
+                    <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" class="page-item" th:classappend="${i == currentPage} ? 'active'">
                         <a class="page-link" th:href="@{/prescription/history(pageNo=${i}, pageSize=${pageSize}, searchQuery=${searchQuery})}" th:text="${i + 1}"></a>
                     </li>
-                    <li class="page-item" th:classappend="${currentPage + 1 == totalPages} ? 'disabled' : ''">
+                    <li class="page-item" th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
                         <a class="page-link" th:href="@{/prescription/history(pageNo=${currentPage + 1}, pageSize=${pageSize}, searchQuery=${searchQuery})}">Next</a>
                     </li>
                 </ul>

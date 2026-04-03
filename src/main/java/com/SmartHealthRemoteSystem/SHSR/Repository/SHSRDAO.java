@@ -1,10 +1,7 @@
 package com.SmartHealthRemoteSystem.SHSR.Repository;
 
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 public interface SHSRDAO<T> {

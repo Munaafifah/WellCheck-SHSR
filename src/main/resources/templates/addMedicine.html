@@ -29,7 +29,8 @@
                         <a th:href="@{/doctor}" class="card-link"
                             style="text-decoration: none; color: black;">
                             <div class="card bg-primary bg-opacity-25 rounded">
-                                <img class="card-img-top" src="/image/img_avatar1.png" alt="Card image">
+                               <img th:src="'data:' + ${doctor.profilePictureType} + ';base64,' + ${doctor.profilePicture}"
+     alt="Doctor Profile" class="card-img-top" />
                                     <div class="card-body">
                                         <h3 class="card-title" th:text="${doctor.name}"></h3>
                                         <p class="card-text" th:text="${doctor.position}"></p>

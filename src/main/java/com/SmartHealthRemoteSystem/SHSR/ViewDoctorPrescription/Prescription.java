@@ -1,37 +1,30 @@
+
+
+
+
+//MongoDB//
 package com.SmartHealthRemoteSystem.SHSR.ViewDoctorPrescription;
 
-import com.SmartHealthRemoteSystem.SHSR.ReadSensorData.SensorData;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 
 public class Prescription {
     private String prescriptionId;
-    private String timestamp;
+    private Instant timestamp;
     private String doctorId;
     private List<String> medicineList;
-    private List<PrescribeMedicine> prescribeList;
     private String prescriptionDescription;
     private String diagnosisAilmentDescription;
 
-    public Prescription() {
-    }
+    public Prescription() {}
 
-    public Prescription(String doctorId, List<String> medicineList, String prescriptionDescription, String diagnosisAilmentDescription) {
+    public Prescription(String doctorId, List<String> medicineList,
+                        String prescriptionDescription, String diagnosisAilmentDescription) {
         this.doctorId = doctorId;
         this.medicineList = medicineList;
         this.prescriptionDescription = prescriptionDescription;
         this.diagnosisAilmentDescription = diagnosisAilmentDescription;
-    }
-
-    public Prescription(String prescriptionId, String  timestamp, String doctorId,
-                        List<String> medicineList, String prescriptionDescription,
-                        String diagnosisAilmentDescription) {
-        this.prescriptionId = prescriptionId;
-        this.timestamp = timestamp;
-        this.doctorId = doctorId;
-        this.medicineList = medicineList;
-        this.prescriptionDescription = prescriptionDescription;
-        this.diagnosisAilmentDescription = diagnosisAilmentDescription;
+        this.timestamp = Instant.now();
     }
 
     public String getPrescriptionId() {
@@ -42,11 +35,11 @@ public class Prescription {
         this.prescriptionId = prescriptionId;
     }
 
-    public String getTimestamp() {
+    public Instant getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String  timestamp) {
+    public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -80,17 +73,5 @@ public class Prescription {
 
     public void setDiagnosisAilmentDescription(String diagnosisAilmentDescription) {
         this.diagnosisAilmentDescription = diagnosisAilmentDescription;
-    }
-
-    public String getFormattedMedicineList() {
-        return String.join(", ", medicineList);
-    }
-
-    public List<PrescribeMedicine> getPrescribeList() {
-        return prescribeList;
-    }
-
-    public void setPrescribeList(List<PrescribeMedicine> prescribeList) {
-        this.prescribeList = prescribeList;
     }
 }

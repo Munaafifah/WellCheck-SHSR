@@ -1,476 +1,176 @@
 <!doctype html>
 <html lang="en" xmlns:th="https://www.thymeleaf.org">
 <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
-            integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
-    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
     <title>Sensor Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Add this style to hide the table */
-        .table-container {
-            display: none;
-        }
+        .normal { background-color: rgb(130, 255, 130); }
+        .abnormal { background-color: rgb(255, 90, 90); }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-    <div class="container shadow p-3 mb-5  bg-primary bg-opacity-25 rounded" style="position: relative; top: 50px;">
-        <div class="container overflow-hidden">
-            <div class="row gx-5">
-                <div class="col ">
-                    <div class="d-flex shadow flex-column flex-shrink-0 p-3 bg-primary bg-opacity-25 rounded">
-                        <a th:href="@{/patient}" class="card-link" style="text-decoration: none; color: black;">
-                            <div class="card bg-primary bg-opacity-25 rounded">
-                                <img class="card-img-top" src="/image/img_avatar1.png" alt="Card image" >
-                                <div class="card-body">
-                                    <h3 class="card-title">rakesh</h3>
-                                    <p style=" font-size: 12px;">Patient Contact No. :<span>012345690</span></p>
-                                    <p style=" font-size: 12px;">Patient Address : <span>aaabbb</span></p>
-                                    <p style=" font-size: 12px;">Emergency Contact No. : <span>sheesh</span></p>
-                                </div>
-                            </div>
-                        </a>
-                        <hr>
-                        <ul class="nav nav-pills flex-column mb-auto">
-                            <li class="nav-item">
-                                <a href="#" class="nav-link active" aria-current="page">
-                                    Dashboard
-                                </a>
-                            </li>
-                            <li>
-                                <!-- <form th:action="@{/viewPatientHealthStatus/b(patientId=${patient.userId},doctorId=${doctor.userId})}" method="post" name="viewPatient" class="viewPatientForm">
-                                    <input type="text" th:value="${doctor.userId}" th:name="doctorId" id="doctorId"  hidden="hidden">
-                                    <input type="text" th:value="${patient.userId}" th:name="patientId" id="patientId" hidden="hidden"> -->
-                                    <a role="button" class="nav-link link-dark f">View</a> 
-                                <!-- </form> -->
-    
-                            </li>
-                            <li>
-                                <a class="nav-link link-dark f" name="editProfile">
-                                    Edit Profile
-                                </a>
-                            </li>
-                            <li>
-                                <a  class="nav-link link-dark f" name="HealthCondition">Health Condition</a>
-                                    
-                                </a>
-                            </li>
-                            <li>
-                                <form th:action="@{/logout}" method="post" hidden="true" name="logoutForm">
-                                    <button>Logout</button>
-                                </form>
-                                <a href="javascript: document.logoutForm.submit()" class="nav-link link-dark f">
-                                    Logout
-                                </a>
-                            </li>
-                        </ul>
-    
-                    </div>
-                </div>
-                <div class="col-9">
-    
-                                <div list-group-item class="m-3 d-flex justify-content-left align-items-center">
-                                    <!-- Check if the user type is doctor -->
-                                    <th:block th:if="${userType == 'doctor'}">
-                                        <a class="btn btn-secondary confirmBtn" th:href="@{/doctor/myPatient(pageNo=1)}">Back</a>
-                                    </th:block>
-                                
-                                    <!-- Check if the user type is patient -->
-                                    <th:block th:if="${userType == 'patient'}">
-                                        <a class="btn btn-secondary confirmBtn" th:href="@{/patient/backDashboard}">Back</a>
-                                    </th:block>
-                                </div>
-                        
-                        
-                                <h1 class="d-flex justify-content-start"> Health Condition</h1>
-                                Patient ID: <p th:text="${patientid}"></p>
-                                Patient Sensor ID: 
-                                
-                                <div th:if="${sensorDataList}">
-                                    <p th:text="${sensorDataList.sensorDataId}"></p>
-                                </div>
-                                
-                                <div th:unless="${sensorDataList}">
-                                    <p>None</p>          
-                                </div>
-                        
-                                    <table class = "table-bordered">
-                                        <tr>
-                                            <td>Normal</td>
-                                            <td><div style="width: 20px; height: 20px; background-color: rgb(130, 255, 130);"></div></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Not normal</td>
-                                            <td><div style="width: 20px; height: 20px; background-color: rgb(255, 90, 90);"></div></td>
-                                        </tr>
-                                    </table><br>
-    
-                                        Current/Latest Data
-                                        <table class="table table-bordered border border-dark">
-                                            <thead>
-                                            <tr>
-                                                <th scope="col">Body Temperature(Celsius)</th>
-                                                <th scope="col">Oxygen Saturation(SpO2)%</th>
-                                                <th scope="col">ECG</th>
-                                                <th scope="col">Heart Rate</th>
-                                                <th scope="col">Date & Time</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody class="tbody">
-                                            <tr th:each="sensorData:${sensorDataList}">
-                                                <td id="exist" th:style="${sensorData.bodyTemperature} > 37.2 ? 'background-color: rgb(255, 90, 90);': 'background-color: rgb(130, 255, 130);'" >
-                                                    [[${sensorData.bodyTemperature}]]</td>
-                                                <td th:style="${sensorData.oxygenReading} < 94 ? 'background-color: rgb(255, 90, 90);': 'background-color: rgb(130, 255, 130);'" >
-                                                    [[${sensorData.oxygenReading}]]</td>
-                                                <td th:text="${sensorData.ecgReading}">-</td>
-                                                <td th:style="${sensorData.Heart_Rate} > 90 ? 'background-color: rgb(255, 90, 90);': 'background-color: rgb(130, 255, 130);'" >
-                                                    [[${sensorData.Heart_Rate}]]</td>
-                                                <td th:text="${#dates.format(sensorData.timestamp, 'dd MMM yyyy HH:mm')}">-</td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-                        
-                                        <table th:if="${sensorDataListHistory}" class="table table-bordered border border-dark table-container">
-                                            <thead>
-                                            <tr>
-                                                <th scope="col">Body Temperature(Celsius)</th>
-                                                <th scope="col">Oxygen Saturation(SpO2)%</th>
-                                                <th scope="col">ECG</th>
-                                                <th scope="col">Heart Rate</th>
-                                                <th scope="col">Date & Time</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody class="tbody">
-                                            <tr th:each="sensorData:${sensorDataListHistory}">
-                                                <td id="exist" th:style="${sensorData.bodyTemperature} > 37.2 ? 'background-color: rgb(255, 90, 90);': 'background-color: rgb(130, 255, 130);'">
-                                                    [[${sensorData.bodyTemperature}]]
-                                                </td>
-                                                <td th:style="${sensorData.oxygenReading} < 94 ? 'background-color: rgb(255, 90, 90);': 'background-color: rgb(130, 255, 130);'">
-                                                    [[${sensorData.oxygenReading}]]
-                                                </td>
-                                                <td th:text="${sensorData.ecgReading}">-</td>
-                                                <td th:style="${sensorData.Heart_Rate} > 90 ? 'background-color: rgb(255, 90, 90);': 'background-color: rgb(130, 255, 130);'">
-                                                    [[${sensorData.Heart_Rate}]]
-                                                </td>
-                                                <td th:text="${#dates.format(sensorData.timestamp, 'dd MMM yyyy HH:mm')}">-</td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-    
-                                        <!-- will display when sensor data is NULL -->
-                                        <div th:style="${sensorDataList != null} ? 'display: none'" >
-                                            <h2>There is no Sensor ID Attach to this Patient.</h2>
-                                            <button class= "btn btn-warning" th:onclick="'showModal()'">Create</button>
-                                        </div>
-    
-                                        <!-- will display when sensor data is Exist -->
-                                        <!-- <div th:style="${sensorDataList == null} ? 'display: none'" >
-                                        
-                                        <form method="post" th:action="@{/patient/savehistory}">
-                        
-                                            <input type="hidden" th:name="patientid" th:value="${patientid}"/>
-                                            <button class= "submit btn btn-warning">Save to History</button>
-                                        
-                                        </form>
-                                            </div> -->
-                        
-                                    <div>
-                                        <!-- Chart container -->
-                                        <div style="width: 80%; margin: auto;">
-                                            <canvas id="bodyTemperatureChart"></canvas>
-                                        </div>
-    
-                                        <div style="width: 80%; margin: auto;">
-                                            <canvas id="oxygenSaturationChart"></canvas>
-                                        </div>
-    
-                                        <div style="width: 80%; margin: auto;">
-                                            <canvas id="ecgChart"></canvas>
-                                        </div>
-    
-                                        <div style="width: 80%; margin: auto;">
-                                            <canvas id="heartRateChart"></canvas>
-                                        </div>
-                                    </div>
-                </div>          
-            </div>
-        </div>
-    </div>
-                
-    <script>
-    // Extract ECG and timestamp data from the table
-    var ecgData = [];
 
-    tableRows.forEach(function (row) {
-        var cells = row.cells;
-        ecgData.push(cells[2].innerText); // Assuming ECG data is stored as text
-    });
+<body class="container my-5">
 
-    // Create the line chart for ECG
-    var ecgCtx = document.getElementById('ecgChart').getContext('2d');
-    var ecgChart = new Chart(ecgCtx, {
-        type: 'line',
-        data: {
-            labels: timestampData,
-            datasets: [{
-                label: 'ECG',
-                data: ecgData,
-                fill: false,
-                borderColor: 'rgba(255, 206, 86, 1)', // Line color
-                tension: 0.1
-            }]
-        },
-        options: {
-            scales: {
-                x: {
-                    type: 'category',
-                    title: {
-                        display: true,
-                        text: 'Date & Time'
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'ECG Reading'
-                    },
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-</script>
-                <script>
-    // Extract ECG and timestamp data from the table
-    var ecgData = [];
+<!-- Back Button Based on Role -->
+<form th:if="${role == 'doctor'}" th:action="@{/doctor}" method="get">
+    <button type="submit" class="btn btn-secondary mb-3">Back to Dashboard</button>
+</form>
+<form th:if="${role == 'patient'}" th:action="@{/patient}" method="get">
+    <button type="submit" class="btn btn-secondary mb-3">Back to Dashboard</button>
+</form>
 
-    tableRows.forEach(function (row) {
-        var cells = row.cells;
-        ecgData.push(cells[2].innerText); // Assuming ECG data is stored as text
-    });
+<h2>Sensor Dashboard</h2>
 
-    // Create the line chart for ECG
-    var ecgCtx = document.getElementById('ecgChart').getContext('2d');
-    var ecgChart = new Chart(ecgCtx, {
-        type: 'line',
-        data: {
-            labels: timestampData,
-            datasets: [{
-                label: 'ECG',
-                data: ecgData,
-                fill: false,
-                borderColor: 'rgba(255, 206, 86, 1)', // Line color
-                tension: 0.1
-            }]
-        },
-        options: {
-            scales: {
-                x: {
-                    type: 'category',
-                    title: {
-                        display: true,
-                        text: 'Date & Time'
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'ECG Reading'
-                    },
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-</script>
-                
-                <script>
-                    // Extract body temperature and timestamp data from the table
-                    var bodyTemperatureData = [];
-    
-                    var timestampData = [];
-                    var tableRows = document.querySelectorAll('.tbody tr');
-                    
-                    tableRows.forEach(function (row) {
-                        var cells = row.cells;
-                        bodyTemperatureData.push(parseFloat(cells[0].innerText));
-                        timestampData.push(cells[4].innerText);
-                    });
-                
-                    // Create the line chart
-                    var ctx = document.getElementById('bodyTemperatureChart').getContext('2d');
-                    var bodyTemperatureChart = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: timestampData,
-                            datasets: [{
-                                label: 'Body Temperature',
-                                data: bodyTemperatureData,
-                                fill: false,
-                                borderColor: 'rgba(75, 192, 192, 1)', // Line color
-                                tension: 0.1
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                x: {
-                                    type: 'category',
-                                    title: {
-                                        display: true,
-                                        text: 'Date & Time'
-                                    }
-                                },
-                                y: {
-                                    title: {
-                                        display: true,
-                                        text: 'Body Temperature (Celsius)'
-                                    },
-                                    beginAtZero: true
-                                }
-                            }
-                        }
-                    });
-                </script>
+<!-- Patient Info -->
+<div class="mb-3">
+    <b>Patient ID:</b> <span th:text="${patientid}"></span> <br/>
+    <b>Sensor ID:</b>
+    <span th:if="${sensorData != null}" th:text="${sensorData.sensorDataId}"></span>
+    <span th:unless="${sensorData != null}">No Sensor Assigned</span>
+</div>
 
+<!-- Current Data -->
+<div th:if="${sensorData != null}">
+    <h4>Latest Sensor Data</h4>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Body Temp (°C)</th>
+            <th>SpO₂ (%)</th>
+            <th>ECG</th>
+            <th>Heart Rate</th>
+            <th>Timestamp</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td th:class="${sensorData.bodyTemperature > 37.2} ? 'abnormal' : 'normal'" th:text="${sensorData.bodyTemperature}"></td>
+            <td th:class="${sensorData.oxygenReading < 94} ? 'abnormal' : 'normal'" th:text="${sensorData.oxygenReading}"></td>
+            <td th:text="${sensorData.ecgReading}"></td>
+            <td th:class="${sensorData.heart_Rate > 90} ? 'abnormal' : 'normal'" th:text="${sensorData.heart_Rate}"></td>
+            <td th:text="${#dates.format(sensorData.timestamp, 'dd MMM yyyy HH:mm')}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- History Filter -->
+<div th:if="${sensorData != null}">
+    <form class="mb-3" method="get" th:action="@{/patient/sensorDashboard}">
+        <input type="hidden" name="patientId" th:value="${patientid}" />
+        <input type="hidden" name="role" th:value="${role}" />
+        <input type="hidden" name="page" value="1" />
+        <label for="filterDate"><strong>Filter by Date:</strong></label>
+        <input type="date" name="filterDate" th:value="${filterDate}" />
+        <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+    </form>
+</div>
+
+<!-- History Section -->
+<div th:if="${sensorDataPage != null}">
+    <h4>History Data</h4>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Body Temp (°C)</th>
+            <th>SpO₂ (%)</th>
+            <th>ECG</th>
+            <th>Heart Rate</th>
+            <th>Timestamp</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(sensorDataPage)}">
+            <td colspan="5" class="text-center">No history data available.</td>
+        </tr>
+        <tr th:each="historyItem : ${sensorDataPage}">
+            <td th:text="${historyItem.bodyTemperature}" th:class="${historyItem.bodyTemperature > 37.2 or historyItem.bodyTemperature < 36.1} ? 'abnormal' : 'normal'"></td>
+            <td th:class="${historyItem.oxygenReading < 94} ? 'abnormal' : 'normal'" th:text="${historyItem.oxygenReading}"></td>
+            <td th:text="${historyItem.ecgReading}"></td>
+            <td th:class="${historyItem.heart_Rate > 90} ? 'abnormal' : 'normal'" th:text="${historyItem.heart_Rate}"></td>
+            <td th:text="${#dates.format(historyItem.timestamp, 'dd MMM yyyy HH:mm')}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <nav th:if="${totalPages > 1}">
+        <ul class="pagination">
+            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}">
+                <a class="page-link"
+                   th:href="@{/patient/sensorDashboard(patientId=${patientid}, page=${i}, filterDate=${filterDate}, role=${role})}"
+                   th:text="${i}"></a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<!-- ✅ Graph View -->
+<div th:if="${latestFiveReadings != null and !#lists.isEmpty(latestFiveReadings)}" class="mt-5">
+    <h4>Graph View (Latest 5 Readings)</h4>
+    <canvas id="sensorChart" height="120"></canvas>
+
+    <!-- Safe JavaScript Data Injection -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const sensorData = [
+            /*[# th:each="item,iter : ${latestFiveReadings}" ]*/
+            {
+                timestamp: /*[[${#dates.format(item.timestamp, 'HH:mm:ss')}]]*/,
+                temp: /*[[${item.bodyTemperature}]]*/,
+                hr: /*[[${item.heart_Rate}]]*/,
+                spo2: /*[[${item.oxygenReading}]]*/,
+                ecg: /*[[${item.ecgReading}]]*/
+            }/*[# th:if="${!iter.last}" ]*/,/*[/]*/
+            /*[/]*/
+        ];
+        /*]]>*/
+    </script>
+</div>
+
+<!-- Message when no recent readings -->
+<div th:if="${latestFiveReadings == null or #lists.isEmpty(latestFiveReadings)}" class="text-muted">
+    No recent readings to display.
+</div>
+
+<!-- When No Sensor Assigned -->
+<div th:if="${sensorData == null}">
+    <h4>No sensor data available. Please register sensor first.</h4>
+</div>
+
+<!-- Chart Rendering -->
 <script>
-    // Extract oxygen saturation and timestamp data from the table
-    var oxygenSaturationData = [];
+    document.addEventListener("DOMContentLoaded", function () {
+        if (typeof sensorData !== "undefined" && Array.isArray(sensorData)) {
+            const labels = sensorData.map(e => e.timestamp).reverse();
+            const temps = sensorData.map(e => e.temp).reverse();
+            const heartRates = sensorData.map(e => e.hr).reverse();
+            const spo2s = sensorData.map(e => e.spo2).reverse();
+            const ecgs = sensorData.map(e => e.ecg).reverse();
 
-    tableRows.forEach(function (row) {
-        var cells = row.cells;
-        oxygenSaturationData.push(parseFloat(cells[1].innerText));
-    });
-
-    // Create the line chart for Oxygen Saturation
-    var oxygenCtx = document.getElementById('oxygenSaturationChart').getContext('2d');
-    var oxygenSaturationChart = new Chart(oxygenCtx, {
-        type: 'line',
-        data: {
-            labels: timestampData,
-            datasets: [{
-                label: 'Oxygen Saturation',
-                data: oxygenSaturationData,
-                fill: false,
-                borderColor: 'rgba(255, 99, 132, 1)', // Line color
-                tension: 0.1
-            }]
-        },
-        options: {
-            scales: {
-                x: {
-                    type: 'category',
-                    title: {
-                        display: true,
-                        text: 'Date & Time'
-                    }
+            const ctx = document.getElementById('sensorChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Temp (°C)', data: temps, borderColor: 'blue', tension: 0.4 },
+                        { label: 'Heart Rate', data: heartRates, borderColor: 'green', tension: 0.4 },
+                        { label: 'SpO₂ (%)', data: spo2s, borderColor: 'orange', tension: 0.4 },
+                        { label: 'ECG', data: ecgs, borderColor: 'purple', tension: 0.4 }
+                    ]
                 },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Oxygen Saturation (%)'
-                    },
-                    beginAtZero: true
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: false } }
                 }
-            }
+            });
         }
     });
 </script>
-<script>
-    // Extract ECG and timestamp data from the table
-    var ecgData = [];
-
-    tableRows.forEach(function (row) {
-        var cells = row.cells;
-        ecgData.push(cells[2].innerText); // Assuming ECG data is stored as text
-    });
-
-    // Create the line chart for ECG
-    var ecgCtx = document.getElementById('ecgChart').getContext('2d');
-    var ecgChart = new Chart(ecgCtx, {
-        type: 'line',
-        data: {
-            labels: timestampData,
-            datasets: [{
-                label: 'ECG',
-                data: ecgData,
-                fill: false,
-                borderColor: 'rgba(255, 206, 86, 1)', // Line color
-                tension: 0.1
-            }]
-        },
-        options: {
-            scales: {
-                x: {
-                    type: 'category',
-                    title: {
-                        display: true,
-                        text: 'Date & Time'
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'ECG Reading'
-                    },
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-</script>
-<script>
-    // Extract Heart Rate and timestamp data from the table
-    var heartRateData = [];
-
-    tableRows.forEach(function (row) {
-        var cells = row.cells;
-        heartRateData.push(parseFloat(cells[3].innerText));
-    });
-
-    // Create the line chart for Heart Rate
-    var heartRateCtx = document.getElementById('heartRateChart').getContext('2d');
-    var heartRateChart = new Chart(heartRateCtx, {
-        type: 'line',
-        data: {
-            labels: timestampData,
-            datasets: [{
-                label: 'Heart Rate',
-                data: heartRateData,
-                fill: false,
-                borderColor: 'rgba(54, 162, 235, 1)', // Line color
-                tension: 0.1
-            }]
-        },
-        options: {
-            scales: {
-                x: {
-                    type: 'category',
-                    title: {
-                        display: true,
-                        text: 'Date & Time'
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Heart Rate'
-                    },
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-</script>
-
 
 </body>
 </html>

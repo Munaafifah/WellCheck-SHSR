@@ -1,54 +1,64 @@
 package com.SmartHealthRemoteSystem.SHSR.Service;
 
-import com.SmartHealthRemoteSystem.SHSR.Prediction.Prediction;
 import com.SmartHealthRemoteSystem.SHSR.ReadSensorData.SensorData;
+import com.SmartHealthRemoteSystem.SHSR.ReadSensorData.HistorySensorData;
 import com.SmartHealthRemoteSystem.SHSR.ReadSensorData.SensorDataRepository;
-import com.SmartHealthRemoteSystem.SHSR.Repository.SHSRDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 @Service
 public class SensorDataService {
-    private final SHSRDAO<SensorData> sensorDataRepository;
-
-    public SensorDataService() {
-        sensorDataRepository=new SensorDataRepository();
-    }
 
     @Autowired
-    public SensorDataService(SHSRDAO<SensorData> sensorDataRepository) {
-        this.sensorDataRepository = sensorDataRepository;
-    }
+    private SensorDataRepository sensorDataRepository;
 
-    public String createSensorData() throws ExecutionException, InterruptedException {
-        SensorData sensorData = new SensorData();
+    // ✅ Save new sensor data (for real-time update from serial etc)
+    public String saveSensorData(SensorData sensorData) {
+        sensorData.setTimestamp(Instant.now());
         return sensorDataRepository.save(sensorData);
     }
 
-    public String deleteSensorData(String sensorId) throws ExecutionException, InterruptedException {
-        return sensorDataRepository.delete(sensorId);
+    // ✅ Get all sensor data (optional - for admin side if needed)
+    public List<SensorData> getAllSensorData() {
+        return sensorDataRepository.getAll();
     }
 
-    public SensorData getSensorData(String sensorId) throws ExecutionException, InterruptedException {
+    // ✅ Get specific sensor data by sensorDataId
+    public SensorData getSensorById(String sensorId) {
         return sensorDataRepository.get(sensorId);
     }
 
-    public String updateSensorData(SensorData sensorData) throws ExecutionException, InterruptedException {
-        return sensorDataRepository.update(sensorData);
+    // ✅ Update latest reading
+    public boolean updateSensorData(SensorData updatedSensorData) {
+        SensorData existing = getSensorById(updatedSensorData.getSensorDataId());
+        if (existing != null) {
+            updatedSensorData.setTimestamp(Instant.now());
+            sensorDataRepository.update(updatedSensorData);
+            return true;
+        }
+        return false;
     }
 
-    public String stringSensorData(String sensorId) throws ExecutionException, InterruptedException {
-        SensorData sensorData=sensorDataRepository.get(sensorId);
-        return sensorData.toString();
+    // ✅ Delete sensor data
+    public boolean deleteSensorData(String sensorId) {
+        sensorDataRepository.delete(sensorId);
+        return true;
     }
 
-    public Optional<SensorData> getRecentSensorData(String sensorId) throws ExecutionException, InterruptedException{
-    List<SensorData> SensorDataList = sensorDataRepository.getAll();
-    return SensorDataList.stream().max(Comparator.comparing(SensorData::getTimestamp));
-  }
+    // ✅ Get most recent sensor data (optional for auto-monitoring use cases)
+    public Optional<SensorData> getMostRecentSensor() {
+        List<SensorData> sensorDataList = getAllSensorData();
+        return sensorDataList.stream()
+                .max(Comparator.comparing(SensorData::getTimestamp));
+    }
+
+    // ✅ Append history into nested history array
+    public boolean appendHistory(String sensorDataId, HistorySensorData historyData) {
+        return sensorDataRepository.addToHistory(sensorDataId, historyData);
+    }
 }

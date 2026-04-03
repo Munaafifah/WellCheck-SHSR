@@ -39,7 +39,8 @@ and open the template in the editor.
                 <div class="d-flex shadow flex-column flex-shrink-0 p-3 bg-primary bg-opacity-25 rounded">
                     <a th:href="@{/doctor}" class="card-link" style="text-decoration: none; color: black;">
                         <div class="card bg-primary bg-opacity-25 rounded">
-                            <img class="card-img-top" th:src="@{/image/img_avatar1.png}" alt="Card image">
+                           <img th:src="'data:' + ${doctor.profilePictureType} + ';base64,' + ${doctor.profilePicture}"
+     alt="Doctor Profile" class="card-img-top" />
                             <div class="card-body">
                                 <h3 class="card-title" th:text="${doctor.name}" > </h3>
                                 <p class="card-text" th:text="${doctor.position}"></p>
@@ -54,7 +55,7 @@ and open the template in the editor.
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a th:href="@{/doctor/myPatient(pageNo=1)}" class="nav-link link-dark f">
+                            <a th:href="@{/doctor/myPatient}" class="nav-link link-dark f">
                                 My Patient
                             </a>
                         </li>
@@ -63,13 +64,18 @@ and open the template in the editor.
                                 Assign Patient
                             </a>
                         </li>
-                        <!---izzat-->
+                       
                         <li>
                             <a th:href="@{/patient/list}"class="nav-link link-dark active f">
                                 List of Assigned Patient
                             </a>
                         </li>
-                        <!---izzat-->
+
+                        
+                          <li>
+                            <a th:href="@{/doctor/predictionReview}" class="nav-link link-dark f">Prediction Review</a>
+                        </li>
+                        
                         <li>
                             <form th:action="@{/logout}" method="post" hidden="true" name="logoutForm">
                                 <input type="submit" value="Logout"/>
@@ -91,15 +97,12 @@ and open the template in the editor.
                     <th>Assigned by Doctor</th>
                     <th>Patient ID</th>
                     <th>Patient Name</th>
-                    <th>Status
-                        <!-- <form th:action="@{/filter}" th:object="${filterForm}">
-                            <select id="filterSelect" th:field="*{status}">
-                              <option value="all">All</option>
-                              <option value="released">Released</option>
-                              <option value="surveillance">Under Surveillance</option>
-                            </select>
-                            <button type="submit">Filter</button>
-                          </form> -->
+                    <th>Email</th>
+                    <th>Contact</th>
+                    <th>Address</th>
+                    <th>Status</th>
+
+                       
                         <select id="filterSelect">
                             <option value="all">All</option>
                             <option value="Released">Released</option>
@@ -109,20 +112,41 @@ and open the template in the editor.
                     </thead>
                     <tbody>
 
-                    <tr th:each="patient:${patientList}">
+                       <tr th:each="patient, iterStat : ${patientList}">
+                            <td th:text="${startIndex + iterStat.index + 1}">1</td>
+                            <td th:text="${doctor.name}"></td>
+                            <td th:text="${patient.userId}"></td>
+                            <td th:text="${patient.name}"></td>
+                            <td th:text="${patient.email}"></td>
+                            <td th:text="${patient.contact}"></td>
+                            <td th:text="${patient.address}"></td>
+                            <td th:text="${patient.status}"></td>
+                        </tr>
 
-                        <td th:text="${patientStat.index}+1"></td>
-                        <td th:text="${patient.assigned_doctor}"></td>
-                        <td th:text="${patient.userId}"></td>
-                        <td th:text="${patient.name}"></td>
-                        <td th:text="${patient.Status}"></td>
+
                         
-                    </tr>
 
 
                     </tbody>
 
                 </table>
+
+                <!-- ✅ Pagination Controls: Place here -->
+<nav>
+    <ul class="pagination justify-content-center">
+      <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+        <a class="page-link" th:href="@{/patient/list(pageNo=${currentPage - 1}, pageSize=${pageSize})}">Previous</a>
+      </li>
+      <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+          th:classappend="${i == currentPage} ? 'active'">
+        <a class="page-link" th:href="@{/patient/list(pageNo=${i}, pageSize=${pageSize})}" th:text="${i + 1}">1</a>
+      </li>
+      <li class="page-item" th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
+        <a class="page-link" th:href="@{/patient/list(pageNo=${currentPage + 1}, pageSize=${pageSize})}">Next</a>
+      </li>
+    </ul>
+  </nav>
+  <!-- ✅ End Pagination Controls -->
                 
 
                 <div class="confirmation_page">

@@ -1,53 +1,59 @@
 package com.SmartHealthRemoteSystem.SHSR.Prediction;
 
-import com.SmartHealthRemoteSystem.SHSR.Service.SymptomsService;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;          // ✅ correct import
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import com.SmartHealthRemoteSystem.SHSR.Service.SymptomWeightService;
 
 @RestController
 public class PredictionRestController {
 
+    private final SymptomWeightService weightService;
+    private final RestTemplate         restTemplate;
+
+    @Value("${ml.api.url}")            // value comes from properties
+    private String mlApiUrl;
+
     @Autowired
-    private SymptomsService symptomService;
-    
-    public PredictionRestController(SymptomsService symptomService){
-        this.symptomService=symptomService;
+    public PredictionRestController(SymptomWeightService weightService,
+                                    RestTemplate restTemplate) {
+        this.weightService = weightService;
+        this.restTemplate  = restTemplate;
     }
 
+    /* ---------------------------------------------------------- */
     @PostMapping("/apicall")
     public ResponseEntity<String> callDjangoAPI(@RequestParam("symptom[]") List<String> symptoms) {
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
 
-            // Construct the request body
-            List<Integer> symptomValues = new ArrayList<>();
-            for (String symptom : symptoms) {
-                symptomValues.add(symptomService.getSymptomWeight(symptom));
-            }
+        // 1️⃣ convert symptoms ➞ numeric weights
+        List<Integer> weights = symptoms.stream()
+                                        .map(weightService::getSymptomWeight)
+                                        .collect(Collectors.toList());
 
-            Map<String, List<Integer>> requestBody = new HashMap<>();
-            requestBody.put("symptoms", symptomValues);
+        Map<String, List<Integer>> body = Map.of("symptoms", weights);
 
-            // Make a POST request to the Django API
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> response = restTemplate.postForEntity("http://127.0.0.1:8000/status/", new HttpEntity<>(requestBody, headers), String.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-            // Return the response from the Django API
-            return ResponseEntity.ok(response.getBody());
-        } catch (Exception e) {
-            // Handle exceptions
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
-        }
+        // 2️⃣ POST to Django / FastAPI endpoint
+        ResponseEntity<String> resp = restTemplate.postForEntity(
+                mlApiUrl,                            // https://…/status/
+                new HttpEntity<>(body, headers),
+                String.class);
+
+        return ResponseEntity.status(resp.getStatusCode())
+                             .body(resp.getBody());
     }
-
-    
 }

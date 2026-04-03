@@ -24,7 +24,10 @@
                         <a th:href="@{/pharmacist}" class="card-link"
                             style="text-decoration: none; color: black;">
                             <div class="card bg-primary bg-opacity-25 rounded">
-                                <img class="card-img-top" th:src="@{/image/profile3.jpg}" alt="Card image">
+                                <img class="card-img-top"
+     th:src="${pharmacist.profilePicture} != null ? 'data:' + ${pharmacist.profilePictureType} + ';base64,' + ${pharmacist.profilePicture} : '/image/img_avatar1.png'"
+     alt="Profile Picture">
+
                                 <div class="card-body">
                                     <h3 class="card-title">Syazwani </h3>
                                     <p class="card-text">Head Officer</p>
@@ -33,7 +36,7 @@
                         </a>
                         <hr>
                         <ul class="nav nav-pills flex-column mb-auto">
-                            <li class="nav-item">
+                             <li class="nav-item">
                                 <a th:href="@{/pharmacist/updateProfile}" class="nav-link link-dark f">
                                     Edit Profile
                                 </a>
@@ -48,6 +51,11 @@
                                     Medicine Stock
                                 </a>
                             </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link link-dark f" th:href="@{/pharmacist/patient-medicine-list}">Patient Medicines</a>
+                            </li>
+
                             <li>
                                 <form th:action="@{/logout}" method="post" th:hidden="true" name="logoutForm">
                                     <input type="submit" value="Logout" />

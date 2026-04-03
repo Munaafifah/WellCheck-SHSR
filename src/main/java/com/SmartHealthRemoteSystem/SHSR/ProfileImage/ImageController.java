@@ -1,5 +1,5 @@
-package com.SmartHealthRemoteSystem.SHSR.ProfileImage;
+// package com.SmartHealthRemoteSystem.SHSR.ProfileImage;
 
-public class ImageController {
+// public class ImageController {
     
-}
+// }

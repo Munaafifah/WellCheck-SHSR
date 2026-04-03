@@ -7,7 +7,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -28,46 +28,54 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         this.successHandler = successHandler;
     }
 
-    @Override
+   @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(myUserDetailsService);
-    }
+    auth.userDetailsService(myUserDetailsService)
+        .passwordEncoder(passwordEncoder()); // ✅ FIXED
+}
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .requiresChannel()
+            .requiresChannel()
                 .requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null)
-                .requiresSecure().and()
-                .authorizeRequests()
+                .requiresSecure()
+            .and()
+            .authorizeRequests()
+                .antMatchers("/registerPatient").permitAll() // Allow access to register page
+                .antMatchers("/Sensor-data/**").permitAll() // ✅ Allow open access for sensor API
                 .antMatchers("/admin/**").hasRole("ADMIN")
-                .antMatchers("/doctor/**").hasAnyRole("ADMIN","DOCTOR")
-                .antMatchers("/assignpatient/**").hasAnyRole("ADMIN","DOCTOR")
-                .antMatchers("/prescription/**").hasAnyRole("ADMIN","DOCTOR")
-                .antMatchers("/patient/**").hasAnyRole("ADMIN","DOCTOR","PATIENT")
-                .antMatchers("/pharmacist/**").hasAnyRole("ADMIN","PHARMACIST")
+                .antMatchers("/doctor/**").hasAnyRole("ADMIN", "DOCTOR")
+                .antMatchers("/assignpatient/**").hasAnyRole("ADMIN", "DOCTOR")
+                .antMatchers("/prescription/**").hasAnyRole("ADMIN", "DOCTOR")
+                .antMatchers("/patient/**").hasAnyRole("ADMIN", "DOCTOR", "PATIENT")
+                .antMatchers("/pharmacist/**").hasAnyRole("ADMIN", "PHARMACIST")
                 .antMatchers("/js/**", "/css/**").permitAll()
-                .and()
-                .formLogin()
+            .and()
+            .formLogin()
                 .loginPage("/login").permitAll()
                 .successHandler(successHandler)
-                .and()
-                .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+            .and()
+            .logout()
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/login")
-                .and()
-                .csrf().disable()
-                .authorizeRequests()
-                    .antMatchers("/api/diagnosis/receiveSymptoms").permitAll() // Allow access without authentication
-                    .anyRequest().authenticated()
-                .and() 
-                .httpBasic();
-               
+            .and()
+            .csrf().disable()
+            .authorizeRequests()
+                .antMatchers("/api/diagnosis/receiveSymptoms").permitAll()
+                .anyRequest().authenticated()
+            .and()
+            .httpBasic();
     }
+    
+
+   @Bean
+public PasswordEncoder passwordEncoder(){
+    return new BCryptPasswordEncoder();  // Secure
+}
 
 
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        //return new BCryptPasswordEncoder();
-        return NoOpPasswordEncoder.getInstance();
-    }
+    
+    
 }
