@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-ShsrApplication<SHSR>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.SmartHealthRemoteSystem.SHSR.ShsrApplication",
+            "projectName": "SHSR",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

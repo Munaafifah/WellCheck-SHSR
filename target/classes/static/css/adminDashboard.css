@@ -29,6 +29,10 @@
     list-style: none;
 }
 
+.admin_main_content {
+    display: block !important;
+}
+
 .admin_sidebar_links li{
     padding-bottom: 2rem;
 }
@@ -121,7 +125,7 @@
 }
 
 .add_user_page-title{
-    display: none;
+    display: block;
 }
 
 .extraForm{
