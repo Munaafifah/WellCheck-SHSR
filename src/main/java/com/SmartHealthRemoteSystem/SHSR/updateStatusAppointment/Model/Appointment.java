@@ -17,16 +17,18 @@ public class Appointment {
     private String insurancePolicyNumber;
     private String email;
     private int appointmentCost;
+    private double consultationCost;
+    private double equipmentCost;
     private String statusPayment;
     private String statusAppointment;
     private String timestamp;
 
-    public Appointment(String id, String appointmentId, String userId, String doctorId, 
-                      String hospitalId, String appointmentDate, String appointmentTime, 
-                      String duration, String registeredHospital, String typeOfSickness, 
-                      String additionalNotes, String insuranceProvider, String insurancePolicyNumber, 
-                      String email, int appointmentCost, String statusPayment, 
-                      String statusAppointment, String timestamp) {
+    public Appointment(String id, String appointmentId, String userId, String doctorId,
+            String hospitalId, String appointmentDate, String appointmentTime,
+            String duration, String registeredHospital, String typeOfSickness,
+            String additionalNotes, String insuranceProvider, String insurancePolicyNumber,
+            String email, int appointmentCost, String statusPayment,
+            String statusAppointment, String timestamp) {
         this.id = id;
         this.appointmentId = appointmentId;
         this.userId = userId;
@@ -48,22 +50,83 @@ public class Appointment {
     }
 
     // Getters
-    public String getId() { return id; }
-    public String getAppointmentId() { return appointmentId; }
-    public String getUserId() { return userId; }
-    public String getDoctorId() { return doctorId; }
-    public String getAppointmentDate() { return appointmentDate; }
-    public String getAppointmentTime() { return appointmentTime; }
-    public String getDuration() { return duration; }
-    public String getTypeOfSickness() { return typeOfSickness; }
-    public String getAdditionalNotes() { return additionalNotes; }
-    public String getInsurancePolicyNumber() { return insurancePolicyNumber; }
-    public String getEmail() { return email; }
-    public int getAppointmentCost() { return appointmentCost; }
-    public String getStatusPayment() { return statusPayment; }
-    public String getStatusAppointment() { return statusAppointment; }
-    public String getTimestamp() { return timestamp; }
-    public String getHospitalId() { return hospitalId; }
-    public String getRegisteredHospital() { return registeredHospital; }
-    public String getInsuranceProvider() { return insuranceProvider; }
+    public String getId() {
+        return id;
+    }
+
+    public String getAppointmentId() {
+        return appointmentId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getDoctorId() {
+        return doctorId;
+    }
+
+    public String getAppointmentDate() {
+        return appointmentDate;
+    }
+
+    public String getAppointmentTime() {
+        return appointmentTime;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public String getTypeOfSickness() {
+        return typeOfSickness;
+    }
+
+    public String getAdditionalNotes() {
+        return additionalNotes;
+    }
+
+    public String getInsurancePolicyNumber() {
+        return insurancePolicyNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public int getAppointmentCost() {
+        return appointmentCost;
+    }
+
+    public double getConsultationCost() {
+        return consultationCost;
+    }
+
+    public double getEquipmentCost() {
+        return equipmentCost;
+    }
+
+    public String getStatusPayment() {
+        return statusPayment;
+    }
+
+    public String getStatusAppointment() {
+        return statusAppointment;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public String getHospitalId() {
+        return hospitalId;
+    }
+
+    public String getRegisteredHospital() {
+        return registeredHospital;
+    }
+
+    public String getInsuranceProvider() {
+        return insuranceProvider;
+    }
 }

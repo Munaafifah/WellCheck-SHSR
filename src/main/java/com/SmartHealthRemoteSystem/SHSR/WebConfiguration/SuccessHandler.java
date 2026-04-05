@@ -18,8 +18,8 @@ public class SuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
-                                        HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+            HttpServletResponse response,
+            Authentication authentication) throws IOException, ServletException {
         String redirectUrl = null;
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         for (GrantedAuthority grantedAuthority : authorities) {
@@ -32,7 +32,10 @@ public class SuccessHandler implements AuthenticationSuccessHandler {
             } else if (grantedAuthority.getAuthority().equals("ROLE_PHARMACIST")) {
                 redirectUrl = "/pharmacist";
                 break;
-            } else{
+            } else if (grantedAuthority.getAuthority().equals("ROLE_CLINIC_ASSISTANT")) {
+                redirectUrl = "/clinicassistant";
+                break;
+            } else {
                 redirectUrl = "/admin";
                 break;
             }

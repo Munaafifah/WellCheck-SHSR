@@ -16,26 +16,56 @@ document.addEventListener("DOMContentLoaded", function () {
     const userTable = document.getElementsByClassName('user_table');
     const buttonTable = document.querySelectorAll('.admin_navBtn');
 
-    // Auto-select tab based on ?tab= parameter in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const currentTab = urlParams.get("tab") || "patient"; // default to patient
+    // BUTTON ORDER in HTML:
+    //   [0] = Patient
+    //   [1] = Doctor
+    //   [2] = Admin
+    //   [3] = Pharmacist
+    //   [4] = Clinic Assistant
+    //   [5] = Assigned Patient
 
+    // TABLE ORDER in HTML:
+    //   [0] = patient
+    //   [1] = doctor
+    //   [2] = pharmacist
+    //   [3] = clinic_assistant
+    //   [4] = admin
+    //   [5] = assigned
+
+    // tabMap = which BUTTON index to highlight
     const tabMap = {
-        "patient": 0,
-        "doctor": 1,
-        "admin": 2,
-        "pharmacist": 3,
-        "assigned": 4
+        "patient":          0,
+        "doctor":           1,
+        "admin":            2,
+        "pharmacist":       3,
+        "clinic_assistant": 4,
+        "assigned":         5
     };
 
-    const activeTabIndex = tabMap[currentTab];
+    // tableIndexMap = which TABLE index to show
+    const tableIndexMap = {
+        "patient":          0,
+        "doctor":           1,
+        "admin":            4,
+        "pharmacist":       2,
+        "clinic_assistant": 3,
+        "assigned":         5
+    };
+
+    // Auto-select tab based on ?tab= parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentTab = urlParams.get("tab") || "patient";
+
+    const activeTabIndex   = tabMap[currentTab];
+    const activeTableIndex = tableIndexMap[currentTab];
+
     if (activeTabIndex !== undefined) {
         for (let i = 0; i < userTable.length; i++) {
             userTable[i].classList.remove('tableActive');
             buttonTable[i].classList.remove('admin_navBtn_active');
         }
-        userTable[activeTabIndex].classList.add("tableActive");
         buttonTable[activeTabIndex].classList.add("admin_navBtn_active");
+        userTable[activeTableIndex].classList.add("tableActive");
     }
 
     function toggleSkills() {
@@ -50,12 +80,14 @@ document.addEventListener("DOMContentLoaded", function () {
             userTable[0].classList.add("tableActive");
         } else if (itemClass.includes('doctorBtn')) {
             userTable[1].classList.add("tableActive");
+        } else if (itemClass.includes('adminBtn')) {
+            userTable[4].classList.add("tableActive");
         } else if (itemClass.includes('pharmacistBtn')) {
             userTable[2].classList.add("tableActive");
-        } else if (itemClass.includes('adminBtn')) {
+        } else if (itemClass.includes('clinicAssistantBtn')) {
             userTable[3].classList.add("tableActive");
         } else if (itemClass.includes('asspatBtn')) {
-            userTable[4].classList.add("tableActive");
+            userTable[5].classList.add("tableActive");
         }
 
         this.classList.add("admin_navBtn_active");
@@ -65,7 +97,13 @@ document.addEventListener("DOMContentLoaded", function () {
         el.addEventListener('click', toggleSkills);
     });
 
+    // extraForm[0] = Patient fields
+    // extraForm[1] = Doctor fields
+    // extraForm[2] = Pharmacist fields
+    // extraForm[3] = Clinic Assistant fields
     const userForm = document.getElementsByClassName('extraForm');
+
+    // radioFormInput: [0]=ADMIN [1]=PATIENT [2]=DOCTOR [3]=PHARMACIST [4]=CLINIC_ASSISTANT
     const radioFormInput = document.querySelectorAll('input[type=radio][name="role"]');
 
     function toggleForm() {
@@ -79,6 +117,8 @@ document.addEventListener("DOMContentLoaded", function () {
             userForm[1].classList.add("activeForm");
         } else if (this.classList.contains('pharmacist')) {
             userForm[2].classList.add("activeForm");
+        } else if (this.classList.contains('clinicAssistant')) {
+            userForm[3].classList.add("activeForm");
         }
     }
 
@@ -86,15 +126,27 @@ document.addEventListener("DOMContentLoaded", function () {
         e.addEventListener('click', toggleForm);
     });
 
-    const confirmAddUserBtn = document.getElementById("confirmAddUserBtn"),
-        cancelAddUserBtn = document.getElementById("cancelBtnAddUser"),
-        addUserBtn = document.getElementById("addUserBtn"),
-        deleteUserBtn = document.querySelectorAll(".deleteUserBtn"),
-        confirmDeleteUserBtn = document.getElementById("confirmDeleteUserBtn"),
-        cancelDeleteUserBtn = document.getElementById("cancelDeleteUserBtn"),
-        editUserBtn = document.querySelectorAll(".editUserBtn");
+    const confirmAddUserBtn   = document.getElementById("confirmAddUserBtn"),
+          cancelAddUserBtn    = document.getElementById("cancelBtnAddUser"),
+          addUserBtn          = document.getElementById("addUserBtn"),
+          userListBtn         = document.getElementById("userListBtn"),
+          deleteUserBtn       = document.querySelectorAll(".deleteUserBtn"),
+          confirmDeleteUserBtn= document.getElementById("confirmDeleteUserBtn"),
+          cancelDeleteUserBtn = document.getElementById("cancelDeleteUserBtn"),
+          editUserBtn         = document.querySelectorAll(".editUserBtn");
 
-    addUserBtn.addEventListener("click", function () {
+    // User List button - show main content
+    if (userListBtn) {
+        userListBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            document.getElementsByClassName("admin_main_content")[0].style.display = "block";
+            document.getElementsByClassName("add_user_page")[0].classList.remove("user_page_active");
+        });
+    }
+
+    // Add User button
+    addUserBtn.addEventListener("click", function (e) {
+        e.preventDefault();
         document.getElementById("userFormTitle").textContent = "Add User";
         document.getElementsByClassName("add_user_page")[0].classList.add("user_page_active");
         document.getElementsByClassName("admin_main_content")[0].style.display = "none";
@@ -114,21 +166,22 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementsByClassName("admin_main_content")[0].style.display = "block";
         activeRadioForm();
 
-        // Reset form values
-        document.getElementById("userId").value = "";
-        document.getElementById("userFullName").value = "";
-        document.getElementById("userPassword").value = "";
-        document.getElementById("userEmail").value = "";
-        document.getElementById("contact").value = "";
-        document.getElementById("address").value = "";
-        document.getElementById("emergencyContact").value = "";
-        document.getElementById("sensorId").value = "";
-        document.getElementById("doctorHospital").value = "";
-        document.getElementById("doctorPosition").value = "";
-        document.getElementById("pharmacistHospital").value = "";
-        document.getElementById("pharmacistPosition").value = "";
-        document.getElementById("userId").readOnly = false;
-        document.getElementById("userPassword").readOnly = false;
+        document.getElementById("userId").value                  = "";
+        document.getElementById("userFullName").value            = "";
+        document.getElementById("userPassword").value            = "";
+        document.getElementById("userEmail").value               = "";
+        document.getElementById("contact").value                 = "";
+        document.getElementById("address").value                 = "";
+        document.getElementById("emergencyContact").value        = "";
+        document.getElementById("sensorId").value                = "";
+        document.getElementById("doctorHospital").value          = "";
+        document.getElementById("doctorPosition").value          = "";
+        document.getElementById("pharmacistHospital").value      = "";
+        document.getElementById("pharmacistPosition").value      = "";
+        document.getElementById("clinicAssistantClinic").value   = "";
+        document.getElementById("clinicAssistantPosition").value = "";
+        document.getElementById("userId").readOnly               = false;
+        document.getElementById("userPassword").readOnly         = false;
     });
 
     function activeRadioForm() {
@@ -159,12 +212,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 role = "DOCTOR";
             } else if (row.closest("#pharmacistTable")) {
                 role = "PHARMACIST";
+            } else if (row.closest("#clinicAssistantTable")) {
+                role = "CLINIC_ASSISTANT";
             } else if (row.closest("#adminTable")) {
                 const roleCell = row.querySelector('[data-column="role"]');
                 role = roleCell ? roleCell.innerText.trim().toUpperCase() : "ADMIN";
             }
 
-            document.getElementById("userIdToBeDelete").value = userIdCell ? userIdCell.innerText.trim() : '';
+            document.getElementById("userIdToBeDelete").value   = userIdCell ? userIdCell.innerText.trim() : '';
             document.getElementById("userRoleToBeDelete").value = role;
         });
     });
@@ -185,11 +240,11 @@ document.addEventListener("DOMContentLoaded", function () {
             const row = this.closest("tr");
             const cells = row.getElementsByTagName("td");
 
-            document.getElementById("userId").value = cells[0].innerText;
-            document.getElementById("userId").readOnly = true;
+            document.getElementById("userId").value       = cells[0].innerText;
+            document.getElementById("userId").readOnly    = true;
             document.getElementById("userFullName").value = cells[1].innerText;
-            document.getElementById("contact").value = cells[2].innerText;
-            document.getElementById("userEmail").value = cells[3].innerText;
+            document.getElementById("contact").value      = cells[2].innerText;
+            document.getElementById("userEmail").value    = cells[3].innerText;
 
             const editClassName = this.className;
 
@@ -197,8 +252,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 userForm[0].classList.add("activeForm");
                 radioFormInput[1].checked = true;
                 document.getElementById("emergencyContact").value = cells[4].innerText;
-                document.getElementById("address").value = cells[5].innerText;
-                document.getElementById("sensorId").value = cells[6].innerText;
+                document.getElementById("address").value          = cells[5].innerText;
+                document.getElementById("sensorId").value         = cells[6].innerText;
             } else if (editClassName.includes('editDoctor')) {
                 userForm[1].classList.add("activeForm");
                 radioFormInput[2].checked = true;
@@ -208,7 +263,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 userForm[2].classList.add("activeForm");
                 radioFormInput[3].checked = true;
                 document.getElementById("pharmacistHospital").value = cells[4].innerText;
-                document.getElementById("pharmacistPosition").value = cells[5].innerText;
+                document.getElementById("pharmacistPosition").value  = cells[5].innerText;
+            } else if (editClassName.includes('editClinicAssistant')) {
+                userForm[3].classList.add("activeForm");
+                radioFormInput[4].checked = true;
+                document.getElementById("clinicAssistantClinic").value   = cells[4].innerText;
+                document.getElementById("clinicAssistantPosition").value = cells[5].innerText;
             } else {
                 radioFormInput[0].checked = true;
             }
@@ -254,23 +314,32 @@ document.addEventListener("DOMContentLoaded", function () {
         resetTableDisplay('patientTable');
         handleSearchInput('patientTable', query);
     });
+
     document.getElementById('search-input-admin').addEventListener('input', function () {
         const query = this.value.trim().toLowerCase();
         resetTableDisplay('adminTable');
         handleSearchInput('adminTable', query);
     });
+
     document.getElementById('search-input-doctor').addEventListener('input', function () {
         const query = this.value.trim().toLowerCase();
         resetTableDisplay('doctorTable');
         handleSearchInput('doctorTable', query);
     });
+
     document.getElementById('search-input-pharmacist').addEventListener('input', function () {
         const query = this.value.trim().toLowerCase();
         resetTableDisplay('pharmacistTable');
         handleSearchInput('pharmacistTable', query);
     });
 
+    document.getElementById('search-input-clinicassistant').addEventListener('input', function () {
+        const query = this.value.trim().toLowerCase();
+        resetTableDisplay('clinicAssistantTable');
+        handleSearchInput('clinicAssistantTable', query);
+    });
 
+    // Assigned patient filter
     const filterDropdown = document.getElementById("filterAssigned");
     const rows = document.querySelectorAll("#assignedPatientTable tr");
 
@@ -279,6 +348,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         rows.forEach(row => {
             const doctorCell = row.querySelector("td:nth-child(2)");
+            if (!doctorCell) return;
             const doctorText = doctorCell.textContent.trim().toLowerCase();
 
             if (value === "all") {
