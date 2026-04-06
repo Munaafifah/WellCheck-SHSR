@@ -24,6 +24,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+import com.mongodb.client.result.DeleteResult;
+
 @Service
 public class AppointmentHandler {
     private static final Logger logger = LoggerFactory.getLogger(AppointmentHandler.class);
@@ -114,10 +116,15 @@ public class AppointmentHandler {
                         doc.getString("insuranceProvider"),
                         doc.getString("insurancePolicyNumber"),
                         doc.getString("email"),
-                        doc.getInteger("appointmentCost"),
+                        doc.getInteger("appointmentCost") != null ? doc.getInteger("appointmentCost") : 0,
                         doc.getString("statusPayment"),
                         status,
                         timestampStr);
+                appointment.setConsultationCost(
+                        doc.getDouble("consultationCost") != null ? doc.getDouble("consultationCost") : 0.0);
+                appointment.setEquipmentCost(
+                        doc.getDouble("equipmentCost") != null ? doc.getDouble("equipmentCost") : 0.0);
+
                 appointments.add(appointment);
                 logger.info("Added appointment: ID={}, Date={}, Status={}",
                         appointment.getAppointmentId(),
@@ -321,7 +328,7 @@ public class AppointmentHandler {
                         doc.getString("insuranceProvider"),
                         doc.getString("insurancePolicyNumber"),
                         doc.getString("email"),
-                        doc.getInteger("appointmentCost"),
+                        doc.getInteger("appointmentCost") != null ? doc.getInteger("appointmentCost") : 0,
                         doc.getString("statusPayment"),
                         status,
                         timestampStr);
@@ -535,21 +542,7 @@ public class AppointmentHandler {
         return response;
     }
 
-    public void deleteAppointment(String appointmentId) {
-        MongoClient mongoClient = null;
-        try {
-            mongoClient = MongoClients.create(CONNECTION_STRING);
-            MongoDatabase database = mongoClient.getDatabase("Wellcheck2");
-            MongoCollection<Document> collection = database.getCollection("appointments");
-            collection.deleteOne(new Document("appointmentId", appointmentId));
-        } finally {
-            if (mongoClient != null)
-                mongoClient.close();
-        }
-    }
-
-    public Map<String, Object> updateAppointmentCost(String appointmentId,
-            double consultationCost,
+    public Map<String, Object> updateAppointmentCost(String appointmentId, double consultationCost,
             double equipmentCost) {
         Map<String, Object> response = new HashMap<>();
         MongoClient mongoClient = null;
@@ -559,21 +552,51 @@ public class AppointmentHandler {
             MongoCollection<Document> collection = database.getCollection("appointments");
 
             Document filter = new Document("appointmentId", appointmentId);
-            Document update = new Document("$set", new Document()
-                    .append("consultationCost", consultationCost)
+            Document update = new Document("$set", new Document("consultationCost", consultationCost)
                     .append("equipmentCost", equipmentCost));
 
             UpdateResult result = collection.updateOne(filter, update);
+
             if (result.getModifiedCount() > 0) {
                 response.put("success", true);
-                response.put("message", "Costs updated successfully.");
+                logger.info("Costs updated for appointment: {}", appointmentId);
             } else {
                 response.put("success", false);
-                response.put("message", "Appointment not found.");
+                response.put("message", "No appointment was updated");
             }
         } catch (Exception e) {
+            logger.error("Error updating costs: {}", e.getMessage(), e);
             response.put("success", false);
-            response.put("message", e.getMessage());
+            response.put("message", "An error occurred while updating costs");
+        } finally {
+            if (mongoClient != null)
+                mongoClient.close();
+        }
+        return response;
+    }
+
+    public Map<String, Object> deleteAppointment(String appointmentId) {
+        Map<String, Object> response = new HashMap<>();
+        MongoClient mongoClient = null;
+        try {
+            mongoClient = MongoClients.create(CONNECTION_STRING);
+            MongoDatabase database = mongoClient.getDatabase("Wellcheck2");
+            MongoCollection<Document> collection = database.getCollection("appointments");
+
+            Document filter = new Document("appointmentId", appointmentId);
+            DeleteResult result = collection.deleteOne(filter);
+
+            if (result.getDeletedCount() > 0) {
+                response.put("success", true);
+                logger.info("Appointment deleted: {}", appointmentId);
+            } else {
+                response.put("success", false);
+                response.put("message", "No appointment found to delete");
+            }
+        } catch (Exception e) {
+            logger.error("Error deleting appointment: {}", e.getMessage(), e);
+            response.put("success", false);
+            response.put("message", "An error occurred while deleting appointment");
         } finally {
             if (mongoClient != null)
                 mongoClient.close();

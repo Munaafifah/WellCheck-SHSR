@@ -39,11 +39,14 @@ public class ClinicAssistantController {
                 .filter(a -> !"Expired".equals(a.getStatusAppointment())).count();
         long expiredCount = allAppointments.stream()
                 .filter(a -> "Expired".equals(a.getStatusAppointment())).count();
+        long pendingCount = allAppointments.stream()
+                .filter(a -> "Not Approved".equals(a.getStatusAppointment())).count();
 
         model.addAttribute("clinicAssistant", ca);
         model.addAttribute("appointments", allAppointments);
         model.addAttribute("activeCount", activeCount);
         model.addAttribute("expiredCount", expiredCount);
+        model.addAttribute("pendingCount", pendingCount); // ✅ ADD THIS
 
         return "ClinicAssistantDashboard";
     }
@@ -53,7 +56,7 @@ public class ClinicAssistantController {
     @PostMapping("/api/appointments/updateStatus")
     public Map<String, Object> updateStatus(@RequestBody Map<String, String> request) {
         String appointmentId = request.get("appointmentId");
-        String newStatus     = request.get("newStatus");
+        String newStatus = request.get("newStatus");
         return appointmentHandler.validateAndUpdateStatus(appointmentId, newStatus);
     }
 
@@ -77,9 +80,26 @@ public class ClinicAssistantController {
     @ResponseBody
     @PostMapping("/api/appointments/updateCost")
     public Map<String, Object> updateCost(@RequestBody Map<String, Object> request) {
-        String appointmentId   = (String) request.get("appointmentId");
+        String appointmentId = (String) request.get("appointmentId");
         double consultationCost = Double.parseDouble(request.get("consultationCost").toString());
-        double equipmentCost    = Double.parseDouble(request.get("equipmentCost").toString());
+        double equipmentCost = Double.parseDouble(request.get("equipmentCost").toString());
         return appointmentHandler.updateAppointmentCost(appointmentId, consultationCost, equipmentCost);
+    }
+
+    // ── Appointment page (for Doctor view) ──────────────────────────────
+    @GetMapping("/appointments")
+    public String appointmentsPage(Model model) {
+        List<Appointment> allAppointments = appointmentHandler.getAllAppointments();
+
+        long activeCount = allAppointments.stream()
+                .filter(a -> !"Expired".equals(a.getStatusAppointment())).count();
+        long expiredCount = allAppointments.stream()
+                .filter(a -> "Expired".equals(a.getStatusAppointment())).count();
+
+        model.addAttribute("appointments", allAppointments);
+        model.addAttribute("activeCount", activeCount);
+        model.addAttribute("expiredCount", expiredCount);
+
+        return "updateStatusAppointment";
     }
 }

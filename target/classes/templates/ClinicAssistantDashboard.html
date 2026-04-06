@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<html lang="en"
-      xmlns:th="https://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,7 +9,9 @@
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap"
+        rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -21,25 +22,29 @@
             --teal-500: #2a9d8a;
             --teal-300: #52c4b0;
             --teal-100: #b2e8e2;
-            --teal-50:  #e8f8f6;
-            --sand:     #f5f0e8;
-            --sand-dark:#e8dfd0;
-            --text-dark:#1a2e2b;
+            --teal-50: #e8f8f6;
+            --sand: #f5f0e8;
+            --sand-dark: #e8dfd0;
+            --text-dark: #1a2e2b;
             --text-mid: #4a6360;
-            --text-light:#8aaca8;
-            --white:    #ffffff;
-            --danger:   #e05c5c;
-            --warning:  #e8a838;
-            --success:  #3aaa7a;
-            --info:     #3a8fd4;
-            --shadow-sm: 0 2px 8px rgba(13,59,53,0.08);
-            --shadow-md: 0 6px 24px rgba(13,59,53,0.12);
-            --shadow-lg: 0 16px 48px rgba(13,59,53,0.16);
-            --radius:   12px;
-            --radius-lg:20px;
+            --text-light: #8aaca8;
+            --white: #ffffff;
+            --danger: #e05c5c;
+            --warning: #e8a838;
+            --success: #3aaa7a;
+            --info: #3a8fd4;
+            --shadow-sm: 0 2px 8px rgba(13, 59, 53, 0.08);
+            --shadow-md: 0 6px 24px rgba(13, 59, 53, 0.12);
+            --shadow-lg: 0 16px 48px rgba(13, 59, 53, 0.16);
+            --radius: 12px;
+            --radius-lg: 20px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             font-family: 'DM Sans', sans-serif;
@@ -69,7 +74,7 @@
 
         .sidebar-brand {
             padding: 28px 24px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .sidebar-brand .brand-label {
@@ -95,13 +100,13 @@
         /* Profile card in sidebar */
         .profile-card {
             margin: 20px 16px;
-            background: rgba(255,255,255,0.06);
+            background: rgba(255, 255, 255, 0.06);
             border-radius: var(--radius);
             padding: 16px;
             display: flex;
             align-items: center;
             gap: 12px;
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .profile-avatar {
@@ -152,7 +157,7 @@
             gap: 12px;
             padding: 11px 14px;
             border-radius: 10px;
-            color: rgba(255,255,255,0.65);
+            color: rgba(255, 255, 255, 0.65);
             text-decoration: none;
             font-size: 14px;
             font-weight: 400;
@@ -160,8 +165,9 @@
             margin-bottom: 2px;
         }
 
-        .nav-link-item:hover, .nav-link-item.active {
-            background: rgba(255,255,255,0.1);
+        .nav-link-item:hover,
+        .nav-link-item.active {
+            background: rgba(255, 255, 255, 0.1);
             color: var(--white);
         }
 
@@ -179,7 +185,7 @@
 
         .sidebar-footer {
             padding: 16px;
-            border-top: 1px solid rgba(255,255,255,0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .logout-btn {
@@ -188,8 +194,8 @@
             gap: 10px;
             width: 100%;
             padding: 11px 14px;
-            background: rgba(224,92,92,0.15);
-            border: 1px solid rgba(224,92,92,0.25);
+            background: rgba(224, 92, 92, 0.15);
+            border: 1px solid rgba(224, 92, 92, 0.25);
             border-radius: 10px;
             color: #f4a0a0;
             font-size: 14px;
@@ -199,7 +205,7 @@
         }
 
         .logout-btn:hover {
-            background: rgba(224,92,92,0.28);
+            background: rgba(224, 92, 92, 0.28);
             color: #ffcccc;
         }
 
@@ -252,7 +258,7 @@
             border-radius: var(--radius);
             padding: 20px;
             box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(0,0,0,0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
             position: relative;
             overflow: hidden;
             transition: transform 0.2s, box-shadow 0.2s;
@@ -266,16 +272,28 @@
         .stat-card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0;
+            top: 0;
+            left: 0;
             width: 4px;
             height: 100%;
             border-radius: 4px 0 0 4px;
         }
 
-        .stat-card.teal::before   { background: var(--teal-500); }
-        .stat-card.success::before { background: var(--success); }
-        .stat-card.warning::before { background: var(--warning); }
-        .stat-card.danger::before  { background: var(--danger); }
+        .stat-card.teal::before {
+            background: var(--teal-500);
+        }
+
+        .stat-card.success::before {
+            background: var(--success);
+        }
+
+        .stat-card.warning::before {
+            background: var(--warning);
+        }
+
+        .stat-card.danger::before {
+            background: var(--danger);
+        }
 
         .stat-icon {
             width: 40px;
@@ -288,10 +306,25 @@
             margin-bottom: 14px;
         }
 
-        .stat-card.teal .stat-icon    { background: rgba(42,157,138,0.12); color: var(--teal-500); }
-        .stat-card.success .stat-icon { background: rgba(58,170,122,0.12); color: var(--success); }
-        .stat-card.warning .stat-icon { background: rgba(232,168,56,0.12); color: var(--warning); }
-        .stat-card.danger .stat-icon  { background: rgba(224,92,92,0.12);  color: var(--danger); }
+        .stat-card.teal .stat-icon {
+            background: rgba(42, 157, 138, 0.12);
+            color: var(--teal-500);
+        }
+
+        .stat-card.success .stat-icon {
+            background: rgba(58, 170, 122, 0.12);
+            color: var(--success);
+        }
+
+        .stat-card.warning .stat-icon {
+            background: rgba(232, 168, 56, 0.12);
+            color: var(--warning);
+        }
+
+        .stat-card.danger .stat-icon {
+            background: rgba(224, 92, 92, 0.12);
+            color: var(--danger);
+        }
 
         .stat-value {
             font-size: 28px;
@@ -312,7 +345,7 @@
             background: var(--white);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(0,0,0,0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
             overflow: hidden;
         }
 
@@ -433,7 +466,7 @@
         }
 
         .appt-table tbody tr {
-            border-bottom: 1px solid rgba(0,0,0,0.04);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
             transition: background 0.15s;
         }
 
@@ -481,23 +514,59 @@
             flex-shrink: 0;
         }
 
-        .badge-approved   { background: rgba(58,170,122,0.12); color: #2a8a5a; }
-        .badge-approved::before { background: #3aaa7a; }
+        .badge-approved {
+            background: rgba(58, 170, 122, 0.12);
+            color: #2a8a5a;
+        }
 
-        .badge-pending    { background: rgba(232,168,56,0.12); color: #a87018; }
-        .badge-pending::before { background: #e8a838; }
+        .badge-approved::before {
+            background: #3aaa7a;
+        }
 
-        .badge-cancelled  { background: rgba(224,92,92,0.12); color: #b83a3a; }
-        .badge-cancelled::before { background: #e05c5c; }
+        .badge-pending {
+            background: rgba(232, 168, 56, 0.12);
+            color: #a87018;
+        }
 
-        .badge-expired    { background: rgba(100,100,100,0.1); color: #666; }
-        .badge-expired::before { background: #999; }
+        .badge-pending::before {
+            background: #e8a838;
+        }
 
-        .badge-paid       { background: rgba(58,143,212,0.12); color: #2060a0; }
-        .badge-paid::before { background: #3a8fd4; }
+        .badge-cancelled {
+            background: rgba(224, 92, 92, 0.12);
+            color: #b83a3a;
+        }
 
-        .badge-notpaid    { background: rgba(224,92,92,0.12); color: #b83a3a; }
-        .badge-notpaid::before { background: #e05c5c; }
+        .badge-cancelled::before {
+            background: #e05c5c;
+        }
+
+        .badge-expired {
+            background: rgba(100, 100, 100, 0.1);
+            color: #666;
+        }
+
+        .badge-expired::before {
+            background: #999;
+        }
+
+        .badge-paid {
+            background: rgba(58, 143, 212, 0.12);
+            color: #2060a0;
+        }
+
+        .badge-paid::before {
+            background: #3a8fd4;
+        }
+
+        .badge-notpaid {
+            background: rgba(224, 92, 92, 0.12);
+            color: #b83a3a;
+        }
+
+        .badge-notpaid::before {
+            background: #e05c5c;
+        }
 
         /* Action buttons */
         .action-group {
@@ -519,20 +588,55 @@
             transition: all 0.2s;
         }
 
-        .btn-approve { background: rgba(58,170,122,0.12); color: var(--success); }
-        .btn-approve:hover { background: var(--success); color: var(--white); }
+        .btn-approve {
+            background: rgba(58, 170, 122, 0.12);
+            color: var(--success);
+        }
 
-        .btn-cancel  { background: rgba(232,168,56,0.12); color: var(--warning); }
-        .btn-cancel:hover  { background: var(--warning); color: var(--white); }
+        .btn-approve:hover {
+            background: var(--success);
+            color: var(--white);
+        }
 
-        .btn-delete  { background: rgba(224,92,92,0.12);  color: var(--danger); }
-        .btn-delete:hover  { background: var(--danger); color: var(--white); }
+        .btn-cancel {
+            background: rgba(232, 168, 56, 0.12);
+            color: var(--warning);
+        }
 
-        .btn-cost    { background: rgba(42,157,138,0.12); color: var(--teal-500); }
-        .btn-cost:hover    { background: var(--teal-500); color: var(--white); }
+        .btn-cancel:hover {
+            background: var(--warning);
+            color: var(--white);
+        }
 
-        .btn-view    { background: rgba(58,143,212,0.12); color: var(--info); }
-        .btn-view:hover    { background: var(--info); color: var(--white); }
+        .btn-delete {
+            background: rgba(224, 92, 92, 0.12);
+            color: var(--danger);
+        }
+
+        .btn-delete:hover {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-cost {
+            background: rgba(42, 157, 138, 0.12);
+            color: var(--teal-500);
+        }
+
+        .btn-cost:hover {
+            background: var(--teal-500);
+            color: var(--white);
+        }
+
+        .btn-view {
+            background: rgba(58, 143, 212, 0.12);
+            color: var(--info);
+        }
+
+        .btn-view:hover {
+            background: var(--info);
+            color: var(--white);
+        }
 
         /* Empty state */
         .empty-state {
@@ -640,9 +744,21 @@
             font-size: 13px;
         }
 
-        .detail-row:last-child { border-bottom: none; }
-        .detail-key   { color: var(--text-light); font-weight: 500; }
-        .detail-value { color: var(--text-dark); font-weight: 500; text-align: right; max-width: 60%; }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-key {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: var(--text-dark);
+            font-weight: 500;
+            text-align: right;
+            max-width: 60%;
+        }
 
         /* Btn styles */
         .btn-teal {
@@ -658,7 +774,9 @@
             transition: background 0.2s;
         }
 
-        .btn-teal:hover { background: var(--teal-900); }
+        .btn-teal:hover {
+            background: var(--teal-900);
+        }
 
         .btn-outline-teal {
             background: transparent;
@@ -690,7 +808,9 @@
             transition: background 0.2s;
         }
 
-        .btn-red:hover { background: #c44; }
+        .btn-red:hover {
+            background: #c44;
+        }
 
         /* Toast notification */
         .toast-container {
@@ -717,525 +837,596 @@
             max-width: 320px;
         }
 
-        .toast-msg.error { background: var(--danger); }
+        .toast-msg.error {
+            background: var(--danger);
+        }
 
         @keyframes slideIn {
-            from { transform: translateX(40px); opacity: 0; }
-            to   { transform: translateX(0);    opacity: 1; }
+            from {
+                transform: translateX(40px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
         /* Responsive */
         @media (max-width: 992px) {
-            .layout { grid-template-columns: 1fr; }
-            .sidebar { display: none; }
-            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
+
 <body>
 
-<div class="layout">
+    <div class="layout">
 
-    <!-- ════════════════ SIDEBAR ════════════════ -->
-    <aside class="sidebar">
-        <div class="sidebar-brand">
-            <div class="brand-label">WellCheck System</div>
-            <h1>Clinic <span>Hub</span></h1>
-        </div>
+        <!-- ════════════════ SIDEBAR ════════════════ -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-label">WellCheck System</div>
+                <h1>Clinic <span>Hub</span></h1>
+            </div>
 
-        <!-- Profile -->
-        <div class="profile-card">
-            <img class="profile-avatar"
-                 th:src="${clinicAssistant.profilePicture} != null
+            <!-- Profile -->
+            <div class="profile-card">
+                <img class="profile-avatar" th:src="${clinicAssistant.profilePicture} != null
                           ? 'data:' + ${clinicAssistant.profilePictureType} + ';base64,' + ${clinicAssistant.profilePicture}
-                          : '/image/img_avatar1.png'"
-                 alt="Profile Picture" />
-            <div class="profile-info">
-                <div class="name" th:text="${clinicAssistant.name}">Clinic Assistant</div>
-                <span class="role-badge" th:text="${clinicAssistant.position != null} ? ${clinicAssistant.position} : 'Clinic Assistant'">Assistant</span>
-            </div>
-        </div>
-
-        <!-- Navigation -->
-        <nav class="sidebar-nav">
-            <div class="nav-section-label">Main Menu</div>
-
-            <a href="#" class="nav-link-item active" onclick="showTab('active')">
-                <i class="fa-solid fa-calendar-check"></i>
-                Active Appointments
-            </a>
-            <a href="#" class="nav-link-item" onclick="showTab('expired')">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-                Expired Appointments
-            </a>
-
-            <div class="nav-section-label" style="margin-top: 8px;">Account</div>
-            <a th:href="@{/clinicassistant/updateProfile}" class="nav-link-item">
-                <i class="fa-solid fa-user-pen"></i>
-                Edit Profile
-            </a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <form th:action="@{/logout}" method="post" hidden name="logoutForm">
-                <input type="submit" value="Logout"/>
-            </form>
-            <a href="javascript: document.logoutForm.submit()" class="logout-btn">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                Logout
-            </a>
-        </div>
-    </aside>
-
-    <!-- ════════════════ MAIN ════════════════ -->
-    <main class="main">
-
-        <!-- Page header -->
-        <div class="page-header">
-            <div class="page-header-text">
-                <div class="subtitle">Appointment Management</div>
-                <h2>Dashboard</h2>
-                <div class="page-date" id="currentDate"></div>
-            </div>
-
-            <div class="tab-pills">
-                <button class="tab-pill active" id="tab-active-btn" onclick="showTab('active')">
-                    <i class="fa-solid fa-circle-check" style="margin-right:5px; font-size:11px;"></i>
-                    Active
-                    <span style="background:var(--teal-100); color:var(--teal-700); border-radius:20px; padding:1px 7px; font-size:11px; margin-left:4px;"
-                          th:text="${activeCount}">0</span>
-                </button>
-                <button class="tab-pill" id="tab-expired-btn" onclick="showTab('expired')">
-                    <i class="fa-solid fa-clock" style="margin-right:5px; font-size:11px;"></i>
-                    Expired
-                    <span style="background:var(--sand-dark); color:var(--text-mid); border-radius:20px; padding:1px 7px; font-size:11px; margin-left:4px;"
-                          th:text="${expiredCount}">0</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- ── STAT CARDS ── -->
-        <div class="stats-row">
-            <div class="stat-card teal">
-                <div class="stat-icon"><i class="fa-solid fa-calendar-days"></i></div>
-                <div class="stat-value" th:text="${#lists.size(appointments)}">0</div>
-                <div class="stat-label">Total Appointments</div>
-            </div>
-            <div class="stat-card success">
-                <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
-                <div class="stat-value" th:text="${activeCount}">0</div>
-                <div class="stat-label">Active Appointments</div>
-            </div>
-            <div class="stat-card warning">
-                <div class="stat-icon"><i class="fa-solid fa-hourglass-half"></i></div>
-                <div class="stat-value"
-                     th:text="${appointments.stream().filter(a -> 'Not Approved'.equals(a.statusAppointment)).count()}">0</div>
-                <div class="stat-label">Pending Approval</div>
-            </div>
-            <div class="stat-card danger">
-                <div class="stat-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                <div class="stat-value" th:text="${expiredCount}">0</div>
-                <div class="stat-label">Expired</div>
-            </div>
-        </div>
-
-        <!-- ── TABLE CARD ── -->
-        <div class="table-card">
-            <div class="table-card-header">
-                <h5>Appointment Records</h5>
-            </div>
-
-            <!-- Toolbar -->
-            <div class="toolbar">
-                <div class="search-box">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="searchInput" placeholder="Search by patient, hospital, date..." oninput="filterTable()">
+                          : '/image/img_avatar1.png'" alt="Profile Picture" />
+                <div class="profile-info">
+                    <div class="name" th:text="${clinicAssistant.name}">Clinic Assistant</div>
+                    <span class="role-badge"
+                        th:text="${clinicAssistant.position != null} ? ${clinicAssistant.position} : 'Clinic Assistant'">Assistant</span>
                 </div>
-                <select class="filter-select" id="statusFilter" onchange="filterTable()">
-                    <option value="">All Statuses</option>
-                    <option value="Not Approved">Pending</option>
-                    <option value="Approved">Approved</option>
-                    <option value="Cancelled">Cancelled</option>
-                </select>
             </div>
 
-            <!-- ACTIVE appointments tab -->
-            <div id="tab-active">
-                <table class="appt-table">
-                    <thead>
-                        <tr>
-                            <th>Appointment ID</th>
-                            <th>Patient ID</th>
-                            <th>Hospital / Clinic</th>
-                            <th>Date &amp; Time</th>
-                            <th>Type</th>
-                            <th>Appt Status</th>
-                            <th>Payment</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="activeTableBody">
-                        <th:block th:each="appt : ${appointments}"
-                                  th:if="${appt.statusAppointment != 'Expired'}">
-                            <tr th:attr="data-status=${appt.statusAppointment},
-                                         data-search=${appt.appointmentId + ' ' + appt.userId + ' ' + appt.registeredHospital + ' ' + appt.appointmentDate + ' ' + appt.typeOfSickness}">
-                                <td><span class="appt-id" th:text="${#strings.abbreviate(appt.appointmentId, 14)}">ID</span></td>
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Main Menu</div>
+
+                <a href="javascript:void(0)" class="nav-link-item active" onclick="showTab('active')">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    Active Appointments
+                </a>
+                <a href="javascript:void(0)" class="nav-link-item" onclick="showTab('expired')">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    Expired Appointments
+                </a>
+
+                <div class="nav-section-label" style="margin-top: 8px;">Account</div>
+                <a th:href="@{/clinicassistant/updateProfile}" class="nav-link-item">
+                    <i class="fa-solid fa-user-pen"></i>
+                    Edit Profile
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <form th:action="@{/logout}" method="post" hidden name="logoutForm">
+                    <input type="submit" value="Logout" />
+                </form>
+                <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- ════════════════ MAIN ════════════════ -->
+        <main class="main">
+
+            <!-- Page header -->
+            <div class="page-header">
+                <div class="page-header-text">
+                    <div class="subtitle">Appointment Management</div>
+                    <h2>Dashboard</h2>
+                    <div class="page-date" id="currentDate"></div>
+                </div>
+
+                <div class="tab-pills">
+                    <button class="tab-pill active" id="tab-active-btn" onclick="showTab('active')">
+                        <i class="fa-solid fa-circle-check" style="margin-right:5px; font-size:11px;"></i>
+                        Active
+                        <span
+                            style="background:var(--teal-100); color:var(--teal-700); border-radius:20px; padding:1px 7px; font-size:11px; margin-left:4px;"
+                            th:text="${activeCount}">0</span>
+                    </button>
+                    <button class="tab-pill" id="tab-expired-btn" onclick="showTab('expired')">
+                        <i class="fa-solid fa-clock" style="margin-right:5px; font-size:11px;"></i>
+                        Expired
+                        <span
+                            style="background:var(--sand-dark); color:var(--text-mid); border-radius:20px; padding:1px 7px; font-size:11px; margin-left:4px;"
+                            th:text="${expiredCount}">0</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── STAT CARDS ── -->
+            <div class="stats-row">
+                <div class="stat-card teal">
+                    <div class="stat-icon"><i class="fa-solid fa-calendar-days"></i></div>
+                    <div class="stat-value" th:text="${#lists.size(appointments)}">0</div>
+                    <div class="stat-label">Total Appointments</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="stat-value" th:text="${activeCount}">0</div>
+                    <div class="stat-label">Active Appointments</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <div class="stat-value" th:text="${pendingCount}">0</div>
+                    <div class="stat-label">Pending Approval</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <div class="stat-value" th:text="${expiredCount}">0</div>
+                    <div class="stat-label">Expired</div>
+                </div>
+            </div>
+
+            <!-- ── TABLE CARD ── -->
+            <div class="table-card">
+                <div class="table-card-header">
+                    <h5>Appointment Records</h5>
+                </div>
+
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="searchInput" placeholder="Search by patient, hospital, date..."
+                            oninput="filterTable()">
+                    </div>
+                    <select class="filter-select" id="statusFilter" onchange="filterTable()">
+                        <option value="">All Statuses</option>
+                        <option value="Not Approved">Pending</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+
+                <!-- ACTIVE appointments tab -->
+                <div id="tab-active">
+                    <table class="appt-table">
+                        <thead>
+                            <tr>
+                                <th>Appointment ID</th>
+                                <th>Patient ID</th>
+                                <th>Hospital / Clinic</th>
+                                <th>Date &amp; Time</th>
+                                <th>Type</th>
+                                <th>Appt Status</th>
+                                <th>Payment</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activeTableBody">
+                            <tr th:each="appt : ${appointments}" th:if="${appt.statusAppointment != 'Expired'}"
+                                th:attr="data-status=${appt.statusAppointment},
+                 data-search=${appt.appointmentId + ' ' + appt.userId + ' ' + (appt.registeredHospital ?: '') + ' ' + appt.appointmentDate + ' ' + (appt.typeOfSickness ?: '')}">
+                                <td><span class="appt-id"
+                                        th:text="${#strings.abbreviate(appt.appointmentId, 14)}">ID</span></td>
                                 <td th:text="${appt.userId}">—</td>
                                 <td th:text="${appt.registeredHospital}">—</td>
                                 <td>
                                     <div th:text="${appt.appointmentDate}">—</div>
-                                    <div style="color:var(--text-light); font-size:12px;" th:text="${appt.appointmentTime}">—</div>
+                                    <div style="color:var(--text-light); font-size:12px;"
+                                        th:text="${appt.appointmentTime}">—</div>
                                 </td>
                                 <td th:text="${appt.typeOfSickness}">—</td>
                                 <td>
-                                    <span class="status-badge"
-                                          th:classappend="${appt.statusAppointment == 'Approved'} ? 'badge-approved' :
-                                                          (${appt.statusAppointment == 'Cancelled'} ? 'badge-cancelled' : 'badge-pending')"
-                                          th:text="${appt.statusAppointment}">Pending</span>
+                                    <span class="status-badge" th:classappend="${appt.statusAppointment == 'Approved'} ? 'badge-approved' :
+                                (${appt.statusAppointment == 'Cancelled'} ? 'badge-cancelled' : 'badge-pending')"
+                                        th:text="${appt.statusAppointment}">Pending</span>
                                 </td>
                                 <td>
                                     <span class="status-badge"
-                                          th:classappend="${appt.statusPayment == 'Paid'} ? 'badge-paid' : 'badge-notpaid'"
-                                          th:text="${appt.statusPayment}">Not Paid</span>
+                                        th:classappend="${appt.statusPayment == 'Paid'} ? 'badge-paid' : 'badge-notpaid'"
+                                        th:text="${appt.statusPayment}">Not Paid</span>
                                 </td>
                                 <td>
                                     <div class="action-group">
-                                        <!-- View Details -->
                                         <button class="btn-action btn-view" title="View Details"
-                                                th:onclick="'openViewModal(\'' + ${appt.appointmentId} + '\', \'' + ${appt.userId} + '\', \'' + ${appt.registeredHospital} + '\', \'' + ${appt.appointmentDate} + '\', \'' + ${appt.appointmentTime} + '\', \'' + ${appt.typeOfSickness} + '\', \'' + ${appt.email} + '\', \'' + ${appt.appointmentCost} + '\', \'' + ${appt.consultationCost} + '\', \'' + ${appt.equipmentCost} + '\')'">
+                                            th:data-id="${appt.appointmentId}" th:data-patient="${appt.userId}"
+                                            th:data-hospital="${appt.registeredHospital ?: 'N/A'}"
+                                            th:data-date="${appt.appointmentDate}"
+                                            th:data-time="${appt.appointmentTime}"
+                                            th:data-type="${appt.typeOfSickness ?: 'N/A'}"
+                                            th:data-email="${appt.email ?: 'N/A'}"
+                                            th:data-cost="${appt.appointmentCost}"
+                                            th:data-consult="${appt.consultationCost}"
+                                            th:data-equip="${appt.equipmentCost}" onclick="openViewModalFromBtn(this)">
                                             <i class="fa-solid fa-eye"></i>
                                         </button>
-                                        <!-- Approve -->
                                         <button class="btn-action btn-approve" title="Approve"
-                                                th:if="${appt.statusAppointment != 'Approved'}"
-                                                th:onclick="'updateStatus(\'' + ${appt.appointmentId} + '\', \'Approved\')'">
+                                            th:if="${appt.statusAppointment != 'Approved'}"
+                                            th:data-id="${appt.appointmentId}"
+                                            onclick="updateStatusFromBtn(this, 'Approved')">
                                             <i class="fa-solid fa-check"></i>
                                         </button>
-                                        <!-- Cancel -->
                                         <button class="btn-action btn-cancel" title="Cancel"
-                                                th:if="${appt.statusAppointment != 'Cancelled'}"
-                                                th:onclick="'updateStatus(\'' + ${appt.appointmentId} + '\', \'Cancelled\')'">
+                                            th:if="${appt.statusAppointment != 'Cancelled'}"
+                                            th:data-id="${appt.appointmentId}"
+                                            onclick="updateStatusFromBtn(this, 'Cancelled')">
                                             <i class="fa-solid fa-xmark"></i>
                                         </button>
-                                        <!-- Add Cost -->
                                         <button class="btn-action btn-cost" title="Update Costs"
-                                                th:onclick="'openCostModal(\'' + ${appt.appointmentId} + '\', \'' + ${appt.consultationCost} + '\', \'' + ${appt.equipmentCost} + '\')'">
+                                            th:data-id="${appt.appointmentId}"
+                                            th:data-consult="${appt.consultationCost}"
+                                            th:data-equip="${appt.equipmentCost}" onclick="openCostModalFromBtn(this)">
                                             <i class="fa-solid fa-dollar-sign"></i>
                                         </button>
-                                        <!-- Delete -->
                                         <button class="btn-action btn-delete" title="Delete"
-                                                th:onclick="'confirmDelete(\'' + ${appt.appointmentId} + '\')'">
+                                            th:data-id="${appt.appointmentId}" onclick="confirmDeleteFromBtn(this)">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </div>
                                 </td>
                             </tr>
-                        </th:block>
-                    </tbody>
-                </table>
-                <!-- Empty state if no active appointments -->
-                <div class="empty-state" id="activeEmpty" style="display:none;">
-                    <i class="fa-regular fa-calendar-xmark"></i>
-                    <p>No active appointments found.</p>
+                        </tbody>
+                    </table>
+                    <!-- Empty state if no active appointments -->
+                    <div class="empty-state" id="activeEmpty" style="display:none;">
+                        <i class="fa-regular fa-calendar-xmark"></i>
+                        <p>No active appointments found.</p>
+                    </div>
                 </div>
-            </div>
 
-            <!-- EXPIRED appointments tab -->
-            <div id="tab-expired" style="display:none;">
-                <table class="appt-table">
-                    <thead>
-                        <tr>
-                            <th>Appointment ID</th>
-                            <th>Patient ID</th>
-                            <th>Hospital / Clinic</th>
-                            <th>Date &amp; Time</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="expiredTableBody">
-                        <th:block th:each="appt : ${appointments}"
-                                  th:if="${appt.statusAppointment == 'Expired'}">
+                <!-- EXPIRED appointments tab -->
+                <div id="tab-expired" style="display:none;">
+                    <table class="appt-table">
+                        <thead>
                             <tr>
-                                <td><span class="appt-id" th:text="${#strings.abbreviate(appt.appointmentId, 14)}">ID</span></td>
+                                <th>Appointment ID</th>
+                                <th>Patient ID</th>
+                                <th>Hospital / Clinic</th>
+                                <th>Date &amp; Time</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <<tbody id="expiredTableBody">
+                            <tr th:each="appt : ${appointments}" th:if="${appt.statusAppointment == 'Expired'}">
+                                <td><span class="appt-id"
+                                        th:text="${#strings.abbreviate(appt.appointmentId, 14)}">ID</span></td>
                                 <td th:text="${appt.userId}">—</td>
                                 <td th:text="${appt.registeredHospital}">—</td>
                                 <td>
                                     <div th:text="${appt.appointmentDate}">—</div>
-                                    <div style="color:var(--text-light); font-size:12px;" th:text="${appt.appointmentTime}">—</div>
+                                    <div style="color:var(--text-light); font-size:12px;"
+                                        th:text="${appt.appointmentTime}">—</div>
                                 </td>
                                 <td th:text="${appt.typeOfSickness}">—</td>
                                 <td><span class="status-badge badge-expired">Expired</span></td>
                                 <td>
                                     <div class="action-group">
                                         <button class="btn-action btn-view" title="View Details"
-                                                th:onclick="'openViewModal(\'' + ${appt.appointmentId} + '\', \'' + ${appt.userId} + '\', \'' + ${appt.registeredHospital} + '\', \'' + ${appt.appointmentDate} + '\', \'' + ${appt.appointmentTime} + '\', \'' + ${appt.typeOfSickness} + '\', \'' + ${appt.email} + '\', \'' + ${appt.appointmentCost} + '\', \'' + ${appt.consultationCost} + '\', \'' + ${appt.equipmentCost} + '\')'">
+                                            th:data-id="${appt.appointmentId}" th:data-patient="${appt.userId}"
+                                            th:data-hospital="${appt.registeredHospital ?: 'N/A'}"
+                                            th:data-date="${appt.appointmentDate}"
+                                            th:data-time="${appt.appointmentTime}"
+                                            th:data-type="${appt.typeOfSickness ?: 'N/A'}"
+                                            th:data-email="${appt.email ?: 'N/A'}"
+                                            th:data-cost="${appt.appointmentCost}"
+                                            th:data-consult="${appt.consultationCost}"
+                                            th:data-equip="${appt.equipmentCost}" onclick="openViewModalFromBtn(this)">
                                             <i class="fa-solid fa-eye"></i>
                                         </button>
                                         <button class="btn-action btn-delete" title="Delete"
-                                                th:onclick="'confirmDelete(\'' + ${appt.appointmentId} + '\')'">
+                                            th:data-id="${appt.appointmentId}" onclick="confirmDeleteFromBtn(this)">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </div>
                                 </td>
                             </tr>
-                        </th:block>
-                    </tbody>
-                </table>
-                <div class="empty-state" id="expiredEmpty" style="display:none;">
-                    <i class="fa-regular fa-calendar-check"></i>
-                    <p>No expired appointments.</p>
-                </div>
-            </div>
-
-        </div><!-- /table-card -->
-
-    </main>
-</div><!-- /layout -->
-
-
-<!-- ════════════ MODAL: VIEW DETAILS ════════════ -->
-<div class="modal fade" id="viewModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="fa-solid fa-circle-info" style="color:var(--info); margin-right:8px;"></i>Appointment Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="detail-row"><span class="detail-key">Appointment ID</span><span class="detail-value" id="vw-id"></span></div>
-                <div class="detail-row"><span class="detail-key">Patient ID</span><span class="detail-value" id="vw-patient"></span></div>
-                <div class="detail-row"><span class="detail-key">Hospital / Clinic</span><span class="detail-value" id="vw-hospital"></span></div>
-                <div class="detail-row"><span class="detail-key">Date</span><span class="detail-value" id="vw-date"></span></div>
-                <div class="detail-row"><span class="detail-key">Time</span><span class="detail-value" id="vw-time"></span></div>
-                <div class="detail-row"><span class="detail-key">Type of Sickness</span><span class="detail-value" id="vw-type"></span></div>
-                <div class="detail-row"><span class="detail-key">Email</span><span class="detail-value" id="vw-email"></span></div>
-                <div class="detail-row"><span class="detail-key">Appointment Cost</span><span class="detail-value" id="vw-cost"></span></div>
-                <div class="detail-row"><span class="detail-key">Consultation Cost</span><span class="detail-value" id="vw-consult"></span></div>
-                <div class="detail-row"><span class="detail-key">Equipment Cost</span><span class="detail-value" id="vw-equip"></span></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-outline-teal" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<!-- ════════════ MODAL: UPDATE COSTS ════════════ -->
-<div class="modal fade" id="costModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="fa-solid fa-dollar-sign" style="color:var(--teal-500); margin-right:8px;"></i>Update Appointment Costs</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="cost-appt-id">
-
-                <div style="margin-bottom: 16px;">
-                    <label class="form-label-custom">Consultation Cost (RM)</label>
-                    <div style="display:flex; align-items:center;">
-                        <span class="input-prefix">RM</span>
-                        <input type="number" step="0.01" min="0" id="consultationCost" class="form-control-custom with-prefix" placeholder="0.00">
+                            </tbody>
+                    </table>
+                    <div class="empty-state" id="expiredEmpty" style="display:none;">
+                        <i class="fa-regular fa-calendar-check"></i>
+                        <p>No expired appointments.</p>
                     </div>
                 </div>
 
-                <div>
-                    <label class="form-label-custom">Equipment Cost (RM)</label>
-                    <div style="display:flex; align-items:center;">
-                        <span class="input-prefix">RM</span>
-                        <input type="number" step="0.01" min="0" id="equipmentCost" class="form-control-custom with-prefix" placeholder="0.00">
-                    </div>
-                </div>
+            </div><!-- /table-card -->
 
-                <div style="margin-top:16px; padding:14px; background:var(--teal-50); border-radius:10px; border:1px solid var(--teal-100);">
-                    <div style="font-size:12px; color:var(--teal-700); font-weight:500;">
-                        <i class="fa-solid fa-circle-info" style="margin-right:6px;"></i>
-                        Total Cost: RM <span id="totalCostDisplay">0.00</span>
-                    </div>
+        </main>
+    </div><!-- /layout -->
+
+
+    <!-- ════════════ MODAL: VIEW DETAILS ════════════ -->
+    <div class="modal fade" id="viewModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fa-solid fa-circle-info"
+                            style="color:var(--info); margin-right:8px;"></i>Appointment Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-outline-teal" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn-teal" onclick="saveCosts()">
-                    <i class="fa-solid fa-floppy-disk" style="margin-right:6px;"></i>Save Costs
-                </button>
+                <div class="modal-body">
+                    <div class="detail-row"><span class="detail-key">Appointment ID</span><span class="detail-value"
+                            id="vw-id"></span></div>
+                    <div class="detail-row"><span class="detail-key">Patient ID</span><span class="detail-value"
+                            id="vw-patient"></span></div>
+                    <div class="detail-row"><span class="detail-key">Hospital / Clinic</span><span class="detail-value"
+                            id="vw-hospital"></span></div>
+                    <div class="detail-row"><span class="detail-key">Date</span><span class="detail-value"
+                            id="vw-date"></span></div>
+                    <div class="detail-row"><span class="detail-key">Time</span><span class="detail-value"
+                            id="vw-time"></span></div>
+                    <div class="detail-row"><span class="detail-key">Type of Sickness</span><span class="detail-value"
+                            id="vw-type"></span></div>
+                    <div class="detail-row"><span class="detail-key">Email</span><span class="detail-value"
+                            id="vw-email"></span></div>
+                    <div class="detail-row"><span class="detail-key">Appointment Cost</span><span class="detail-value"
+                            id="vw-cost"></span></div>
+                    <div class="detail-row"><span class="detail-key">Consultation Cost</span><span class="detail-value"
+                            id="vw-consult"></span></div>
+                    <div class="detail-row"><span class="detail-key">Equipment Cost</span><span class="detail-value"
+                            id="vw-equip"></span></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline-teal" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 
-<!-- ════════════ MODAL: CONFIRM DELETE ════════════ -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" style="color:var(--danger);">
-                    <i class="fa-solid fa-triangle-exclamation" style="margin-right:8px;"></i>Confirm Delete
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" style="text-align:center; padding: 28px 24px;">
-                <div style="width:56px; height:56px; background:rgba(224,92,92,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
-                    <i class="fa-solid fa-trash" style="color:var(--danger); font-size:22px;"></i>
+    <!-- ════════════ MODAL: UPDATE COSTS ════════════ -->
+    <div class="modal fade" id="costModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fa-solid fa-dollar-sign"
+                            style="color:var(--teal-500); margin-right:8px;"></i>Update Appointment Costs</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <p style="font-size:14px; color:var(--text-mid);">This action is <strong>permanent</strong> and cannot be undone. Are you sure?</p>
-                <input type="hidden" id="delete-appt-id">
-            </div>
-            <div class="modal-footer" style="justify-content:center; gap:10px;">
-                <button type="button" class="btn-outline-teal" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn-red" onclick="executeDelete()">
-                    <i class="fa-solid fa-trash" style="margin-right:6px;"></i>Delete
-                </button>
+                <div class="modal-body">
+                    <input type="hidden" id="cost-appt-id">
+
+                    <div style="margin-bottom: 16px;">
+                        <label class="form-label-custom">Consultation Cost (RM)</label>
+                        <div style="display:flex; align-items:center;">
+                            <span class="input-prefix">RM</span>
+                            <input type="number" step="0.01" min="0" id="consultationCost"
+                                class="form-control-custom with-prefix" placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label-custom">Equipment Cost (RM)</label>
+                        <div style="display:flex; align-items:center;">
+                            <span class="input-prefix">RM</span>
+                            <input type="number" step="0.01" min="0" id="equipmentCost"
+                                class="form-control-custom with-prefix" placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div
+                        style="margin-top:16px; padding:14px; background:var(--teal-50); border-radius:10px; border:1px solid var(--teal-100);">
+                        <div style="font-size:12px; color:var(--teal-700); font-weight:500;">
+                            <i class="fa-solid fa-circle-info" style="margin-right:6px;"></i>
+                            Total Cost: RM <span id="totalCostDisplay">0.00</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline-teal" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn-teal" onclick="saveCosts()">
+                        <i class="fa-solid fa-floppy-disk" style="margin-right:6px;"></i>Save Costs
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 
-<!-- Toast container -->
-<div class="toast-container" id="toastContainer"></div>
+    <!-- ════════════ MODAL: CONFIRM DELETE ════════════ -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="color:var(--danger);">
+                        <i class="fa-solid fa-triangle-exclamation" style="margin-right:8px;"></i>Confirm Delete
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="text-align:center; padding: 28px 24px;">
+                    <div
+                        style="width:56px; height:56px; background:rgba(224,92,92,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+                        <i class="fa-solid fa-trash" style="color:var(--danger); font-size:22px;"></i>
+                    </div>
+                    <p style="font-size:14px; color:var(--text-mid);">This action is <strong>permanent</strong> and
+                        cannot be undone. Are you sure?</p>
+                    <input type="hidden" id="delete-appt-id">
+                </div>
+                <div class="modal-footer" style="justify-content:center; gap:10px;">
+                    <button type="button" class="btn-outline-teal" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn-red" onclick="executeDelete()">
+                        <i class="fa-solid fa-trash" style="margin-right:6px;"></i>Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
 
-<script>
-    // ── Current date display ──────────────────────────────────────────
-    document.getElementById('currentDate').textContent =
-        new Date().toLocaleDateString('en-GB', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
-    // ── Tab switching ─────────────────────────────────────────────────
-    function showTab(tab) {
-        const isActive = tab === 'active';
-        document.getElementById('tab-active').style.display   = isActive ? 'block' : 'none';
-        document.getElementById('tab-expired').style.display  = isActive ? 'none'  : 'block';
-        document.getElementById('tab-active-btn').classList.toggle('active', isActive);
-        document.getElementById('tab-expired-btn').classList.toggle('active', !isActive);
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-        // Update sidebar active state
-        document.querySelectorAll('.nav-link-item').forEach(l => l.classList.remove('active'));
-        const sideIdx = isActive ? 0 : 1;
-        document.querySelectorAll('.nav-link-item')[sideIdx].classList.add('active');
-    }
+    <script>
+        // ── Current date display ──────────────────────────────────────────
+        document.getElementById('currentDate').textContent =
+            new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-    // ── Search & filter ───────────────────────────────────────────────
-    function filterTable() {
-        const query  = document.getElementById('searchInput').value.toLowerCase();
-        const status = document.getElementById('statusFilter').value.toLowerCase();
-        const rows   = document.querySelectorAll('#activeTableBody tr');
+        // ── Tab switching ─────────────────────────────────────────────────
+        function showTab(tab) {
+            const isActive = tab === 'active';
+            document.getElementById('tab-active').style.display = isActive ? 'block' : 'none';
+            document.getElementById('tab-expired').style.display = isActive ? 'none' : 'block';
+            document.getElementById('tab-active-btn').classList.toggle('active', isActive);
+            document.getElementById('tab-expired-btn').classList.toggle('active', !isActive);
 
-        rows.forEach(row => {
-            const searchData = (row.dataset.search || '').toLowerCase();
-            const rowStatus  = (row.dataset.status || '').toLowerCase();
-            const matchQ = !query  || searchData.includes(query);
-            const matchS = !status || rowStatus === status.toLowerCase();
-            row.style.display = (matchQ && matchS) ? '' : 'none';
-        });
-    }
+            // Update sidebar active state
+            document.querySelectorAll('.nav-link-item').forEach(l => l.classList.remove('active'));
+            const sideIdx = isActive ? 0 : 1;
+            document.querySelectorAll('.nav-link-item')[sideIdx].classList.add('active');
+        }
 
-    // ── View details modal ────────────────────────────────────────────
-    function openViewModal(id, patient, hospital, date, time, type, email, cost, consult, equip) {
-        document.getElementById('vw-id').textContent       = id;
-        document.getElementById('vw-patient').textContent  = patient;
-        document.getElementById('vw-hospital').textContent = hospital;
-        document.getElementById('vw-date').textContent     = date;
-        document.getElementById('vw-time').textContent     = time;
-        document.getElementById('vw-type').textContent     = type;
-        document.getElementById('vw-email').textContent    = email;
-        document.getElementById('vw-cost').textContent     = 'RM ' + parseFloat(cost || 0).toFixed(2);
-        document.getElementById('vw-consult').textContent  = 'RM ' + parseFloat(consult || 0).toFixed(2);
-        document.getElementById('vw-equip').textContent    = 'RM ' + parseFloat(equip || 0).toFixed(2);
-        new bootstrap.Modal(document.getElementById('viewModal')).show();
-    }
+        // ── Search & filter ───────────────────────────────────────────────
+        function filterTable() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value.toLowerCase();
+            const rows = document.querySelectorAll('#activeTableBody tr');
 
-    // ── Cost modal ────────────────────────────────────────────────────
-    function openCostModal(apptId, currentConsult, currentEquip) {
-        document.getElementById('cost-appt-id').value  = apptId;
-        document.getElementById('consultationCost').value = parseFloat(currentConsult || 0).toFixed(2);
-        document.getElementById('equipmentCost').value    = parseFloat(currentEquip || 0).toFixed(2);
-        updateTotalDisplay();
-        new bootstrap.Modal(document.getElementById('costModal')).show();
-    }
+            rows.forEach(row => {
+                const searchData = (row.dataset.search || '').toLowerCase();
+                const rowStatus = (row.dataset.status || '').toLowerCase();
+                const matchQ = !query || searchData.includes(query);
+                const matchS = !status || rowStatus === status.toLowerCase();
+                row.style.display = (matchQ && matchS) ? '' : 'none';
+            });
+        }
 
-    function updateTotalDisplay() {
-        const c = parseFloat(document.getElementById('consultationCost').value) || 0;
-        const e = parseFloat(document.getElementById('equipmentCost').value) || 0;
-        document.getElementById('totalCostDisplay').textContent = (c + e).toFixed(2);
-    }
+        // ── View details modal ────────────────────────────────────────────
+        function openViewModal(id, patient, hospital, date, time, type, email, cost, consult, equip) {
+            document.getElementById('vw-id').textContent = id;
+            document.getElementById('vw-patient').textContent = patient;
+            document.getElementById('vw-hospital').textContent = hospital;
+            document.getElementById('vw-date').textContent = date;
+            document.getElementById('vw-time').textContent = time;
+            document.getElementById('vw-type').textContent = type;
+            document.getElementById('vw-email').textContent = email;
+            document.getElementById('vw-cost').textContent = 'RM ' + parseFloat(cost || 0).toFixed(2);
+            document.getElementById('vw-consult').textContent = 'RM ' + parseFloat(consult || 0).toFixed(2);
+            document.getElementById('vw-equip').textContent = 'RM ' + parseFloat(equip || 0).toFixed(2);
+            new bootstrap.Modal(document.getElementById('viewModal')).show();
+        }
 
-    document.getElementById('consultationCost').addEventListener('input', updateTotalDisplay);
-    document.getElementById('equipmentCost').addEventListener('input', updateTotalDisplay);
+        // ── Cost modal ────────────────────────────────────────────────────
+        function openCostModal(apptId, currentConsult, currentEquip) {
+            document.getElementById('cost-appt-id').value = apptId;
+            document.getElementById('consultationCost').value = parseFloat(currentConsult || 0).toFixed(2);
+            document.getElementById('equipmentCost').value = parseFloat(currentEquip || 0).toFixed(2);
+            updateTotalDisplay();
+            new bootstrap.Modal(document.getElementById('costModal')).show();
+        }
 
-    function saveCosts() {
-        const apptId          = document.getElementById('cost-appt-id').value;
-        const consultationCost = parseFloat(document.getElementById('consultationCost').value) || 0;
-        const equipmentCost    = parseFloat(document.getElementById('equipmentCost').value) || 0;
+        function updateTotalDisplay() {
+            const c = parseFloat(document.getElementById('consultationCost').value) || 0;
+            const e = parseFloat(document.getElementById('equipmentCost').value) || 0;
+            document.getElementById('totalCostDisplay').textContent = (c + e).toFixed(2);
+        }
 
-        fetch('/clinicassistant/api/appointments/updateCost', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ appointmentId: apptId, consultationCost, equipmentCost })
-        })
-        .then(r => r.json())
-        .then(data => {
-            bootstrap.Modal.getInstance(document.getElementById('costModal')).hide();
-            showToast(data.success ? 'Costs updated successfully!' : (data.message || 'Update failed.'), data.success ? 'success' : 'error');
-            if (data.success) setTimeout(() => location.reload(), 1200);
-        })
-        .catch(() => showToast('Network error. Please try again.', 'error'));
-    }
+        document.getElementById('consultationCost').addEventListener('input', updateTotalDisplay);
+        document.getElementById('equipmentCost').addEventListener('input', updateTotalDisplay);
 
-    // ── Approve / Cancel ──────────────────────────────────────────────
-    function updateStatus(apptId, newStatus) {
-        const label = newStatus === 'Approved' ? 'approve' : 'cancel';
-        if (!confirm('Are you sure you want to ' + label + ' this appointment?')) return;
+        function saveCosts() {
+            const apptId = document.getElementById('cost-appt-id').value;
+            const consultationCost = parseFloat(document.getElementById('consultationCost').value) || 0;
+            const equipmentCost = parseFloat(document.getElementById('equipmentCost').value) || 0;
 
-        fetch('/clinicassistant/api/appointments/updateStatus', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ appointmentId: apptId, newStatus })
-        })
-        .then(r => r.json())
-        .then(data => {
-            showToast(data.success ? 'Status updated to ' + newStatus + '!' : (data.message || 'Update failed.'), data.success ? 'success' : 'error');
-            if (data.success) setTimeout(() => location.reload(), 1200);
-        })
-        .catch(() => showToast('Network error. Please try again.', 'error'));
-    }
+            fetch('/clinicassistant/api/appointments/updateCost', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ appointmentId: apptId, consultationCost, equipmentCost })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    bootstrap.Modal.getInstance(document.getElementById('costModal')).hide();
+                    showToast(data.success ? 'Costs updated successfully!' : (data.message || 'Update failed.'), data.success ? 'success' : 'error');
+                    if (data.success) setTimeout(() => location.reload(), 1200);
+                })
+                .catch(() => showToast('Network error. Please try again.', 'error'));
+        }
 
-    // ── Delete ────────────────────────────────────────────────────────
-    function confirmDelete(apptId) {
-        document.getElementById('delete-appt-id').value = apptId;
-        new bootstrap.Modal(document.getElementById('deleteModal')).show();
-    }
+        // ── Approve / Cancel ──────────────────────────────────────────────
+        function updateStatus(apptId, newStatus) {
+            const label = newStatus === 'Approved' ? 'approve' : 'cancel';
+            if (!confirm('Are you sure you want to ' + label + ' this appointment?')) return;
 
-    function executeDelete() {
-        const apptId = document.getElementById('delete-appt-id').value;
+            fetch('/clinicassistant/api/appointments/updateStatus', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ appointmentId: apptId, newStatus })
+            })
+                .then(r => r.json())
+                .then(data => {
+                    showToast(data.success ? 'Status updated to ' + newStatus + '!' : (data.message || 'Update failed.'), data.success ? 'success' : 'error');
+                    if (data.success) setTimeout(() => location.reload(), 1200);
+                })
+                .catch(() => showToast('Network error. Please try again.', 'error'));
+        }
 
-        fetch('/clinicassistant/api/appointments/' + apptId, { method: 'DELETE' })
-        .then(r => r.json())
-        .then(data => {
-            bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
-            showToast(data.success ? 'Appointment deleted.' : (data.message || 'Delete failed.'), data.success ? 'success' : 'error');
-            if (data.success) setTimeout(() => location.reload(), 1200);
-        })
-        .catch(() => showToast('Network error. Please try again.', 'error'));
-    }
+        // ── Delete ────────────────────────────────────────────────────────
+        function confirmDelete(apptId) {
+            document.getElementById('delete-appt-id').value = apptId;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
 
-    // ── Toast notification ────────────────────────────────────────────
-    function showToast(msg, type = 'success') {
-        const container = document.getElementById('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = 'toast-msg' + (type === 'error' ? ' error' : '');
-        toast.innerHTML = '<i class="fa-solid ' + (type === 'error' ? 'fa-circle-xmark' : 'fa-circle-check') + '"></i> ' + msg;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 3500);
-    }
-</script>
+        function executeDelete() {
+            const apptId = document.getElementById('delete-appt-id').value;
+
+            fetch('/clinicassistant/api/appointments/' + apptId, { method: 'DELETE' })
+                .then(r => r.json())
+                .then(data => {
+                    bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+                    showToast(data.success ? 'Appointment deleted.' : (data.message || 'Delete failed.'), data.success ? 'success' : 'error');
+                    if (data.success) setTimeout(() => location.reload(), 1200);
+                })
+                .catch(() => showToast('Network error. Please try again.', 'error'));
+        }
+
+
+        // ── Helper functions for data-* attribute buttons ─────────────────
+        function openViewModalFromBtn(btn) {
+            openViewModal(
+                btn.dataset.id, btn.dataset.patient, btn.dataset.hospital,
+                btn.dataset.date, btn.dataset.time, btn.dataset.type,
+                btn.dataset.email, btn.dataset.cost, btn.dataset.consult, btn.dataset.equip
+            );
+        }
+
+        function updateStatusFromBtn(btn, status) {
+            updateStatus(btn.dataset.id, status);
+        }
+
+        function openCostModalFromBtn(btn) {
+            openCostModal(btn.dataset.id, btn.dataset.consult, btn.dataset.equip);
+        }
+
+        function confirmDeleteFromBtn(btn) {
+            confirmDelete(btn.dataset.id);
+        }
+        // ── Toast notification ────────────────────────────────────────────
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast-msg' + (type === 'error' ? ' error' : '');
+            toast.innerHTML = '<i class="fa-solid ' + (type === 'error' ? 'fa-circle-xmark' : 'fa-circle-check') + '"></i> ' + msg;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+    </script>
 
 </body>
+
 </html>

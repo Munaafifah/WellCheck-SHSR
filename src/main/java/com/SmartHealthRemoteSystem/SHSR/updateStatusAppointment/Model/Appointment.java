@@ -49,6 +49,14 @@ public class Appointment {
         this.timestamp = timestamp;
     }
 
+    public void setConsultationCost(double consultationCost) {
+        this.consultationCost = consultationCost;
+    }
+
+    public void setEquipmentCost(double equipmentCost) {
+        this.equipmentCost = equipmentCost;
+    }
+
     // Getters
     public String getId() {
         return id;

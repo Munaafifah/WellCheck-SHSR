@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -16,24 +17,23 @@ import com.SmartHealthRemoteSystem.SHSR.Service.MyUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true) // ✅ REQUIRED for @PreAuthorize to work
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-
 
     private MyUserDetailsService myUserDetailsService;
     private AuthenticationSuccessHandler successHandler;
 
     @Autowired
-    public SecurityConfiguration(MyUserDetailsService myUserDetailsService, AuthenticationSuccessHandler successHandler){
+    public SecurityConfiguration(MyUserDetailsService myUserDetailsService, AuthenticationSuccessHandler successHandler) {
         this.myUserDetailsService = myUserDetailsService;
         this.successHandler = successHandler;
     }
 
-   @Override
+    @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth.userDetailsService(myUserDetailsService)
-        .passwordEncoder(passwordEncoder()); // ✅ FIXED
-}
-
+        auth.userDetailsService(myUserDetailsService)
+            .passwordEncoder(passwordEncoder());
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -43,15 +43,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .requiresSecure()
             .and()
             .authorizeRequests()
-                .antMatchers("/registerPatient").permitAll() // Allow access to register page
-                .antMatchers("/Sensor-data/**").permitAll() // ✅ Allow open access for sensor API
+                .antMatchers("/registerPatient").permitAll()
+                .antMatchers("/Sensor-data/**").permitAll()
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers("/doctor/**").hasAnyRole("ADMIN", "DOCTOR")
                 .antMatchers("/assignpatient/**").hasAnyRole("ADMIN", "DOCTOR")
                 .antMatchers("/prescription/**").hasAnyRole("ADMIN", "DOCTOR")
                 .antMatchers("/patient/**").hasAnyRole("ADMIN", "DOCTOR", "PATIENT")
                 .antMatchers("/pharmacist/**").hasAnyRole("ADMIN", "PHARMACIST")
-                .antMatchers("/clinicassistant/**").hasAnyRole("ADMIN", "CLINIC_ASSISTANT")
+                .antMatchers("/clinicassistant/**").hasAnyRole("ADMIN", "CLINIC_ASSISTANT", "DOCTOR") // ✅ updated
                 .antMatchers("/js/**", "/css/**").permitAll()
             .and()
             .formLogin()
@@ -69,14 +69,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             .and()
             .httpBasic();
     }
-    
 
-   @Bean
-public PasswordEncoder passwordEncoder(){
-    return new BCryptPasswordEncoder();  // Secure
-}
-
-
-    
-    
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
