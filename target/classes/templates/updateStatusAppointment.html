@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <title>Doctor Appointments</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
-    
+
     <style>
         body {
             background-color: #f0f2f5;
@@ -164,19 +164,19 @@
             background-color: #f8f9fa;
             border-radius: 8px 8px 0 0;
         }
-        
+
         .nav-tabs .nav-link:hover {
             background-color: #e9ecef;
             color: #0d6efd !important;
         }
-        
+
         .nav-tabs .nav-link.active {
             color: #0d6efd !important;
             background: white;
             border-bottom: 3px solid #0d6efd;
             font-weight: 700;
         }
-        
+
         .tab-badge {
             background-color: #0d6efd;
             color: white;
@@ -338,22 +338,23 @@
             .main-container {
                 padding: 0 15px;
             }
-            
+
             .nav-tabs .nav-link {
                 min-width: 150px;
                 padding: 0.75rem 1.5rem;
             }
-            
+
             .content-area {
                 padding: 20px;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container main-container">
         <div class="row g-4">
-            
+
             <!-- Main Content -->
             <div class="col-9">
                 <div class="content-area">
@@ -370,13 +371,15 @@
                     <!-- Tabs Navigation -->
                     <ul class="nav nav-tabs mb-4" id="appointmentTabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">
+                            <button class="nav-link active" id="active-tab" data-bs-toggle="tab"
+                                data-bs-target="#active" type="button" role="tab">
                                 Active Appointments
                                 <span class="tab-badge" th:text="${activeCount}">0</span>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="expired-tab" data-bs-toggle="tab" data-bs-target="#expired" type="button" role="tab">
+                            <button class="nav-link" id="expired-tab" data-bs-toggle="tab" data-bs-target="#expired"
+                                type="button" role="tab">
                                 Expired Appointments
                                 <span class="tab-badge" th:text="${expiredCount}">0</span>
                             </button>
@@ -394,8 +397,10 @@
                                             <span class="input-group-text">
                                                 <i class="fas fa-search"></i>
                                             </span>
-                                            <input type="text" class="form-control" id="searchInput" placeholder="Enter search term..." />
-                                            <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
+                                            <input type="text" class="form-control" id="searchInput"
+                                                placeholder="Enter search term..." />
+                                            <button class="btn btn-outline-secondary" type="button"
+                                                onclick="clearSearch()">
                                                 <i class="fas fa-times"></i> Clear
                                             </button>
                                         </div>
@@ -430,7 +435,8 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr th:each="appointment : ${appointments}" th:if="${appointment.statusAppointment != 'Expired'}">
+                                        <tr th:each="appointment : ${appointments}"
+                                            th:if="${appointment.statusAppointment != 'Expired'}">
                                             <td th:text="${appointment.userId}"></td>
                                             <td th:text="${appointment.email}"></td>
                                             <td th:text="${appointment.doctorId}"></td>
@@ -454,18 +460,24 @@
                                             <td>
                                                 <div class="d-flex gap-2">
                                                     <!-- View button: visible to both DOCTOR and CLINIC_ASSISTANT -->
-                                                    <button class="btn btn-info btn-sm" 
-                                                            onclick="viewDetails(this)"
-                                                            th:data-id="${appointment.appointmentId}"
-                                                            th:data-email="${appointment.email}"
-                                                            th:data-type-sickness="${appointment.typeOfSickness}"
-                                                            th:data-notes="${appointment.additionalNotes}"
-                                                            th:data-insurance="${appointment.insuranceProvider}"
-                                                            th:data-policy="${appointment.insurancePolicyNumber}"
-                                                            th:data-cost="${appointment.appointmentCost}"
-                                                            th:data-timestamp="${appointment.timestamp}">
+                                                    <button class="btn btn-info btn-sm" onclick="viewDetails(this)"
+                                                        th:data-id="${appointment.appointmentId}"
+                                                        th:data-email="${appointment.email}"
+                                                        th:data-type-sickness="${appointment.typeOfSickness}"
+                                                        th:data-notes="${appointment.additionalNotes}"
+                                                        th:data-insurance="${appointment.insuranceProvider}"
+                                                        th:data-policy="${appointment.insurancePolicyNumber}"
+                                                        th:data-cost="${appointment.appointmentCost}"
+                                                        th:data-timestamp="${appointment.timestamp}">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
+
+                                                    <!-- ✅ NEW: Prescribe button - only for Approved appointments -->
+                                                    <a th:if="${appointment.statusAppointment == 'Approved'}"
+                                                        th:href="@{/prescription/form(patientId=${appointment.userId}, appointmentId=${appointment.appointmentId})}"
+                                                        class="btn btn-success btn-sm">
+                                                        <i class="fas fa-prescription me-1"></i> Prescribe
+                                                    </a>
 
                                                     <!-- ✅ Approve/Cancel: CLINIC_ASSISTANT only -->
                                                     <th:block sec:authorize="hasRole('CLINIC_ASSISTANT')">
@@ -509,7 +521,7 @@
                                 </div>
                             </div>
                             <div class="pagination-info mt-3">
-                                Showing <span id="activeStartIndex">0</span> to <span id="activeEndIndex">0</span> of 
+                                Showing <span id="activeStartIndex">0</span> to <span id="activeEndIndex">0</span> of
                                 <span id="activeTotalItems">0</span> entries
                             </div>
                             <div id="activeNoResults" class="no-results" style="display: none;">
@@ -538,7 +550,8 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr th:each="appointment : ${appointments}" th:if="${appointment.statusAppointment == 'Expired'}">
+                                        <tr th:each="appointment : ${appointments}"
+                                            th:if="${appointment.statusAppointment == 'Expired'}">
                                             <td th:text="${appointment.userId}"></td>
                                             <td th:text="${appointment.email}"></td>
                                             <td th:text="${appointment.doctorId}"></td>
@@ -557,16 +570,15 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <button class="btn btn-info btn-sm" 
-                                                        onclick="viewDetails(this)"
-                                                        th:data-id="${appointment.appointmentId}"
-                                                        th:data-email="${appointment.email}"
-                                                        th:data-type-sickness="${appointment.typeOfSickness}"
-                                                        th:data-notes="${appointment.additionalNotes}"
-                                                        th:data-insurance="${appointment.insuranceProvider}"
-                                                        th:data-policy="${appointment.insurancePolicyNumber}"
-                                                        th:data-cost="${appointment.appointmentCost}"
-                                                        th:data-timestamp="${appointment.timestamp}">
+                                                <button class="btn btn-info btn-sm" onclick="viewDetails(this)"
+                                                    th:data-id="${appointment.appointmentId}"
+                                                    th:data-email="${appointment.email}"
+                                                    th:data-type-sickness="${appointment.typeOfSickness}"
+                                                    th:data-notes="${appointment.additionalNotes}"
+                                                    th:data-insurance="${appointment.insuranceProvider}"
+                                                    th:data-policy="${appointment.insurancePolicyNumber}"
+                                                    th:data-cost="${appointment.appointmentCost}"
+                                                    th:data-timestamp="${appointment.timestamp}">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                             </td>
@@ -590,7 +602,7 @@
                                 </div>
                             </div>
                             <div class="pagination-info mt-3">
-                                Showing <span id="expiredStartIndex">0</span> to <span id="expiredEndIndex">0</span> of 
+                                Showing <span id="expiredStartIndex">0</span> to <span id="expiredEndIndex">0</span> of
                                 <span id="expiredTotalItems">0</span> entries
                             </div>
                             <div id="expiredNoResults" class="no-results" style="display: none;">
@@ -608,7 +620,8 @@
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title">Appointment Details</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <div class="row">
@@ -621,7 +634,8 @@
                                         </div>
                                         <div class="col-md-6">
                                             <h6 class="mb-3">Additional Information</h6>
-                                            <p><strong>Insurance Provider:</strong> <span id="modal-insurance"></span></p>
+                                            <p><strong>Insurance Provider:</strong> <span id="modal-insurance"></span>
+                                            </p>
                                             <p><strong>Policy Number:</strong> <span id="modal-policy"></span></p>
                                             <p><strong>Appointment Cost:</strong> $<span id="modal-cost"></span></p>
                                             <p><strong>Created:</strong> <span id="modal-timestamp"></span></p>
@@ -648,12 +662,12 @@
                         <form id="editAppointmentForm">
                             <input type="hidden" id="edit-appointment-id">
                             <input type="hidden" id="edit-user-id">
-                            
+
                             <div class="mb-3">
                                 <label for="edit-date" class="form-label">New Date</label>
                                 <input type="date" class="form-control" id="edit-date" required>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="edit-time" class="form-label">New Time</label>
                                 <input type="time" class="form-control" id="edit-time" required>
@@ -682,11 +696,11 @@
         function updateStatus(button) {
             const appointmentId = button.getAttribute("data-id");
             const newStatus = button.getAttribute("data-status");
-        
+
             button.disabled = true;
             const originalText = button.innerHTML;
             button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-        
+
             $.ajax({
                 url: "/clinicassistant/api/appointments/updateStatus", // ✅ updated URL
                 type: "POST",
@@ -766,12 +780,12 @@
         function performSearch() {
             const searchTerm = document.getElementById("searchInput").value.toLowerCase();
             const activeTab = document.getElementById("active-tab").classList.contains("active");
-            
+
             let visibleCount = 0;
 
             appointments.forEach((appointment) => {
                 if (activeTab === !appointment.isExpired) {
-                    let visible = 
+                    let visible =
                         appointment.appointmentId.toLowerCase().includes(searchTerm) ||
                         appointment.userId.toLowerCase().includes(searchTerm) ||
                         appointment.email.toLowerCase().includes(searchTerm) ||
@@ -786,8 +800,8 @@
         }
 
         function updateSearchResults(visibleCount, searchTerm) {
-            const resultText = searchTerm 
-                ? `Found ${visibleCount} matching appointments` 
+            const resultText = searchTerm
+                ? `Found ${visibleCount} matching appointments`
                 : "";
             document.getElementById("searchResult").textContent = resultText;
         }
@@ -817,11 +831,11 @@
                     totalItemsId: options.totalItemsId || 'totalItems',
                     rowsPerPageId: options.rowsPerPageId || 'rowsPerPage'
                 };
-        
+
                 this.currentPage = 1;
                 this.filteredRows = [];
                 this.searchTerm = '';
-                
+
                 this.elements = {
                     tableBody: this.table.querySelector('tbody'),
                     searchInput: document.getElementById(this.options.searchInputId),
@@ -832,13 +846,13 @@
                     totalItemsSpan: document.getElementById(this.options.totalItemsId),
                     rowsPerPageSelect: document.getElementById(this.options.rowsPerPageId)
                 };
-        
+
                 this.allRows = Array.from(this.elements.tableBody.querySelectorAll('tr'));
                 this.filteredRows = this.allRows;
-                
+
                 this.initialize();
             }
-        
+
             initialize() {
                 if (this.elements.searchInput) {
                     this.elements.searchInput.addEventListener('input', (e) => {
@@ -846,7 +860,7 @@
                         this.performGlobalSearch();
                     });
                 }
-        
+
                 if (this.elements.rowsPerPageSelect) {
                     this.elements.rowsPerPageSelect.addEventListener('change', (e) => {
                         this.options.itemsPerPage = parseInt(e.target.value);
@@ -854,28 +868,28 @@
                         this.performGlobalSearch();
                     });
                 }
-        
+
                 this.updatePagination();
                 this.showPage(1);
             }
-        
+
             performGlobalSearch() {
                 this.allRows.forEach(row => row.style.display = '');
-        
+
                 this.filteredRows = this.allRows.filter(row => {
                     const cells = Array.from(row.getElementsByTagName('td'));
                     return cells.some(cell => cell.textContent.toLowerCase().includes(this.searchTerm));
                 });
-        
+
                 this.currentPage = 1;
                 this.updatePagination();
                 this.showPage(1);
-        
+
                 if (this.elements.noResults) {
-                    this.elements.noResults.style.display = 
+                    this.elements.noResults.style.display =
                         this.filteredRows.length === 0 ? 'block' : 'none';
                 }
-        
+
                 const searchResult = document.getElementById('searchResult');
                 if (searchResult) {
                     if (this.searchTerm) {
@@ -885,29 +899,29 @@
                     }
                 }
             }
-        
+
             showPage(pageNum) {
                 const start = (pageNum - 1) * this.options.itemsPerPage;
                 const end = start + this.options.itemsPerPage;
-        
+
                 this.allRows.forEach(row => row.style.display = 'none');
                 this.filteredRows.slice(start, end).forEach(row => row.style.display = '');
-        
+
                 if (this.elements.startIndexSpan && this.elements.endIndexSpan && this.elements.totalItemsSpan) {
                     this.elements.startIndexSpan.textContent = this.filteredRows.length === 0 ? 0 : start + 1;
                     this.elements.endIndexSpan.textContent = Math.min(end, this.filteredRows.length);
                     this.elements.totalItemsSpan.textContent = this.filteredRows.length;
                 }
-        
+
                 this.currentPage = pageNum;
                 this.updateActivePageButton();
             }
-        
+
             updatePagination() {
                 const totalPages = Math.ceil(this.filteredRows.length / this.options.itemsPerPage);
-        
+
                 let paginationHTML = '';
-        
+
                 if (this.filteredRows.length > 0) {
                     paginationHTML = `
                         <li class="page-item ${this.currentPage === 1 ? 'disabled' : ''}">
@@ -915,7 +929,7 @@
                                 <i class="fas fa-chevron-left"></i>
                             </a>
                         </li>`;
-        
+
                     for (let i = 1; i <= totalPages; i++) {
                         paginationHTML += `
                             <li class="page-item">
@@ -923,7 +937,7 @@
                                    href="#" data-page="${i}">${i}</a>
                             </li>`;
                     }
-        
+
                     paginationHTML += `
                         <li class="page-item ${this.currentPage === totalPages ? 'disabled' : ''}">
                             <a class="page-link" href="#" data-page="${this.currentPage + 1}">
@@ -931,9 +945,9 @@
                             </a>
                         </li>`;
                 }
-        
+
                 this.elements.paginationContainer.innerHTML = paginationHTML;
-        
+
                 this.elements.paginationContainer.querySelectorAll('.page-link').forEach(button => {
                     button.addEventListener('click', (e) => {
                         e.preventDefault();
@@ -944,7 +958,7 @@
                     });
                 });
             }
-        
+
             updateActivePageButton() {
                 this.elements.paginationContainer.querySelectorAll('.page-link').forEach(button => {
                     button.classList.remove('active');
@@ -953,7 +967,7 @@
                     }
                 });
             }
-        
+
             reset() {
                 this.searchTerm = '';
                 if (this.elements.searchInput) {
@@ -966,7 +980,7 @@
                 }
                 this.updatePagination();
                 this.showPage(1);
-        
+
                 const searchResult = document.getElementById('searchResult');
                 if (searchResult) {
                     searchResult.textContent = '';
@@ -985,7 +999,7 @@
                 totalItemsId: 'activeTotalItems',
                 rowsPerPageId: 'activeRowsPerPage'
             });
-        
+
             window.expiredPagination = new TablePagination('expiredTable', {
                 itemsPerPage: 5,
                 searchInputId: 'searchInput',
@@ -996,7 +1010,7 @@
                 totalItemsId: 'expiredTotalItems',
                 rowsPerPageId: 'expiredRowsPerPage'
             });
-        
+
             const tabLinks = document.querySelectorAll('[data-bs-toggle="tab"]');
             tabLinks.forEach(tab => {
                 tab.addEventListener('shown.bs.tab', (event) => {
@@ -1042,4 +1056,5 @@
         }
     </script>
 </body>
+
 </html>

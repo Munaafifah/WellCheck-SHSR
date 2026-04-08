@@ -1,5 +1,4 @@
 
-
 //MongoDB//
 package com.SmartHealthRemoteSystem.SHSR.Service;
 
@@ -40,7 +39,6 @@ public class PrescriptionService {
         prescription.setPrescriptionId(prescriptionId);
         prescription.setTimestamp(Instant.now());
 
-
         // Save into embedded map
         Map<String, Prescription> currentPrescriptions = patient.getPrescription();
         currentPrescriptions.put(prescriptionId, prescription);
@@ -54,7 +52,8 @@ public class PrescriptionService {
     // ✅ Retrieve all prescriptions for a patient
     public List<Prescription> getAllPrescriptions(String patientId) {
         Optional<Patient> patientOptional = patientRepository.findById(patientId);
-        if (!patientOptional.isPresent()) return Collections.emptyList();
+        if (!patientOptional.isPresent())
+            return Collections.emptyList();
 
         Patient patient = patientOptional.get();
         return new ArrayList<>(patient.getPrescription().values());
@@ -63,7 +62,8 @@ public class PrescriptionService {
     // ✅ Get single prescription
     public Prescription getPrescription(String patientId, String prescriptionId) {
         Optional<Patient> patientOptional = patientRepository.findById(patientId);
-        if (!patientOptional.isPresent()) return null;
+        if (!patientOptional.isPresent())
+            return null;
 
         return patientOptional.get().getPrescription().get(prescriptionId);
     }
@@ -71,7 +71,8 @@ public class PrescriptionService {
     // ✅ Update prescription
     public String updatePrescription(String patientId, Prescription updatedPrescription) {
         Optional<Patient> patientOptional = patientRepository.findById(patientId);
-        if (!patientOptional.isPresent()) return "Patient not found.";
+        if (!patientOptional.isPresent())
+            return "Patient not found.";
 
         Patient patient = patientOptional.get();
         Map<String, Prescription> prescriptionMap = patient.getPrescription();
@@ -91,7 +92,8 @@ public class PrescriptionService {
     // ✅ Delete prescription
     public String deletePrescription(String patientId, String prescriptionId) {
         Optional<Patient> patientOptional = patientRepository.findById(patientId);
-        if (!patientOptional.isPresent()) return "Patient not found.";
+        if (!patientOptional.isPresent())
+            return "Patient not found.";
 
         Patient patient = patientOptional.get();
         Map<String, Prescription> prescriptionMap = patient.getPrescription();
@@ -105,27 +107,52 @@ public class PrescriptionService {
     }
 
     // ✅ Convenience method for prescribing medicines
-    public String prescribeMedicines(String patientId, Map<String, Integer> selectedMedicines,
-                                     String prescriptionDescription, String diagnosisAilmentDescription) {
+    public Map<String, Object> prescribeMedicines(String patientId,
+            Map<String, Integer> selectedMedicines,
+            String prescriptionDescription,
+            String diagnosisAilmentDescription) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
         String doctorId = userDetails.getUsername();
 
         List<String> medicineDetailsList = new ArrayList<>();
+        double totalDrugCost = 0.0; // ✅ calculate drug cost
 
         for (Map.Entry<String, Integer> entry : selectedMedicines.entrySet()) {
             Medicine medicine = medicineService.getMedicine(entry.getKey());
             if (medicine != null) {
                 medicineService.prescribeMedicine(patientId, medicine.getMedId(), entry.getValue());
                 medicineDetailsList.add(medicine.getMedName() + " - Quantity: " + entry.getValue());
+                totalDrugCost += medicine.getPrice() * entry.getValue(); // ✅ accumulate cost
             }
         }
 
         Prescription prescription = new Prescription(doctorId, medicineDetailsList,
                 prescriptionDescription, diagnosisAilmentDescription);
+        prescription.setDrugCost(totalDrugCost); // ✅ set drug cost on prescription
 
-        return createPrescription(patientId, prescription);
+        String prescriptionId = createPrescription(patientId, prescription);
+
+        // ✅ return both prescriptionId and drugCost
+        Map<String, Object> result = new HashMap<>();
+        result.put("prescriptionId", prescriptionId);
+        result.put("drugCost", totalDrugCost);
+        return result;
+    }
+
+    public void linkAppointmentToPrescription(String patientId, String prescriptionId, String appointmentId) {
+        Optional<Patient> patientOptional = patientRepository.findById(patientId);
+        if (!patientOptional.isPresent())
+            return;
+
+        Patient patient = patientOptional.get();
+        Map<String, Prescription> prescriptionMap = patient.getPrescription();
+
+        if (prescriptionMap.containsKey(prescriptionId)) {
+            prescriptionMap.get(prescriptionId).setAppointmentId(appointmentId);
+            patient.setPrescription(prescriptionMap);
+            patientRepository.save(patient);
+        }
     }
 }
-

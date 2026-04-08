@@ -11,8 +11,9 @@ public class Medicine {
 
     private String medName;
     private int quantity;
-    private String medType;     // You may want to include this if your UI uses it
+    private String medType; // You may want to include this if your UI uses it
     private String patientId;
+    private double price;
 
     // --- Constructors ---
 
@@ -74,5 +75,13 @@ public class Medicine {
 
     public void setPatientId(String patientId) {
         this.patientId = patientId;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 }

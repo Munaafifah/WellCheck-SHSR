@@ -1,7 +1,4 @@
 
-
-
-
 //MongoDB//
 package com.SmartHealthRemoteSystem.SHSR.ViewDoctorPrescription;
 
@@ -15,11 +12,14 @@ public class Prescription {
     private List<String> medicineList;
     private String prescriptionDescription;
     private String diagnosisAilmentDescription;
+    private String appointmentId; // null if not from appointment
+    private double drugCost; // 0 if not from appointment
 
-    public Prescription() {}
+    public Prescription() {
+    }
 
     public Prescription(String doctorId, List<String> medicineList,
-                        String prescriptionDescription, String diagnosisAilmentDescription) {
+            String prescriptionDescription, String diagnosisAilmentDescription) {
         this.doctorId = doctorId;
         this.medicineList = medicineList;
         this.prescriptionDescription = prescriptionDescription;
@@ -73,5 +73,21 @@ public class Prescription {
 
     public void setDiagnosisAilmentDescription(String diagnosisAilmentDescription) {
         this.diagnosisAilmentDescription = diagnosisAilmentDescription;
+    }
+
+    public String getAppointmentId() {
+        return appointmentId;
+    }
+
+    public void setAppointmentId(String appointmentId) {
+        this.appointmentId = appointmentId;
+    }
+
+    public double getDrugCost() {
+        return drugCost;
+    }
+
+    public void setDrugCost(double drugCost) {
+        this.drugCost = drugCost;
     }
 }

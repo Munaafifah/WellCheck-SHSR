@@ -94,7 +94,7 @@ public class AppointmentHandler {
                 if (isExpired) {
                     status = "Expired";
                     // Update the status in the database if it's not already marked as expired
-                    if (!doc.getString("statusAppointment").equals("Expired")) {
+                    if (!"Expired".equals(doc.getString("statusAppointment"))) { // ← flip it, safe from null
                         Document filter = new Document("appointmentId", doc.getString("appointmentId"));
                         Document update = new Document("$set", new Document("statusAppointment", "Expired"));
                         collection.updateOne(filter, update);
@@ -597,6 +597,36 @@ public class AppointmentHandler {
             logger.error("Error deleting appointment: {}", e.getMessage(), e);
             response.put("success", false);
             response.put("message", "An error occurred while deleting appointment");
+        } finally {
+            if (mongoClient != null)
+                mongoClient.close();
+        }
+        return response;
+    }
+
+    public Map<String, Object> updateDrugCost(String appointmentId, double drugCost) {
+        Map<String, Object> response = new HashMap<>();
+        MongoClient mongoClient = null;
+        try {
+            mongoClient = MongoClients.create(CONNECTION_STRING);
+            MongoDatabase database = mongoClient.getDatabase("Wellcheck2");
+            MongoCollection<Document> collection = database.getCollection("appointments");
+
+            Document filter = new Document("appointmentId", appointmentId);
+            Document update = new Document("$set", new Document("drugCost", drugCost));
+            UpdateResult result = collection.updateOne(filter, update);
+
+            if (result.getModifiedCount() > 0) {
+                response.put("success", true);
+                logger.info("Drug cost updated for appointment: {}", appointmentId);
+            } else {
+                response.put("success", false);
+                response.put("message", "No appointment found");
+            }
+        } catch (Exception e) {
+            logger.error("Error updating drug cost: {}", e.getMessage(), e);
+            response.put("success", false);
+            response.put("message", "Error updating drug cost");
         } finally {
             if (mongoClient != null)
                 mongoClient.close();
