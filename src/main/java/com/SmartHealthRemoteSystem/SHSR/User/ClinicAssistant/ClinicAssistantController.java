@@ -10,11 +10,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.Base64;
 
 @Controller
 @RequestMapping("/clinicassistant")
@@ -101,5 +104,34 @@ public class ClinicAssistantController {
         model.addAttribute("expiredCount", expiredCount);
 
         return "updateStatusAppointment";
+    }
+
+    // ── Edit Profile ──────────────────────────────────────────────────────
+    @GetMapping("/updateProfile")
+    public String showEditProfile(Model model) throws ExecutionException, InterruptedException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
+        ClinicAssistant ca = clinicAssistantService.getClinicAssistant(userDetails.getUsername());
+        model.addAttribute("clinicAssistant", ca);
+        return "editProfileClinicAssistant";
+    }
+
+    @PostMapping("/updateProfile/profile")
+    public String saveUpdatedProfile(@ModelAttribute ClinicAssistant updated,
+            @RequestParam("imageFile") MultipartFile imageFile) throws Exception {
+        ClinicAssistant existing = clinicAssistantService.getClinicAssistant(updated.getUserId());
+        existing.setName(updated.getName());
+        existing.setContact(updated.getContact());
+        existing.setClinic(updated.getClinic());
+        existing.setPosition(updated.getPosition());
+
+        if (!imageFile.isEmpty()) {
+            String base64 = Base64.getEncoder().encodeToString(imageFile.getBytes());
+            existing.setProfilePicture(base64);
+            existing.setProfilePictureType(imageFile.getContentType());
+        }
+
+        clinicAssistantService.updateClinicAssistant(existing);
+        return "redirect:/clinicassistant";
     }
 }

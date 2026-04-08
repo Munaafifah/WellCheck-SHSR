@@ -251,6 +251,11 @@ public class PharmacistController {
             @RequestParam(defaultValue = "") String searchQuery,
             Model model) throws Exception {
 
+        // ✅ ADD THESE 3 LINES at the top
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
+        Pharmacist pharmacist = pharmacistService.getPharmacist(myUserDetails.getUsername());
+
         // 1. Fetch all patients
         List<Patient> allPatients = patientService.getAllPatients();
 
@@ -279,6 +284,7 @@ public class PharmacistController {
         }
 
         // 5. Send to Thymeleaf
+        model.addAttribute("pharmacist", pharmacist); // ✅ ADD THIS
         model.addAttribute("patientPrescriptions", patientPrescriptions);
         model.addAttribute("currentPage", pageNo);
         model.addAttribute("totalPages", (int) Math.ceil((double) totalPatients / pageSize));
@@ -286,5 +292,4 @@ public class PharmacistController {
 
         return "pharmacistPatientMedicineList";
     }
-
 }

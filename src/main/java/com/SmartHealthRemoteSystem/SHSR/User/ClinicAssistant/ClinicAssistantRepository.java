@@ -62,7 +62,7 @@ public class ClinicAssistantRepository implements SHSRDAO<ClinicAssistant> {
         // Save to User collection
         String encodedPassword = passwordEncoder.encode(ca.getPassword());
         User user = new User(ca.getUserId(), ca.getName(), encodedPassword,
-                             ca.getContact(), ca.getRole(), ca.getEmail());
+                ca.getContact(), ca.getRole(), ca.getEmail());
         mongoUserRepository.save(user);
 
         // Save to ClinicAssistant collection (with hashed password)
@@ -75,19 +75,32 @@ public class ClinicAssistantRepository implements SHSRDAO<ClinicAssistant> {
     public String update(ClinicAssistant ca) throws ExecutionException, InterruptedException {
         // Update User collection
         mongoUserRepository.findById(ca.getUserId()).ifPresent(user -> {
-            if (ca.getName() != null && !ca.getName().isEmpty()) user.setName(ca.getName());
-            if (ca.getContact() != null && !ca.getContact().isEmpty()) user.setContact(ca.getContact());
-            if (ca.getEmail() != null && !ca.getEmail().isEmpty()) user.setEmail(ca.getEmail());
+            if (ca.getName() != null && !ca.getName().isEmpty())
+                user.setName(ca.getName());
+            if (ca.getContact() != null && !ca.getContact().isEmpty())
+                user.setContact(ca.getContact());
+            if (ca.getEmail() != null && !ca.getEmail().isEmpty())
+                user.setEmail(ca.getEmail());
             mongoUserRepository.save(user);
         });
 
         // Update ClinicAssistant collection
         mongoClinicAssistantRepository.findById(ca.getUserId()).ifPresent(existing -> {
-            if (ca.getName() != null && !ca.getName().isEmpty()) existing.setName(ca.getName());
-            if (ca.getContact() != null && !ca.getContact().isEmpty()) existing.setContact(ca.getContact());
-            if (ca.getEmail() != null && !ca.getEmail().isEmpty()) existing.setEmail(ca.getEmail());
-            if (ca.getClinic() != null && !ca.getClinic().isEmpty()) existing.setClinic(ca.getClinic());
-            if (ca.getPosition() != null && !ca.getPosition().isEmpty()) existing.setPosition(ca.getPosition());
+            if (ca.getName() != null && !ca.getName().isEmpty())
+                existing.setName(ca.getName());
+            if (ca.getContact() != null && !ca.getContact().isEmpty())
+                existing.setContact(ca.getContact());
+            if (ca.getEmail() != null && !ca.getEmail().isEmpty())
+                existing.setEmail(ca.getEmail());
+            if (ca.getClinic() != null && !ca.getClinic().isEmpty())
+                existing.setClinic(ca.getClinic());
+            if (ca.getPosition() != null && !ca.getPosition().isEmpty())
+                existing.setPosition(ca.getPosition());
+            // ✅ ADD THESE TWO
+            if (ca.getProfilePicture() != null && !ca.getProfilePicture().isEmpty())
+                existing.setProfilePicture(ca.getProfilePicture());
+            if (ca.getProfilePictureType() != null && !ca.getProfilePictureType().isEmpty())
+                existing.setProfilePictureType(ca.getProfilePictureType());
             mongoClinicAssistantRepository.save(existing);
         });
 
