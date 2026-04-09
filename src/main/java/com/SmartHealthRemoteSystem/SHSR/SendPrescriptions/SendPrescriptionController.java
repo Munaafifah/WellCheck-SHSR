@@ -43,11 +43,11 @@ public class SendPrescriptionController {
 
     @Autowired
     public SendPrescriptionController(DoctorService doctorService,
-                                      PatientService patientService,
-                                      PrescriptionService prescriptionService,
-                                      MedicineService medicineService,
-                                      MailService mailService,
-                                      PharmacistService pharmacistService) {
+            PatientService patientService,
+            PrescriptionService prescriptionService,
+            MedicineService medicineService,
+            MailService mailService,
+            PharmacistService pharmacistService) {
         this.doctorService = doctorService;
         this.patientService = patientService;
         this.prescriptionService = prescriptionService;
@@ -61,6 +61,9 @@ public class SendPrescriptionController {
     public String getPrescriptionForm(
             @RequestParam String patientId,
             @RequestParam(required = false) String appointmentId,
+            @RequestParam(defaultValue = "") String searchQuery,
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "5") int pageSize,
             Model model) throws Exception {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -68,13 +71,32 @@ public class SendPrescriptionController {
         Doctor doctor = doctorService.getDoctor(userDetails.getUsername());
 
         Patient patient = patientService.getPatientById(patientId);
-        List<Medicine> medicineList = medicineService.getAllMedicines();
+
+        List<Medicine> allMedicines = medicineService.getAllMedicines();
+
+        // Filter by search query
+        if (!searchQuery.isEmpty()) {
+            allMedicines = allMedicines.stream()
+                    .filter(m -> m.getMedName().toLowerCase().contains(searchQuery.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        // Pagination
+        int total = allMedicines.size();
+        int start = Math.min(pageNo * pageSize, total);
+        int end = Math.min((pageNo + 1) * pageSize, total);
+        List<Medicine> medicineList = allMedicines.subList(start, end);
 
         model.addAttribute("doctor", doctor);
         model.addAttribute("patientId", patientId);
         model.addAttribute("patientName", patient.getName());
         model.addAttribute("medicineList", medicineList);
-        model.addAttribute("appointmentId", appointmentId); // ✅ null if not from appointment
+        model.addAttribute("appointmentId", appointmentId);
+        model.addAttribute("searchQuery", searchQuery);
+        model.addAttribute("currentPage", pageNo);
+        model.addAttribute("totalPages", (int) Math.ceil((double) total / pageSize));
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("startIndex", pageNo * pageSize);
 
         return "sendPrescriptionForm";
     }
@@ -178,9 +200,9 @@ public class SendPrescriptionController {
     // Submit selected medicines with quantity
     @PostMapping("/prescribemedicine/submit")
     public String submitMedicineForm(@RequestParam String patientId,
-                                     @RequestParam Map<String, String> allParams,
-                                     RedirectAttributes redirectAttributes,
-                                     Model model) throws Exception {
+            @RequestParam Map<String, String> allParams,
+            RedirectAttributes redirectAttributes,
+            Model model) throws Exception {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
@@ -190,8 +212,7 @@ public class SendPrescriptionController {
                 .filter(e -> e.getKey().startsWith("quantity_") && !e.getValue().isEmpty())
                 .collect(Collectors.toMap(
                         e -> e.getKey().substring("quantity_".length()),
-                        e -> Integer.parseInt(e.getValue())
-                ));
+                        e -> Integer.parseInt(e.getValue())));
 
         prescriptionService.prescribeMedicines(patientId, selectedMedicines,
                 "Prescription Description", "Diagnosis Ailment Description");
@@ -203,10 +224,10 @@ public class SendPrescriptionController {
     // Prescription history for a patient
     @GetMapping("/history")
     public String viewPrescriptionHistory(@RequestParam String patientId,
-                                          @RequestParam(defaultValue = "0") int pageNo,
-                                          @RequestParam(defaultValue = "10") int pageSize,
-                                          @RequestParam(defaultValue = "") String searchQuery,
-                                          Model model) throws Exception {
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "") String searchQuery,
+            Model model) throws Exception {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();

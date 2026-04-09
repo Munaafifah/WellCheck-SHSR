@@ -1,103 +1,186 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <style>
-        .f:hover {
-            background-color: #e6e6e6;
-        }
-    </style>
     <title>Doctor's Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/doctorDashboard.css}">
 </head>
 
 <body>
+<div class="layout">
 
+    <!-- ════════════ SIDEBAR ════════════ -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-label">WellCheck System</div>
+            <h1>Doctor <span>Hub</span></h1>
+        </div>
 
+        <div class="profile-card">
+            <img class="profile-avatar"
+                 th:src="${doctor != null and doctor.profilePicture != null}
+                         ? 'data:' + ${doctor.profilePictureType} + ';base64,' + ${doctor.profilePicture}
+                         : '/image/img_avatar1.png'"
+                 alt="Profile Picture" />
+            <div class="profile-info">
+                <div class="name" th:text="${doctor != null} ? ${doctor.name} : 'Doctor'">Doctor</div>
+                <span class="role-badge"
+                      th:text="${doctor != null and doctor.position != null} ? ${doctor.position} : 'Doctor'">Doctor</span>
+            </div>
+        </div>
 
-    <div class="container shadow p-3 mb-5  bg-primary bg-opacity-25 rounded" style="position: relative; top: 50px;">
-        <div class="container overflow-hidden">
-            <div class="row gx-5">
-                <div class="col ">
-                    <div class="d-flex shadow flex-column flex-shrink-0 p-3 bg-primary bg-opacity-25 rounded">
-                        <a th:href="@{/doctor}" class="card-link" style="text-decoration: none; color: black;">
-                            <div class="card bg-primary bg-opacity-25 rounded">
-                                <img th:src="'data:' + ${doctor.profilePictureType} + ';base64,' + ${doctor.profilePicture}"
-                                    alt="Doctor Profile" class="card-img-top" />
-                                <div class="card-body">
-                                    <h3 class="card-title" th:text="${doctor.name}"> </h3>
-                                    <p class="card-text" th:text="${doctor.position}"></p>
-                                </div>
-                            </div>
-                        </a>
-                        <hr>
-                        <ul class="nav nav-pills flex-column mb-auto">
-                            <li class="nav-item">
-                                <a th:href="@{/doctor/updateProfile}" class="nav-link link-dark f">
-                                    Edit Profile
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a th:href="@{/doctor/myPatient}" class="nav-link link-dark f">
-                                    My Patient
-                                </a>
-                            </li>
-                            <li>
-                                <a th:href="@{/assignpatient}" class="nav-link link-dark f">
-                                    Assign Patient
-                                </a>
-                            </li>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main Menu</div>
+            <a th:href="@{/doctor}" class="nav-link-item active">
+                <i class="fa-solid fa-house-medical"></i>
+                Dashboard
+            </a>
+            <a th:href="@{/doctor/myPatient}" class="nav-link-item">
+                <i class="fa-solid fa-user-injured"></i>
+                My Patient
+            </a>
+            <a th:href="@{/assignpatient}" class="nav-link-item">
+                <i class="fa-solid fa-user-plus"></i>
+                Assign Patient
+            </a>
+            <a th:href="@{/patient/list}" class="nav-link-item">
+                <i class="fa-solid fa-list"></i>
+                List of Assigned Patient
+            </a>
+            <a th:href="@{/doctor/predictionReview}" class="nav-link-item">
+                <i class="fa-solid fa-microscope"></i>
+                Prediction Review
+            </a>
+            <a th:href="@{/clinicassistant/appointments}" class="nav-link-item">
+                <i class="fa-solid fa-calendar-check"></i>
+                Appointments
+            </a>
+            <div class="nav-section-label" style="margin-top: 8px;">Account</div>
+            <a th:href="@{/doctor/updateProfile}" class="nav-link-item">
+                <i class="fa-solid fa-user-pen"></i>
+                Edit Profile
+            </a>
+        </nav>
 
-                            <li>
-                                <a th:href="@{/patient/list}" class="nav-link link-dark f">
-                                    List of Assigned Patient
-                                </a>
-                            </li>
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post" hidden name="logoutForm">
+                <input type="submit" value="Logout" />
+            </form>
+            <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </a>
+        </div>
+    </aside>
 
-                            <li>
-                                <a th:href="@{/doctor/predictionReview}" class="nav-link link-dark f">Prediction
-                                    Review</a>
-                            </li>
-                            <li>
-                                <a th:href="@{/clinicassistant/appointments}" class="nav-link link-dark f">
-                                    Appointments
-                                </a>
-                            </li>
-                            <li>
+    <!-- ════════════ MAIN ════════════ -->
+    <main class="main">
 
-                                <form th:action="@{/logout}" method="post" th:hidden="true" name="logoutForm">
-                                    <input type="submit" value="Logout" />
-                                </form>
-                                <a href="javascript: document.logoutForm.submit()" class="nav-link link-dark f">
-                                    Logout
-                                </a>
-                            </li>
-                        </ul>
+        <div class="page-header">
+            <span class="greeting">Welcome back,</span>
+            <h2 th:text="${doctor != null} ? 'Dr. ' + ${doctor.name} : 'Doctor'">Dr. Name</h2>
+        </div>
 
-                    </div>
+        <!-- Stat Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fa-solid fa-user-injured"></i>
                 </div>
-                <div class="col-9">
-                    <h1 d-flex justify-content-start>Dashboard</h1>
-                    <div style="height: 500px; width: auto;" class="d-flex justify-content-center align-items-center">
-                        <h1>Welcome <span th:text="${doctor.name}"></span> </h1>
-                    </div>
+                <div class="stat-info">
+                    <div class="value" th:text="${totalPatients}">0</div>
+                    <div class="label">Assigned Patients</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="value" th:text="${totalAppointments}">0</div>
+                    <div class="label">Total Appointments</div>
                 </div>
             </div>
         </div>
-    </div>
 
+        <!-- Today's Overview -->
+        <div>
+            <div class="section-title">Today's Overview</div>
+            <div class="overview-grid">
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-        crossorigin="anonymous"></script>
+                <!-- Today's Appointments -->
+                <div class="overview-card">
+                    <div class="overview-card-header">
+                        <i class="fa-solid fa-calendar-day"></i>
+                        <span>Today's Appointments</span>
+                    </div>
+                    <div class="overview-card-body">
+                        <div th:if="${todayAppointments == null or todayAppointments.isEmpty()}" class="empty-state">
+                            <i class="fa-regular fa-calendar"></i>
+                            No appointments today
+                        </div>
+                        <div th:each="appt : ${todayAppointments}" class="overview-row">
+                            <span class="row-name" th:text="${appt.userId}">Patient</span>
+                            <span class="row-sub" th:text="${appt.appointmentTime} + ' · ' + ${appt.typeOfSickness}">Time</span>
+                            <span class="row-badge"
+                                  th:classappend="${appt.statusAppointment == 'Approved'} ? 'badge-approved' :
+                                                  (${appt.statusAppointment == 'Cancelled'} ? 'badge-cancelled' : 'badge-pending')"
+                                  th:text="${appt.statusAppointment}">Status</span>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- New Symptoms -->
+                <div class="overview-card">
+                    <div class="overview-card-header">
+                        <i class="fa-solid fa-notes-medical"></i>
+                        <span>New Symptoms</span>
+                    </div>
+                    <div class="overview-card-body">
+                        <div th:if="${newSymptomPatients == null or newSymptomPatients.isEmpty()}" class="empty-state">
+                            <i class="fa-regular fa-circle-check"></i>
+                            No pending symptoms
+                        </div>
+                        <div th:each="patient : ${newSymptomPatients}" class="overview-row">
+                            <span class="row-name" th:text="${patient.name}">Patient</span>
+                            <span class="row-sub">Pending prediction review</span>
+                            <a th:href="@{/doctor/predictionReview}" class="row-badge badge-pending"
+                               style="text-decoration:none;">Review</a>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Recent Prescriptions -->
+                <div class="overview-card">
+                    <div class="overview-card-header">
+                        <i class="fa-solid fa-prescription-bottle-medical"></i>
+                        <span>Recent Prescriptions</span>
+                    </div>
+                    <div class="overview-card-body">
+                        <div th:if="${recentPrescriptions == null or recentPrescriptions.isEmpty()}" class="empty-state">
+                            <i class="fa-regular fa-file"></i>
+                            No recent prescriptions
+                        </div>
+                        <div th:each="prescription : ${recentPrescriptions}" class="overview-row">
+                            <span class="row-name" th:text="${prescription.patientName}">Patient</span>
+                            <span class="row-sub" th:text="${prescription.diagnosisAilmentDescription}">Diagnosis</span>
+                            <span class="row-sub"
+                                  th:text="${#temporals.format(prescription.timestamp, 'dd MMM yyyy')}">Date</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>

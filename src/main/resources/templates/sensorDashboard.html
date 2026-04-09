@@ -1,154 +1,238 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="https://www.thymeleaf.org">
+
 <head>
     <meta charset="utf-8">
-    <title>Sensor Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Health Condition</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .normal { background-color: rgb(130, 255, 130); }
-        .abnormal { background-color: rgb(255, 90, 90); }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/doctorDashboard.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body class="container my-5">
+<body>
+<div class="layout">
 
-<!-- Back Button Based on Role -->
-<form th:if="${role == 'doctor'}" th:action="@{/doctor}" method="get">
-    <button type="submit" class="btn btn-secondary mb-3">Back to Dashboard</button>
-</form>
-<form th:if="${role == 'patient'}" th:action="@{/patient}" method="get">
-    <button type="submit" class="btn btn-secondary mb-3">Back to Dashboard</button>
-</form>
+    <!-- ════════════ SIDEBAR ════════════ -->
+    <aside class="sidebar" th:if="${role == 'doctor'}">
+        <div class="sidebar-brand">
+            <div class="brand-label">WellCheck System</div>
+            <h1>Doctor <span>Hub</span></h1>
+        </div>
 
-<h2>Sensor Dashboard</h2>
+        <div class="profile-card">
+            <img class="profile-avatar"
+                 th:src="${patient != null and patient.profilePicture != null}
+                         ? 'data:' + ${patient.profilePictureType} + ';base64,' + ${patient.profilePicture}
+                         : '/image/img_avatar1.png'"
+                 alt="Profile Picture" />
+            <div class="profile-info">
+                <div class="name" th:text="${patient != null} ? ${patient.name} : 'Patient'">Patient</div>
+                <span class="role-badge">Patient</span>
+            </div>
+        </div>
 
-<!-- Patient Info -->
-<div class="mb-3">
-    <b>Patient ID:</b> <span th:text="${patientid}"></span> <br/>
-    <b>Sensor ID:</b>
-    <span th:if="${sensorData != null}" th:text="${sensorData.sensorDataId}"></span>
-    <span th:unless="${sensorData != null}">No Sensor Assigned</span>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main Menu</div>
+            <a th:href="@{/doctor}" class="nav-link-item">
+                <i class="fa-solid fa-house-medical"></i>
+                Dashboard
+            </a>
+            <a th:href="@{/doctor/myPatient}" class="nav-link-item active">
+                <i class="fa-solid fa-user-injured"></i>
+                My Patient
+            </a>
+            <a th:href="@{/assignpatient}" class="nav-link-item">
+                <i class="fa-solid fa-user-plus"></i>
+                Assign Patient
+            </a>
+            <a th:href="@{/patient/list}" class="nav-link-item">
+                <i class="fa-solid fa-list"></i>
+                List of Assigned Patient
+            </a>
+            <a th:href="@{/doctor/predictionReview}" class="nav-link-item">
+                <i class="fa-solid fa-microscope"></i>
+                Prediction Review
+            </a>
+            <a th:href="@{/clinicassistant/appointments}" class="nav-link-item">
+                <i class="fa-solid fa-calendar-check"></i>
+                Appointments
+            </a>
+            <div class="nav-section-label" style="margin-top: 8px;">Account</div>
+            <a th:href="@{/doctor/updateProfile}" class="nav-link-item">
+                <i class="fa-solid fa-user-pen"></i>
+                Edit Profile
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post" hidden name="logoutForm">
+                <input type="submit" value="Logout" />
+            </form>
+            <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- ════════════ MAIN ════════════ -->
+    <main class="main">
+
+        <div class="page-header">
+            <span class="greeting">Health condition for</span>
+            <h2 th:text="${patient != null} ? ${patient.name} : 'Patient'">Patient Name</h2>
+        </div>
+
+        <!-- Back Button -->
+        <div>
+            <a th:if="${role == 'doctor'}" th:href="@{/doctor/myPatient}" class="action-btn blue">
+                <i class="fa-solid fa-arrow-left"></i> Back to My Patient
+            </a>
+            <a th:if="${role == 'patient'}" th:href="@{/patient}" class="action-btn blue">
+                <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <!-- No Sensor State -->
+        <div th:if="${sensorData == null}" class="no-sensor-state">
+            <i class="fa-solid fa-heart-pulse"></i>
+            <p>No sensor data available. Please register a sensor first.</p>
+        </div>
+
+        <!-- Sensor Data Available -->
+        <div th:if="${sensorData != null}">
+
+            <!-- Latest Reading Cards -->
+            <div class="section-title">Latest Reading</div>
+            <div class="sensor-stats-grid">
+                <div th:class="${sensorData.bodyTemperature > 37.2} ? 'sensor-stat-card abnormal' : 'sensor-stat-card normal'">
+                    <div th:class="${sensorData.bodyTemperature > 37.2} ? 'sensor-value abnormal' : 'sensor-value normal'"
+                         th:text="${sensorData.bodyTemperature} + ' °C'">—</div>
+                    <div class="sensor-label">Body Temperature</div>
+                </div>
+                <div th:class="${sensorData.oxygenReading < 94} ? 'sensor-stat-card abnormal' : 'sensor-stat-card normal'">
+                    <div th:class="${sensorData.oxygenReading < 94} ? 'sensor-value abnormal' : 'sensor-value normal'"
+                         th:text="${sensorData.oxygenReading} + ' %'">—</div>
+                    <div class="sensor-label">SpO₂</div>
+                </div>
+                <div th:class="${sensorData.heart_Rate > 90} ? 'sensor-stat-card abnormal' : 'sensor-stat-card normal'">
+                    <div th:class="${sensorData.heart_Rate > 90} ? 'sensor-value abnormal' : 'sensor-value normal'"
+                         th:text="${sensorData.heart_Rate} + ' bpm'">—</div>
+                    <div class="sensor-label">Heart Rate</div>
+                </div>
+                <div class="sensor-stat-card normal">
+                    <div class="sensor-value normal" th:text="${sensorData.ecgReading}">—</div>
+                    <div class="sensor-label">ECG</div>
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-card">
+                <h4><i class="fa-solid fa-chart-line" style="margin-right:8px; color:var(--blue-500);"></i>Trend (Latest 5 Readings)</h4>
+                <div th:if="${latestFiveReadings != null and !#lists.isEmpty(latestFiveReadings)}">
+                    <canvas id="sensorChart" height="100"></canvas>
+                </div>
+                <div th:if="${latestFiveReadings == null or #lists.isEmpty(latestFiveReadings)}" class="empty-state">
+                    <i class="fa-solid fa-chart-line"></i>
+                    No recent readings to display.
+                </div>
+            </div>
+
+            <!-- History Table -->
+            <div class="section-title">Sensor History</div>
+
+            <!-- Date Filter -->
+            <form th:action="${role == 'doctor'} ? @{/doctor/sensorDashboard} : @{/patient/sensorDashboard}"
+                  method="get" class="filter-bar">
+                <input type="hidden" name="patientId" th:value="${patientid}">
+                <input type="hidden" name="role" th:value="${role}">
+                <input type="date" name="filterDate" th:value="${filterDate}">
+                <button type="submit" class="btn-submit" style="padding: 9px 18px;">
+                    <i class="fa-solid fa-filter"></i> Filter
+                </button>
+                <a th:href="${role == 'doctor'}
+                            ? @{/doctor/sensorDashboard(patientId=${patientid})}
+                            : @{/patient/sensorDashboard(patientId=${patientid})}"
+                   class="btn-cancel-form" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fa-solid fa-rotate-left"></i> Reset
+                </a>
+            </form>
+
+            <div class="data-table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Body Temp (°C)</th>
+                            <th>SpO₂ (%)</th>
+                            <th>ECG</th>
+                            <th>Heart Rate</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${sensorDataPage == null or #lists.isEmpty(sensorDataPage)}">
+                            <td colspan="6" class="empty-row">No history records found.</td>
+                        </tr>
+                        <tr th:each="historyItem, stat : ${sensorDataPage}">
+                            <td th:text="${stat.count}">1</td>
+                            <td th:class="${historyItem.bodyTemperature > 37.2} ? 'abnormal-cell' : ''"
+                                th:text="${historyItem.bodyTemperature}"></td>
+                            <td th:class="${historyItem.oxygenReading < 94} ? 'abnormal-cell' : ''"
+                                th:text="${historyItem.oxygenReading}"></td>
+                            <td th:text="${historyItem.ecgReading}"></td>
+                            <td th:class="${historyItem.heart_Rate > 90} ? 'abnormal-cell' : ''"
+                                th:text="${historyItem.heart_Rate}"></td>
+                            <td th:text="${#dates.format(historyItem.timestamp, 'dd MMM yyyy HH:mm')}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-bar">
+                <a class="page-btn"
+                   th:classappend="${currentPage == 1} ? 'disabled'"
+                   th:href="${role == 'doctor'}
+                            ? @{/doctor/sensorDashboard(patientId=${patientid}, page=${currentPage - 1}, filterDate=${filterDate})}
+                            : @{/patient/sensorDashboard(patientId=${patientid}, page=${currentPage - 1}, filterDate=${filterDate})}">
+                   &laquo; Prev
+                </a>
+                <a th:each="i : ${#numbers.sequence(1, totalPages)}"
+                   class="page-btn"
+                   th:classappend="${i == currentPage} ? 'active'"
+                   th:href="${role == 'doctor'}
+                            ? @{/doctor/sensorDashboard(patientId=${patientid}, page=${i}, filterDate=${filterDate})}
+                            : @{/patient/sensorDashboard(patientId=${patientid}, page=${i}, filterDate=${filterDate})}"
+                   th:text="${i}">1</a>
+                <a class="page-btn"
+                   th:classappend="${currentPage == totalPages} ? 'disabled'"
+                   th:href="${role == 'doctor'}
+                            ? @{/doctor/sensorDashboard(patientId=${patientid}, page=${currentPage + 1}, filterDate=${filterDate})}
+                            : @{/patient/sensorDashboard(patientId=${patientid}, page=${currentPage + 1}, filterDate=${filterDate})}">
+                   Next &raquo;
+                </a>
+            </div>
+
+        </div>
+
+    </main>
 </div>
 
-<!-- Current Data -->
-<div th:if="${sensorData != null}">
-    <h4>Latest Sensor Data</h4>
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th>Body Temp (°C)</th>
-            <th>SpO₂ (%)</th>
-            <th>ECG</th>
-            <th>Heart Rate</th>
-            <th>Timestamp</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td th:class="${sensorData.bodyTemperature > 37.2} ? 'abnormal' : 'normal'" th:text="${sensorData.bodyTemperature}"></td>
-            <td th:class="${sensorData.oxygenReading < 94} ? 'abnormal' : 'normal'" th:text="${sensorData.oxygenReading}"></td>
-            <td th:text="${sensorData.ecgReading}"></td>
-            <td th:class="${sensorData.heart_Rate > 90} ? 'abnormal' : 'normal'" th:text="${sensorData.heart_Rate}"></td>
-            <td th:text="${#dates.format(sensorData.timestamp, 'dd MMM yyyy HH:mm')}"></td>
-        </tr>
-        </tbody>
-    </table>
-</div>
-
-<!-- History Filter -->
-<div th:if="${sensorData != null}">
-    <form class="mb-3" method="get" th:action="@{/patient/sensorDashboard}">
-        <input type="hidden" name="patientId" th:value="${patientid}" />
-        <input type="hidden" name="role" th:value="${role}" />
-        <input type="hidden" name="page" value="1" />
-        <label for="filterDate"><strong>Filter by Date:</strong></label>
-        <input type="date" name="filterDate" th:value="${filterDate}" />
-        <button type="submit" class="btn btn-sm btn-primary">Filter</button>
-    </form>
-</div>
-
-<!-- History Section -->
-<div th:if="${sensorDataPage != null}">
-    <h4>History Data</h4>
-    <table class="table table-bordered">
-        <thead>
-        <tr>
-            <th>Body Temp (°C)</th>
-            <th>SpO₂ (%)</th>
-            <th>ECG</th>
-            <th>Heart Rate</th>
-            <th>Timestamp</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:if="${#lists.isEmpty(sensorDataPage)}">
-            <td colspan="5" class="text-center">No history data available.</td>
-        </tr>
-        <tr th:each="historyItem : ${sensorDataPage}">
-            <td th:text="${historyItem.bodyTemperature}" th:class="${historyItem.bodyTemperature > 37.2 or historyItem.bodyTemperature < 36.1} ? 'abnormal' : 'normal'"></td>
-            <td th:class="${historyItem.oxygenReading < 94} ? 'abnormal' : 'normal'" th:text="${historyItem.oxygenReading}"></td>
-            <td th:text="${historyItem.ecgReading}"></td>
-            <td th:class="${historyItem.heart_Rate > 90} ? 'abnormal' : 'normal'" th:text="${historyItem.heart_Rate}"></td>
-            <td th:text="${#dates.format(historyItem.timestamp, 'dd MMM yyyy HH:mm')}"></td>
-        </tr>
-        </tbody>
-    </table>
-
-    <!-- Pagination -->
-    <nav th:if="${totalPages > 1}">
-        <ul class="pagination">
-            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}">
-                <a class="page-link"
-                   th:href="@{/patient/sensorDashboard(patientId=${patientid}, page=${i}, filterDate=${filterDate}, role=${role})}"
-                   th:text="${i}"></a>
-            </li>
-        </ul>
-    </nav>
-</div>
-
-<!-- ✅ Graph View -->
-<div th:if="${latestFiveReadings != null and !#lists.isEmpty(latestFiveReadings)}" class="mt-5">
-    <h4>Graph View (Latest 5 Readings)</h4>
-    <canvas id="sensorChart" height="120"></canvas>
-
-    <!-- Safe JavaScript Data Injection -->
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        const sensorData = [
-            /*[# th:each="item,iter : ${latestFiveReadings}" ]*/
-            {
-                timestamp: /*[[${#dates.format(item.timestamp, 'HH:mm:ss')}]]*/,
-                temp: /*[[${item.bodyTemperature}]]*/,
-                hr: /*[[${item.heart_Rate}]]*/,
-                spo2: /*[[${item.oxygenReading}]]*/,
-                ecg: /*[[${item.ecgReading}]]*/
-            }/*[# th:if="${!iter.last}" ]*/,/*[/]*/
-            /*[/]*/
-        ];
-        /*]]>*/
-    </script>
-</div>
-
-<!-- Message when no recent readings -->
-<div th:if="${latestFiveReadings == null or #lists.isEmpty(latestFiveReadings)}" class="text-muted">
-    No recent readings to display.
-</div>
-
-<!-- When No Sensor Assigned -->
-<div th:if="${sensorData == null}">
-    <h4>No sensor data available. Please register sensor first.</h4>
-</div>
-
-<!-- Chart Rendering -->
-<script>
+<!-- Chart Script -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
     document.addEventListener("DOMContentLoaded", function () {
-        if (typeof sensorData !== "undefined" && Array.isArray(sensorData)) {
-            const labels = sensorData.map(e => e.timestamp).reverse();
-            const temps = sensorData.map(e => e.temp).reverse();
-            const heartRates = sensorData.map(e => e.hr).reverse();
-            const spo2s = sensorData.map(e => e.spo2).reverse();
-            const ecgs = sensorData.map(e => e.ecg).reverse();
+        const latestFiveReadings = /*[[${latestFiveReadings}]]*/ null;
+        if (latestFiveReadings && Array.isArray(latestFiveReadings) && latestFiveReadings.length > 0) {
+            const labels     = latestFiveReadings.map(e => e.timestamp).reverse();
+            const temps      = latestFiveReadings.map(e => e.bodyTemperature).reverse();
+            const heartRates = latestFiveReadings.map(e => e.heart_Rate).reverse();
+            const spo2s      = latestFiveReadings.map(e => e.oxygenReading).reverse();
+            const ecgs       = latestFiveReadings.map(e => e.ecgReading).reverse();
 
             const ctx = document.getElementById('sensorChart').getContext('2d');
             new Chart(ctx, {
@@ -156,10 +240,10 @@
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'Temp (°C)', data: temps, borderColor: 'blue', tension: 0.4 },
-                        { label: 'Heart Rate', data: heartRates, borderColor: 'green', tension: 0.4 },
-                        { label: 'SpO₂ (%)', data: spo2s, borderColor: 'orange', tension: 0.4 },
-                        { label: 'ECG', data: ecgs, borderColor: 'purple', tension: 0.4 }
+                        { label: 'Temp (°C)',    data: temps,      borderColor: '#e05c5c', tension: 0.4, fill: false },
+                        { label: 'Heart Rate',   data: heartRates, borderColor: '#3aaa7a', tension: 0.4, fill: false },
+                        { label: 'SpO₂ (%)',     data: spo2s,      borderColor: '#2e7dd1', tension: 0.4, fill: false },
+                        { label: 'ECG',          data: ecgs,       borderColor: '#e8a838', tension: 0.4, fill: false }
                     ]
                 },
                 options: {
@@ -170,7 +254,9 @@
             });
         }
     });
+    /*]]>*/
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

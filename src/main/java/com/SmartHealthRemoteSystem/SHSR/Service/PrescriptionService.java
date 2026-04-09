@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.Comparator;
 
 @Service
 public class PrescriptionService {
@@ -154,5 +156,25 @@ public class PrescriptionService {
             patient.setPrescription(prescriptionMap);
             patientRepository.save(patient);
         }
+    }
+
+    public List<Prescription> getRecentPrescriptionsByDoctor(String doctorId, int limit) {
+        List<Patient> allPatients = patientRepository.findAll();
+        List<Prescription> doctorPrescriptions = new ArrayList<>();
+
+        for (Patient patient : allPatients) {
+            if (patient.getPrescription() == null)
+                continue;
+            for (Prescription prescription : patient.getPrescription().values()) {
+                if (doctorId.equals(prescription.getDoctorId())) {
+                    prescription.setPatientName(patient.getName()); // to display in dashboard
+                    doctorPrescriptions.add(prescription);
+                }
+            }
+        }
+
+        doctorPrescriptions.sort(Comparator.comparing(Prescription::getTimestamp).reversed());
+
+        return doctorPrescriptions.stream().limit(limit).collect(Collectors.toList());
     }
 }

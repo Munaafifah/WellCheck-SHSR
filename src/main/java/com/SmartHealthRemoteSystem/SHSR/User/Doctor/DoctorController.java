@@ -1,15 +1,18 @@
 package com.SmartHealthRemoteSystem.SHSR.User.Doctor;
 
 import com.SmartHealthRemoteSystem.SHSR.Prediction.Prediction;
-import com.SmartHealthRemoteSystem.SHSR.ReadSensorData.SensorData;
 import com.SmartHealthRemoteSystem.SHSR.Sensor.Controller.SensorDashboardController;
 import com.SmartHealthRemoteSystem.SHSR.Service.DiseaseDescriptionService;
 import com.SmartHealthRemoteSystem.SHSR.Service.DoctorService;
 import com.SmartHealthRemoteSystem.SHSR.Service.PatientService;
 import com.SmartHealthRemoteSystem.SHSR.Service.PredictionService;
+import com.SmartHealthRemoteSystem.SHSR.Service.PrescriptionService;
 import com.SmartHealthRemoteSystem.SHSR.Service.SensorDataService;
 import com.SmartHealthRemoteSystem.SHSR.User.Patient.Patient;
+import com.SmartHealthRemoteSystem.SHSR.ViewDoctorPrescription.Prescription;
 import com.SmartHealthRemoteSystem.SHSR.WebConfiguration.MyUserDetails;
+import com.SmartHealthRemoteSystem.SHSR.updateStatusAppointment.Model.Appointment;
+import com.SmartHealthRemoteSystem.SHSR.updateStatusAppointment.Service.AppointmentHandler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -22,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import java.time.LocalDate;
 
 @Controller
 @RequestMapping("/doctor")
@@ -29,8 +33,24 @@ public class DoctorController {
 
     private final DoctorService doctorService;
     private final PatientService patientService;
-    @Autowired private SensorDataService sensorDataService;
-    @Autowired private PredictionService predictionService;
+
+    @Autowired
+    private SensorDataService sensorDataService;
+
+    @Autowired
+    private PredictionService predictionService;
+
+    @Autowired
+    private DiseaseDescriptionService descriptionService;
+
+    @Autowired
+    private SensorDashboardController dashboardController;
+
+    @Autowired
+    private AppointmentHandler appointmentHandler;
+
+    @Autowired
+    private PrescriptionService prescriptionService;
 
     @Autowired
     public DoctorController(DoctorService doctorService, PatientService patientService) {
@@ -38,30 +58,51 @@ public class DoctorController {
         this.patientService = patientService;
     }
 
-    @Autowired
-    private DiseaseDescriptionService descriptionService;
-
-    @Autowired
-     private SensorDashboardController dashboardController;
-
-
     @GetMapping
     public String getDoctorDashboard(Model model) throws ExecutionException, InterruptedException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
-        Doctor doctor = doctorService.getDoctor(myUserDetails.getUsername());
-        List<Patient> patientList = doctorService.getListPatient();
+        String doctorId = myUserDetails.getUsername();
+
+        Doctor doctor = doctorService.getDoctor(doctorId);
+
+        // Assigned patients
+        List<Patient> assignedPatients = doctorService.findAllPatientAssignToDoctor(doctorId);
+
+        // Today's appointments
+        String today = LocalDate.now().toString();
+        List<Appointment> todayAppointments = appointmentHandler.getAppointmentsByDoctorId(doctorId)
+                .stream()
+                .filter(a -> today.equals(a.getAppointmentDate()))
+                .collect(Collectors.toList());
+
+        // Patients with pending predictions
+        List<Patient> newSymptomPatients = new ArrayList<>();
+        for (Patient patient : assignedPatients) {
+            Optional<Prediction> latest = predictionService.getRecentPrediction(patient.getUserId());
+            if (latest.isPresent() && !latest.get().isApproved() && !latest.get().isRejected()) {
+                newSymptomPatients.add(patient);
+            }
+        }
+
+        // Recent prescriptions (last 5)
+        List<Prescription> recentPrescriptions = prescriptionService.getRecentPrescriptionsByDoctor(doctorId, 5);
 
         model.addAttribute("doctor", doctor);
-        model.addAttribute("patientList", patientList);
-        return "doctorDashboard";
+        model.addAttribute("totalPatients", assignedPatients.size());
+        model.addAttribute("totalAppointments", appointmentHandler.getAppointmentsByDoctorId(doctorId).size());
+        model.addAttribute("todayAppointments", todayAppointments);
+        model.addAttribute("newSymptomPatients", newSymptomPatients);
+        model.addAttribute("recentPrescriptions", recentPrescriptions);
+
+        return "doctorDashBoard";
     }
 
     @GetMapping("myPatient")
     public String getPatientListThatAssignedToDoctor(Model model,
-                                                     @RequestParam(defaultValue = "0") int pageNo,
-                                                     @RequestParam(defaultValue = "5") int pageSize,
-                                                     @RequestParam(defaultValue = "") String searchQuery) throws ExecutionException, InterruptedException {
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "5") int pageSize,
+            @RequestParam(defaultValue = "") String searchQuery) throws ExecutionException, InterruptedException {
         model.addAttribute("pageSize", pageSize);
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
@@ -71,7 +112,8 @@ public class DoctorController {
 
         if (!searchQuery.isEmpty()) {
             allPatients = allPatients.stream()
-                    .filter(p -> p.getName().toLowerCase().contains(searchQuery.toLowerCase()) || p.getUserId().contains(searchQuery))
+                    .filter(p -> p.getName().toLowerCase().contains(searchQuery.toLowerCase())
+                            || p.getUserId().contains(searchQuery))
                     .collect(Collectors.toList());
         }
 
@@ -100,47 +142,35 @@ public class DoctorController {
         return "editProfileDoctor";
     }
 
-   @PostMapping("updateProfile/profile")
-public String updateProfile(@ModelAttribute Doctor updatedDoctor,
-                            @RequestParam("profileImage") MultipartFile imageFile,
-                            Model model) throws Exception {
-    Doctor existingDoctor = doctorService.getDoctor(updatedDoctor.getUserId());
-    existingDoctor.setName(updatedDoctor.getName());
-    existingDoctor.setContact(updatedDoctor.getContact());
+    @PostMapping("updateProfile/profile")
+    public String updateProfile(@ModelAttribute Doctor updatedDoctor,
+            @RequestParam("profileImage") MultipartFile imageFile,
+            Model model) throws Exception {
+        Doctor existingDoctor = doctorService.getDoctor(updatedDoctor.getUserId());
+        existingDoctor.setName(updatedDoctor.getName());
+        existingDoctor.setContact(updatedDoctor.getContact());
 
-    if (!imageFile.isEmpty()) {
-        String fileType = imageFile.getContentType();
-        if (fileType != null && fileType.startsWith("image/")) {
-            byte[] imageBytes = imageFile.getBytes();
-            String base64 = Base64.getEncoder().encodeToString(imageBytes);
-            existingDoctor.setProfilePicture(base64);
-            existingDoctor.setProfilePictureType(fileType);
+        if (!imageFile.isEmpty()) {
+            String fileType = imageFile.getContentType();
+            if (fileType != null && fileType.startsWith("image/")) {
+                byte[] imageBytes = imageFile.getBytes();
+                String base64 = Base64.getEncoder().encodeToString(imageBytes);
+                existingDoctor.setProfilePicture(base64);
+                existingDoctor.setProfilePictureType(fileType);
+            }
         }
+
+        doctorService.updateDoctor(existingDoctor);
+        return "redirect:/doctor";
     }
 
-    doctorService.updateDoctor(existingDoctor);
-    return "redirect:/doctor";
-}
-
-
-     /* ======  SENSOR  DASHBOARD  ================================================= */
+    /* ====== SENSOR DASHBOARD ================================================= */
     @GetMapping("/sensorDashboard")
     public String viewSensorDashboard(@RequestParam("patientId") String patientId,
-                                      @RequestParam(value = "page",       defaultValue = "1") int    page,
-                                      @RequestParam(value = "filterDate", required  = false)  String filterDate,
-                                      Model model) throws Exception {
-
-        /* Delegate to the shared helper:
-             patientId   → record to show
-             role        → "doctor"  (back-button in the view relies on this)
-             page        → current page number (history pagination)
-             filterDate  → optional YYYY-MM-DD filter
-        */
-        return dashboardController.buildDashboard(patientId,
-                                                  "doctor",
-                                                  page,
-                                                  filterDate,
-                                                  model);
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "filterDate", required = false) String filterDate,
+            Model model) throws Exception {
+        return dashboardController.buildDashboard(patientId, "doctor", page, filterDate, model);
     }
 
     @GetMapping("manualDiagnosisRequests")
@@ -151,95 +181,85 @@ public String updateProfile(@ModelAttribute Doctor updatedDoctor,
 
         List<Patient> allPatients = patientService.getAllPatients();
         List<Patient> requests = allPatients.stream()
-            .filter(p -> p.isNeedsManualDiagnosis() && doctorId.equals(p.getAssigned_doctor()))
-            .collect(Collectors.toList());
+                .filter(p -> p.isNeedsManualDiagnosis() && doctorId.equals(p.getAssigned_doctor()))
+                .collect(Collectors.toList());
 
         model.addAttribute("requests", requests);
         return "manualDiagnosisRequests";
     }
 
-   
     @GetMapping("predictionReview")
     public String viewPredictions(
-        @RequestParam(defaultValue = "") String searchQuery,
-        @RequestParam(defaultValue = "0") int pageNo,
-        @RequestParam(defaultValue = "5") int pageSize,    
-         Model model) throws ExecutionException, InterruptedException {
-   
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
-            String doctorId = userDetails.getUsername();
+            @RequestParam(defaultValue = "") String searchQuery,
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "5") int pageSize,
+            Model model) throws ExecutionException, InterruptedException {
 
-    List<Patient> allPatients = patientService.getAllPatients();
-    List<Patient> assignedPatients = allPatients.stream()
-            .filter(p -> doctorId.equals(p.getAssigned_doctor()))
-            .filter(p -> p.getName() != null && p.getName().toLowerCase().contains(searchQuery.toLowerCase())) // 👈 Filter by name
-            .collect(Collectors.toList());
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
+        String doctorId = userDetails.getUsername();
 
-    List<Map.Entry<Patient, Prediction>> filteredEntries = new ArrayList<>();
-    // Map<Patient, Prediction> latestPredictions = new LinkedHashMap<>();
-    Map<String, String> descriptionMap = new HashMap<>();
+        List<Patient> allPatients = patientService.getAllPatients();
+        List<Patient> assignedPatients = allPatients.stream()
+                .filter(p -> doctorId.equals(p.getAssigned_doctor()))
+                .filter(p -> p.getName() != null && p.getName().toLowerCase().contains(searchQuery.toLowerCase()))
+                .collect(Collectors.toList());
 
-    for (Patient patient : assignedPatients) {
-        Optional<Prediction> latestPrediction = predictionService.getRecentPrediction(patient.getUserId());
-        if (latestPrediction.isPresent()) {
-            Prediction pred = latestPrediction.get();
-            filteredEntries.add(new AbstractMap.SimpleEntry<>(patient, pred));
-            // latestPredictions.put(patient, pred);
+        List<Map.Entry<Patient, Prediction>> filteredEntries = new ArrayList<>();
+        Map<String, String> descriptionMap = new HashMap<>();
 
-            for (String disease : pred.getDiagnosisList()) {
-                descriptionMap.put(disease, descriptionService.getDescription(disease));
+        for (Patient patient : assignedPatients) {
+            Optional<Prediction> latestPrediction = predictionService.getRecentPrediction(patient.getUserId());
+            if (latestPrediction.isPresent()) {
+                Prediction pred = latestPrediction.get();
+                filteredEntries.add(new AbstractMap.SimpleEntry<>(patient, pred));
+                for (String disease : pred.getDiagnosisList()) {
+                    descriptionMap.put(disease, descriptionService.getDescription(disease));
+                }
             }
         }
+
+        int total = filteredEntries.size();
+        int start = Math.min(pageNo * pageSize, total);
+        int end = Math.min(start + pageSize, total);
+        List<Map.Entry<Patient, Prediction>> paginatedEntries = filteredEntries.subList(start, end);
+
+        Map<Patient, Prediction> latestPredictions = paginatedEntries.stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b, LinkedHashMap::new));
+
+        model.addAttribute("latestPredictions", latestPredictions);
+        model.addAttribute("descriptionMap", descriptionMap);
+        model.addAttribute("doctor", doctorService.getDoctor(doctorId));
+        model.addAttribute("searchQuery", searchQuery);
+        model.addAttribute("currentPage", pageNo);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("totalPages", (int) Math.ceil((double) total / pageSize));
+
+        return "predictionReview";
     }
 
-    // 🔄 Pagination
-    int total = filteredEntries.size();
-    int start = Math.min(pageNo * pageSize, total);
-    int end = Math.min(start + pageSize, total);
-    List<Map.Entry<Patient, Prediction>> paginatedEntries = filteredEntries.subList(start, end);
+    @GetMapping("/predictionHistory")
+    public String viewPredictionHistory(
+            @RequestParam("patientId") String patientId,
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "5") int pageSize,
+            Model model) throws ExecutionException, InterruptedException {
 
+        Patient patient = patientService.getPatientById(patientId);
+        List<Prediction> predictions = predictionService.getPatientPredictions(patientId);
 
-    Map<Patient, Prediction> latestPredictions = paginatedEntries.stream()
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b, LinkedHashMap::new));
-   
-            model.addAttribute("latestPredictions", latestPredictions);
-            model.addAttribute("descriptionMap", descriptionMap);
-            model.addAttribute("doctor", doctorService.getDoctor(doctorId));
-            model.addAttribute("searchQuery", searchQuery);
-            model.addAttribute("currentPage", pageNo);
-            model.addAttribute("pageSize", pageSize);
-            model.addAttribute("totalPages", (int) Math.ceil((double) total / pageSize));
-    
-            return "predictionReview";
+        int total = predictions.size();
+        int start = Math.min(pageNo * pageSize, total);
+        int end = Math.min((pageNo + 1) * pageSize, total);
+        int totalPages = (total + pageSize - 1) / pageSize;
+
+        List<Prediction> pagedPredictions = predictions.subList(start, end);
+
+        model.addAttribute("patient", patient);
+        model.addAttribute("predictions", pagedPredictions);
+        model.addAttribute("currentPage", pageNo);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("patientId", patientId);
+        return "predictionHistory";
+    }
 }
-
-@GetMapping("/predictionHistory")
-public String viewPredictionHistory(
-        @RequestParam("patientId") String patientId,
-        @RequestParam(defaultValue = "0") int pageNo,
-        @RequestParam(defaultValue = "5") int pageSize,
-        Model model) throws ExecutionException, InterruptedException {
-
-    Patient patient = patientService.getPatientById(patientId);
-    List<Prediction> predictions = predictionService.getPatientPredictions(patientId);
-
-    int total = predictions.size();
-    int start = Math.min(pageNo * pageSize, total);
-    int end = Math.min((pageNo + 1) * pageSize, total);
-    int totalPages = (total + pageSize - 1) / pageSize;
-
-    List<Prediction> pagedPredictions = predictions.subList(start, end);
-
-    model.addAttribute("patient", patient);
-    model.addAttribute("predictions", pagedPredictions);
-    model.addAttribute("currentPage", pageNo);
-    model.addAttribute("totalPages", totalPages);
-    model.addAttribute("patientId", patientId);
-    return "predictionHistory";
-}
-
-
-
-}
-

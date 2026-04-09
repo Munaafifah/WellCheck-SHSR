@@ -37,7 +37,7 @@ public class PatientController {
     private final PatientService patientService;
     private final DoctorService doctorService;
 
-     @Autowired
+    @Autowired
     private SensorDataService sensorDataService;
 
     @Autowired
@@ -51,14 +51,14 @@ public class PatientController {
     public String getPatientDashboard(Model model) throws ExecutionException, InterruptedException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
-    
+
         String patientId = myUserDetails.getUsername();
-    
+
         // Fetch patient from MongoDB
         Patient patient = patientService.getPatientById(patientId);
-    
 
-        System.out.println("🖼️ Profile Picture Length: " + (patient.getProfilePicture() != null ? patient.getProfilePicture().length() : "null"));
+        System.out.println("🖼️ Profile Picture Length: "
+                + (patient.getProfilePicture() != null ? patient.getProfilePicture().length() : "null"));
         System.out.println("🖼️ Profile Picture Type: " + patient.getProfilePictureType());
 
         System.out.println("🔍 Checking Patient: " + patient);
@@ -66,117 +66,119 @@ public class PatientController {
             model.addAttribute("error", "Patient not found.");
             return "error"; // Show error.html
         }
-    
+
         Doctor doctor = null;
         if (patient.getAssigned_doctor() != null && !patient.getAssigned_doctor().isEmpty()) {
             doctor = doctorService.getDoctor(patient.getAssigned_doctor());
         }
-    
+
         model.addAttribute("patient", patient);
         model.addAttribute("doctor", doctor);
-    
+
         return "patientDashboard";
     }
-    
 
     @GetMapping("/editProfile")
-   public String editProfile(Model model) throws ExecutionException, InterruptedException {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
+    public String editProfile(Model model) throws ExecutionException, InterruptedException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
 
-    Patient patient = patientService.getPatientById(userDetails.getUsername());
-    model.addAttribute("patient", patient);
-    return "editPatientProfile";
-}
-
-@PostMapping("/editProfile/submit")
-public String updatePatientProfile(@ModelAttribute Patient updatedPatient,
-                                   @RequestParam("imageFile") MultipartFile imageFile,
-                                   Model model) throws Exception {
-    // ✅ Fetch the original patient from DB
-    Patient existingPatient = patientService.getPatientById(updatedPatient.getUserId());
-
-    if (existingPatient == null) {
-        model.addAttribute("error", "Patient not found.");
+        Patient patient = patientService.getPatientById(userDetails.getUsername());
+        model.addAttribute("patient", patient);
         return "editPatientProfile";
     }
 
-    // ✅ Overwrite fields that are allowed to change
-    existingPatient.setName(updatedPatient.getName());
-    existingPatient.setContact(updatedPatient.getContact());
-    existingPatient.setAddress(updatedPatient.getAddress());
-    existingPatient.setEmergencyContact(updatedPatient.getEmergencyContact());
+    @PostMapping("/editProfile/submit")
+    public String updatePatientProfile(@ModelAttribute Patient updatedPatient,
+            @RequestParam("imageFile") MultipartFile imageFile,
+            Model model) throws Exception {
+        // ✅ Fetch the original patient from DB
+        Patient existingPatient = patientService.getPatientById(updatedPatient.getUserId());
 
-    // ✅ Handle image update
-    if (!imageFile.isEmpty()) {
-    String fileType = imageFile.getContentType();
-    if (!fileType.startsWith("image/")) {
-        model.addAttribute("error", "Only image files are allowed.");
-        return "editPatientProfile";
+        if (existingPatient == null) {
+            model.addAttribute("error", "Patient not found.");
+            return "editPatientProfile";
+        }
+
+        // ✅ Overwrite fields that are allowed to change
+        existingPatient.setName(updatedPatient.getName());
+        existingPatient.setContact(updatedPatient.getContact());
+        existingPatient.setAddress(updatedPatient.getAddress());
+        existingPatient.setEmergencyContact(updatedPatient.getEmergencyContact());
+
+        // ✅ Handle image update
+        if (!imageFile.isEmpty()) {
+            String fileType = imageFile.getContentType();
+            if (!fileType.startsWith("image/")) {
+                model.addAttribute("error", "Only image files are allowed.");
+                return "editPatientProfile";
+            }
+
+            System.out.println("📸 File name: " + imageFile.getOriginalFilename());
+            System.out.println("📸 File type: " + imageFile.getContentType());
+            System.out.println("📸 File size: " + imageFile.getSize());
+
+            byte[] imageBytes = imageFile.getBytes();
+            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+
+            existingPatient.setProfilePicture(base64Image);
+            existingPatient.setProfilePictureType(fileType); // ✅ SAVE TYPE
+
+        }
+
+        // ✅ Save updated patient
+        patientService.updatePatient(existingPatient);
+
+        return "redirect:/patient";
     }
 
+    // Pagination//
+    @GetMapping("/list")
+    public String getAllPatientsWithPagination(Model model,
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "5") int pageSize,
+            @RequestParam(defaultValue = "") String searchQuery) throws ExecutionException, InterruptedException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
+        String doctorId = myUserDetails.getUsername();
 
-    System.out.println("📸 File name: " + imageFile.getOriginalFilename());
-    System.out.println("📸 File type: " + imageFile.getContentType());
-    System.out.println("📸 File size: " + imageFile.getSize());
+        List<Patient> allPatients = patientService.getAllPatients();
 
+        List<Patient> assignedPatients = allPatients.stream()
+                .filter(p -> doctorId.equals(p.getAssigned_doctor()))
+                .collect(Collectors.toList());
 
-    byte[] imageBytes = imageFile.getBytes();
-    String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+        // Server-side search
+        if (!searchQuery.isEmpty()) {
+            assignedPatients = assignedPatients.stream()
+                    .filter(p -> p.getName().toLowerCase().contains(searchQuery.toLowerCase())
+                            || p.getUserId().toLowerCase().contains(searchQuery.toLowerCase())
+                            || (p.getEmail() != null && p.getEmail().toLowerCase().contains(searchQuery.toLowerCase())))
+                    .collect(Collectors.toList());
+        }
 
-    existingPatient.setProfilePicture(base64Image);
-    existingPatient.setProfilePictureType(fileType); // ✅ SAVE TYPE
+        int total = assignedPatients.size();
+        int start = Math.min(pageNo * pageSize, total);
+        int end = Math.min((pageNo + 1) * pageSize, total);
+        int startIndex = pageNo * pageSize;
 
-}
+        List<Patient> patientList = assignedPatients.subList(start, end);
 
-    // ✅ Save updated patient
-    patientService.updatePatient(existingPatient);
+        model.addAttribute("startIndex", startIndex);
+        model.addAttribute("currentPage", pageNo);
+        model.addAttribute("totalPages", (total + pageSize - 1) / pageSize);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("patientList", patientList);
+        model.addAttribute("searchQuery", searchQuery);
+        model.addAttribute("doctor", patientService.getDoctor(doctorId));
 
-    return "redirect:/patient";
-}
+        return "listAssignedPatient";
+    }
 
-
-
-
-
-    //Pagination//
-   @GetMapping("/list")
-public String getAllPatientsWithPagination(Model model,
-                                           @RequestParam(defaultValue = "0") int pageNo,
-                                           @RequestParam(defaultValue = "5") int pageSize) throws ExecutionException, InterruptedException {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    MyUserDetails myUserDetails = (MyUserDetails) auth.getPrincipal();
-    String doctorId = myUserDetails.getUsername();
-
-    List<Patient> allPatients = patientService.getAllPatients();
-
-    // ❗ Filter only those assigned to the current doctor
-    List<Patient> assignedPatients = allPatients.stream()
-            .filter(p -> doctorId.equals(p.getAssigned_doctor()))
-            .collect(Collectors.toList());
-
-    int total = assignedPatients.size();
-    int start = Math.min(pageNo * pageSize, total);
-    int end = Math.min((pageNo + 1) * pageSize, total);
-    int startIndex = pageNo * pageSize;
-
-    List<Patient> patientList = assignedPatients.subList(start, end);
-
-    model.addAttribute("startIndex", startIndex);
-    model.addAttribute("currentPage", pageNo);
-    model.addAttribute("totalPages", (total + pageSize - 1) / pageSize);
-    model.addAttribute("pageSize", pageSize);
-    model.addAttribute("patientList", patientList);
-    model.addAttribute("doctor", patientService.getDoctor(doctorId)); // ✅ Make sure this method exists
-
-    return "listAssignedPatient";
-}
-
-
-//ViewPrescription//
-@GetMapping("/viewPrescription")
+    // ViewPrescription//
+    @GetMapping("/viewPrescription")
     public String viewLatestPrescription(@RequestParam(defaultValue = "0") int pageNo,
-                                         Model model) throws Exception {
+            Model model) throws Exception {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
         String patientId = userDetails.getUsername();
@@ -192,11 +194,10 @@ public String getAllPatientsWithPagination(Model model,
             return "viewPrescription";
         }
 
-
         Prescription latestPrescription = prescriptions.values().stream()
-            .sorted(Comparator.comparing(Prescription::getTimestamp).reversed())
-            .findFirst()
-            .orElse(null);
+                .sorted(Comparator.comparing(Prescription::getTimestamp).reversed())
+                .findFirst()
+                .orElse(null);
 
         Doctor doctor = doctorService.getDoctor(latestPrescription.getDoctorId());
 
@@ -209,45 +210,38 @@ public String getAllPatientsWithPagination(Model model,
         return "viewPrescription";
     }
 
-
-    //BackController//
+    // BackController//
     @PostMapping("/backDashboard")
-public String backToDashboard(@RequestParam("patientId") String patientId, Model model) throws Exception {
-    Patient patient = patientService.getPatientById(patientId);
+    public String backToDashboard(@RequestParam("patientId") String patientId, Model model) throws Exception {
+        Patient patient = patientService.getPatientById(patientId);
 
-    Doctor doctor = null;
-    if (patient.getAssigned_doctor() != null && !patient.getAssigned_doctor().isEmpty()) {
-        doctor = doctorService.getDoctor(patient.getAssigned_doctor());
+        Doctor doctor = null;
+        if (patient.getAssigned_doctor() != null && !patient.getAssigned_doctor().isEmpty()) {
+            doctor = doctorService.getDoctor(patient.getAssigned_doctor());
+        }
+
+        model.addAttribute("patient", patient);
+        model.addAttribute("doctor", doctor);
+
+        return "patientDashboard";
     }
 
-    model.addAttribute("patient", patient);
-    model.addAttribute("doctor", doctor);
+    // //Request Manual Diagnosis//
+    @PostMapping("/requestManualDiagnosis")
+    public String requestManualDiagnosis(@RequestParam String patientId,
+            @RequestParam String doctorId,
+            RedirectAttributes redirectAttributes) throws ExecutionException, InterruptedException {
+        Patient patient = patientService.getPatientById(patientId);
+        patient.setNeedsManualDiagnosis(true); // ✅ mark the request
 
-    return "patientDashboard";
-}
+        // ✅ ✅ ✅ INSERT DEBUG PRINTS HERE ✅ ✅ ✅
+        System.out.println("✅ Manual Diagnosis request set for: " + patient.getUserId());
+        System.out.println("🩺 Request status: " + patient.isNeedsManualDiagnosis());
 
+        patientService.updatePatient(patient); // ✅ save update
 
-
-// //Request Manual Diagnosis//
-@PostMapping("/requestManualDiagnosis")
-public String requestManualDiagnosis(@RequestParam String patientId,
-                                     @RequestParam String doctorId,
-                                     RedirectAttributes redirectAttributes) throws ExecutionException, InterruptedException {
-    Patient patient = patientService.getPatientById(patientId);
-    patient.setNeedsManualDiagnosis(true); // ✅ mark the request
-
-    // ✅ ✅ ✅ INSERT DEBUG PRINTS HERE ✅ ✅ ✅
-    System.out.println("✅ Manual Diagnosis request set for: " + patient.getUserId());
-    System.out.println("🩺 Request status: " + patient.isNeedsManualDiagnosis());
-
-    patientService.updatePatient(patient); // ✅ save update
-
-    redirectAttributes.addFlashAttribute("success", "Request sent to doctor.");
-    return "redirect:/predictionHistory?patientId=" + patientId;
-}
-
-
-
-
+        redirectAttributes.addFlashAttribute("success", "Request sent to doctor.");
+        return "redirect:/predictionHistory?patientId=" + patientId;
+    }
 
 }

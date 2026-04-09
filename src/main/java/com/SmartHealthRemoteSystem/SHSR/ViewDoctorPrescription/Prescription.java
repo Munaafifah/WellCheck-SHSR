@@ -14,6 +14,7 @@ public class Prescription {
     private String diagnosisAilmentDescription;
     private String appointmentId; // null if not from appointment
     private double drugCost; // 0 if not from appointment
+    private String patientName;
 
     public Prescription() {
     }
@@ -89,5 +90,13 @@ public class Prescription {
 
     public void setDrugCost(double drugCost) {
         this.drugCost = drugCost;
+    }
+
+    public String getPatientName() {
+        return patientName;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
     }
 }

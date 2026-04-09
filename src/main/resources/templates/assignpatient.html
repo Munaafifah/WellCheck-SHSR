@@ -1,253 +1,215 @@
 <!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
-<!doctype html>
-<html lang="en"
-      xmlns:th="https://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
-    <!-- Required meta tags -->
-    <link rel="stylesheet" th:href="@{/css/main.css}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
-            integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <style>
-
-
-    </style>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <style>
-        .f:hover{background-color: #e6e6e6;}
-    </style>
     <title>Assign Patient</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/doctorDashboard.css}">
 </head>
+
 <body>
+<div class="layout">
 
+    <!-- ════════════ SIDEBAR ════════════ -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-label">WellCheck System</div>
+            <h1>Doctor <span>Hub</span></h1>
+        </div>
 
-<div class="container shadow p-3 mb-5  bg-primary bg-opacity-25 rounded" style="position: relative; top: 50px;">
-    <div class="container overflow-hidden">
-        <div class="row gx-5">
-            <div class="col ">
-                <div class="d-flex shadow flex-column flex-shrink-0 p-3 bg-primary bg-opacity-25 rounded">
-                    <div class="card bg-primary bg-opacity-25 rounded">
-                                         <img th:src="'data:' + ${doctor.profilePictureType} + ';base64,' + ${doctor.profilePicture}"
-     alt="Doctor Profile" class="card-img-top" />
-                        <div class="card-body">
-                            <h3 class="card-title" th:text="${doctor.name}"></h3>
-                            <p class="card-text" th:text="${doctor.position}"></p>
-                        </div>
-                    </div>
-                    <hr>
-                    <ul class="nav nav-pills flex-column mb-auto">
-                        <li class="nav-item">
-                            <a th:href="@{/doctor/updateProfile}" class="nav-link link-dark f">
-                                Edit Profile
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a th:href="@{/doctor/myPatient}" class="nav-link link-dark f">
-                                My Patient
-                            </a>
-                        </li>
-                        <li>
-                            <a th:href="@{/assignpatient}" class="nav-link link-dark active f">
-                                Assign Patient
-                            </a>
-                        </li>
-                        <!---izzat-->
-                        <li>
-                            <a th:href="@{/patient/list}"class="nav-link link-dark f">
-                                List of Assigned Patient
-                            </a>
-                        </li>
-                        
-                          <li>
-    <a th:href="@{/doctor/predictionReview}" class="nav-link link-dark f">Prediction Review</a>
-</li>
-                        <!---izzat-->
-                        <li>
-                            <form th:action="@{/logout}" method="post" hidden="true" name="logoutForm">
-                                <input type="submit" value="Logout"/>
-                            </form>
-                            <a href="javascript: document.logoutForm.submit()" class="nav-link link-dark f">
-                                Logout
-                            </a>
-                        </li>
-                    </ul>
-
-                </div>
+        <div class="profile-card">
+            <img class="profile-avatar"
+                 th:src="${doctor != null and doctor.profilePicture != null}
+                         ? 'data:' + ${doctor.profilePictureType} + ';base64,' + ${doctor.profilePicture}
+                         : '/image/img_avatar1.png'"
+                 alt="Profile Picture" />
+            <div class="profile-info">
+                <div class="name" th:text="${doctor != null} ? ${doctor.name} : 'Doctor'">Doctor</div>
+                <span class="role-badge"
+                      th:text="${doctor != null and doctor.position != null} ? ${doctor.position} : 'Doctor'">Doctor</span>
             </div>
-            <div class="col-9">
-                
-                <h1 d-flex justify-content-start>LIST PATIENT NOT YET ASSIGNED</h1>
-                <div style="padding-top: 30px">
-                <table class="table">
-                    <!-- search button -->
-                    <!-- <input type="text" placeholder="Enter keyword to search" id="search-input" style="width: 50%" class="search-input" > -->
-                    <!-- search button end-->
-                    <thead>
-                    <th>No</th>
-                    <th>Patient ID</th>
-                    <th>Patient Name</th>
-                    <th>Action</th>
-                    </thead>
-                    <tbody>
-                    
-                        <form th:action="@{/assignpatient}" method="get">
-                            <input type="text" name="searchQuery" placeholder="Enter keyword to search" th:value="${searchQuery}" style="width: 50%">
-                            <input type="hidden" name="pageNo" th:value="${currentPage}">
-                            <input type="hidden" name="pageSize" th:value="${pageSize}">
-                            <button type="submit" class="btn btn-primary">Search</button>
-                        </form>
-                    <tr th:each="patient, patientStat : ${patientList}" class="product" id="product">
+        </div>
 
-                        <td th:text="${startIndex + patientStat.index + 1}"></td>
-                        <td class="id" th:text="${patient.userId}"></td>
-                        <td class="name" th:text="${patient.name}"></td>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main Menu</div>
+            <a th:href="@{/doctor}" class="nav-link-item">
+                <i class="fa-solid fa-house-medical"></i>
+                Dashboard
+            </a>
+            <a th:href="@{/doctor/myPatient}" class="nav-link-item">
+                <i class="fa-solid fa-user-injured"></i>
+                My Patient
+            </a>
+            <a th:href="@{/assignpatient}" class="nav-link-item active">
+                <i class="fa-solid fa-user-plus"></i>
+                Assign Patient
+            </a>
+            <a th:href="@{/patient/list}" class="nav-link-item">
+                <i class="fa-solid fa-list"></i>
+                List of Assigned Patient
+            </a>
+            <a th:href="@{/doctor/predictionReview}" class="nav-link-item">
+                <i class="fa-solid fa-microscope"></i>
+                Prediction Review
+            </a>
+            <a th:href="@{/clinicassistant/appointments}" class="nav-link-item">
+                <i class="fa-solid fa-calendar-check"></i>
+                Appointments
+            </a>
+            <div class="nav-section-label" style="margin-top: 8px;">Account</div>
+            <a th:href="@{/doctor/updateProfile}" class="nav-link-item">
+                <i class="fa-solid fa-user-pen"></i>
+                Edit Profile
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post" hidden name="logoutForm">
+                <input type="submit" value="Logout" />
+            </form>
+            <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- ════════════ MAIN ════════════ -->
+    <main class="main">
+
+        <div class="page-header">
+            <span class="greeting">Unassigned patients available</span>
+            <h2>Assign Patient</h2>
+        </div>
+
+        <!-- Search Bar -->
+            <div class="appt-search-wrap">
+                <form th:action="@{/doctor/myPatient}" method="get"
+                    style="display:flex; gap:10px; flex:1; align-items:center;">
+                    <input type="hidden" name="pageNo" value="0">
+                    <input type="hidden" name="pageSize" th:value="${pageSize}">
+                    <div class="appt-search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" name="searchQuery" th:value="${searchQuery}"
+                            placeholder="Search by name or ID...">
+                    </div>
+                    <button type="submit" class="appt-search-btn">
+                        <i class="fa-solid fa-magnifying-glass"></i> Search
+                    </button>
+                    <a th:href="@{/doctor/myPatient}" class="appt-reset-btn" style="text-decoration:none;">
+                        <i class="fa-solid fa-rotate-left"></i> Reset
+                    </a>
+                </form>
+            </div>
+
+        <!-- Patient Table -->
+        <div class="data-table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Patient ID</th>
+                        <th>Patient Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${patientList == null or patientList.isEmpty()}">
+                        <td colspan="4" class="empty-row">No unassigned patients found.</td>
+                    </tr>
+                    <tr th:each="patient, patientStat : ${patientList}">
+                        <td th:text="${startIndex + patientStat.index + 1}">1</td>
+                        <td th:text="${patient.userId}">ID</td>
+                        <td th:text="${patient.name}">Name</td>
                         <td>
-                            
-                            <div class="confirmation">
-
-                                <!-- <button type="button" class="btn btn-primary assignbtn">Assign Patient</button>
-                                 -->
-
-                                 <form th:action="@{/assignpatient/assigntoDoctor}" method="post" class="assignform">
-                                    <input type="hidden" name="patientId" th:value="${patient.userId}" />
-                                    <button type="button" class="btn btn-primary assignbtn">Assign Patient</button>
-                                </form>
-
-                            </div>
+                            <form th:action="@{/assignpatient/assigntoDoctor}" method="post"
+                                  th:id="'assignForm-' + ${patientStat.index}" style="display:inline;">
+                                <input type="hidden" name="patientId" th:value="${patient.userId}">
+                                <button type="button" class="action-btn green confirm-assign-btn"
+                                        th:data-form-id="'assignForm-' + ${patientStat.index}"
+                                        th:data-patient-name="${patient.name}">
+                                    <i class="fa-solid fa-user-plus"></i> Assign
+                                </button>
+                            </form>
                         </td>
                     </tr>
+                </tbody>
+            </table>
+        </div>
 
+        <!-- Pagination -->
+        <div class="pagination-bar">
+            <a class="page-btn"
+               th:classappend="${currentPage == 0} ? 'disabled'"
+               th:href="@{/assignpatient(pageNo=${currentPage - 1}, pageSize=${pageSize}, searchQuery=${searchQuery})}">
+               &laquo; Prev
+            </a>
+            <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+               class="page-btn"
+               th:classappend="${i == currentPage} ? 'active'"
+               th:href="@{/assignpatient(pageNo=${i}, pageSize=${pageSize}, searchQuery=${searchQuery})}"
+               th:text="${i + 1}">1</a>
+            <a class="page-btn"
+               th:classappend="${currentPage + 1 == totalPages} ? 'disabled'"
+               th:href="@{/assignpatient(pageNo=${currentPage + 1}, pageSize=${pageSize}, searchQuery=${searchQuery})}">
+               Next &raquo;
+            </a>
+        </div>
 
-                    </tbody>
+    </main>
+</div>
 
-                </table>
-                <!-- <form th:action="@{/assignpatient/assigntoDoctor}" method="post" class="assignform">
-                    <input type="hidden" name="patientId" th:value="${patientList[i].userId}" /> -->
-                    <!-- Add any other hidden fields or data you need to submit -->
-                <!-- </form> -->
-    
-
-                </div>
-                <!-- Pagination Controls -->
-            <nav aria-label="Patient navigation">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
-                        <a class="page-link" th:href="@{/assignpatient(pageNo=${currentPage - 1}, pageSize=${pageSize}, searchQuery=${searchQuery})}">Previous</a>
-                    </li>
-                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active' : ''">
-                        <a class="page-link" th:href="@{/assignpatient(pageNo=${i}, pageSize=${pageSize}, searchQuery=${searchQuery})}" th:text="${i + 1}"></a>
-                    </li>
-                    <li class="page-item" th:classappend="${currentPage + 1 == totalPages} ? 'disabled' : ''">
-                        <a class="page-link" th:href="@{/assignpatient(pageNo=${currentPage + 1}, pageSize=${pageSize}, searchQuery=${searchQuery})}">Next</a>
-                    </li>
-                </ul>
-            </nav>
-                
-
-                <div class="confirmation_page">
-                    <div class="confirmation_page-content">
-                        <div>
-                            <h4 class="confirmation_page-title">Confirm submit the form?</h4>
-                            <p class="confirmation_page-subtitle">All data will be saved. Any change <br> request made
-                                after this will need <br>to update it manually</p>
-                        </div>
-                        <div class="confirmation_page-buttons">
-                            <button class="btn btn-primary confirmBtn assignPatientBtn">Confirm</button>
-                            <button type="button" class="btn btn-secondary cancelBtn">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            
+<!-- ════════════ CONFIRMATION MODAL ════════════ -->
+<div id="confirmModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-icon" style="background: #eafaf3;">
+            <i class="fa-solid fa-user-plus" style="color: var(--success); font-size: 22px;"></i>
+        </div>
+        <h5 id="modalTitle" class="modal-title">Assign Patient?</h5>
+        <p id="modalMessage" class="modal-message">This patient will be assigned to you.</p>
+        <div class="modal-actions">
+            <button onclick="closeModal()" class="modal-btn-cancel">Cancel</button>
+            <button id="modalConfirmBtn" class="modal-btn-confirm green">
+                <i class="fa-solid fa-check"></i> Yes, Assign
+            </button>
         </div>
     </div>
 </div>
 
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-        crossorigin="anonymous"></script>
-
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    var i;
-    $(function () {
-        $('.assignbtn').click(function (){
-             i = $( ".assignbtn" ).index( this );
+    var targetFormId = null;
 
-        })
-        $(document).on('click', '.assignbtn', function () {
-            var modalView = $('.confirmation_page');
-            modalView.addClass('active-modal')
-        })
-        $(document).on('click', '.cancelBtn', function () {
-            var modalView = $('.confirmation_page');
-            modalView.removeClass('active-modal')
-        })
-        $(document).on('click', '.confirmBtn', function () {
-            $('.assignform').get(i).submit();
-        })
+    document.querySelectorAll('.confirm-assign-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            targetFormId = this.getAttribute('data-form-id');
+            var patientName = this.getAttribute('data-patient-name');
+
+            document.getElementById('modalTitle').innerText = 'Assign ' + patientName + '?';
+            document.getElementById('modalMessage').innerText = patientName + ' will be assigned to you as your patient.';
+            document.getElementById('confirmModal').style.display = 'flex';
+        });
     });
-            //izzati
-        //     $.ajax({
-        //         type: 'POST',
-        //         url: '/assignpatient/',  // Update the URL to match your server endpoint
-        //         data: {
-        //             patientId: $('.id').eq(i).text(),
-        //             doctorId: '${doctor.userId}',
-        //             doctorName: '${doctor.name}'
-        //         },
-        //         success: function (response) {
-        //             console.log('Email sent successfully');
-        //             // Continue with the form submission
-        //             $('.assignform').get(i).submit();
-        //         },
 
-           
+    function closeModal() {
+        document.getElementById('confirmModal').style.display = 'none';
+        targetFormId = null;
+    }
 
-        //    error: function (error) {
-        //             console.error('Error sending email: ', error);
-        //             // Handle the error as needed
-        //         }
-        //     });
-        // })
+    document.getElementById('modalConfirmBtn').addEventListener('click', function() {
+        if (targetFormId) {
+            document.getElementById(targetFormId).submit();
+        }
+    });
 
-        
-
-
-
-    // const searchInput = document.getElementById('search-input');
-    // searchInput.addEventListener('input', () => {
-    // const query = searchInput.value.trim().toLowerCase();
-
-    // const patientList = document.getElementsByClassName('product');
-
-    // for (const patient of patientList) {
-    //     const name = patient.getElementsByClassName('name')[0].textContent;
-    //     const id = patient.getElementsByClassName('id')[0].textContent;
-
-
-    //     if (name.includes(query) ||id.includes(query) ) {
-    //         patient.style.display = 'table-row';
-    //     } else {
-    //         patient.style.display = 'none';
-    //     }
-    // }
-    // });
-    const searchInput = document.getElementById('search-input');
-    searchInput.addEventListener('input', () => {
-        // ... JavaScript code for client-side filtering ...
+    document.getElementById('confirmModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
     });
 </script>
+
+</body>
+</html>

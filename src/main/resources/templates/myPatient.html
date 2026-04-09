@@ -1,228 +1,259 @@
-<!doctype html>
-<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
-            integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <style>
-        .f:hover{background-color: #e6e6e6;}
-    </style>
     <title>My Patient</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/doctorDashboard.css}">
 </head>
+
 <body>
+    <div class="layout">
 
-<div class="container shadow p-3 mb-5  bg-primary bg-opacity-25 rounded" style="position: relative; top: 50px;">
-    <div class="container overflow-hidden">
-        <div class="row gx-5">
-            <div class="col ">
-                <div class="d-flex shadow flex-column flex-shrink-0 p-3 bg-primary bg-opacity-25 rounded">
-                    <a th:href="@{/doctor}" class="card-link" style="text-decoration: none; color: black;">
-                        <div class="card bg-primary bg-opacity-25 rounded">
-                                             <img th:src="'data:' + ${doctor.profilePictureType} + ';base64,' + ${doctor.profilePicture}"
-     alt="Doctor Profile" class="card-img-top" />
-                            <div class="card-body">
-                                <h3 class="card-title" th:text="${doctor.name}" > </h3>
-                                <p class="card-text" th:text="${doctor.position}"></p>
-                            </div>
-                        </div>
-                    </a>
-                    <hr>
-                    <ul class="nav nav-pills flex-column mb-auto">
-                        <li class="nav-item">
-                            <a th:href="@{/doctor/updateProfile}" class="nav-link link-dark f">
-                                Edit Profile
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                           <a th:href="@{/doctor/myPatient}" class="nav-link link-dark f">
-                                My Patient
-                            </a>
-                        </li>
-                        <li>
-                            <a th:href="@{/assignpatient}" class="nav-link link-dark f">
-                                Assign Patient
-                            </a>
-                        </li>
-                        <!---izzat-->
-                        <li>
-                            <a th:href="@{/patient/list}"class="nav-link link-dark f">
-                                List of Assigned Patient
-                            </a>
-                        </li>
-                        <!---izzat-->
-                        <li>
+        <!-- ════════════ SIDEBAR ════════════ -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-label">WellCheck System</div>
+                <h1>Doctor <span>Hub</span></h1>
+            </div>
 
-                            <li>
-    <a th:href="@{/doctor/predictionReview}" class="nav-link link-dark f">Prediction Review</a>
-</li>
-
-                            <form th:action="@{/logout}" method="post" th:hidden="true" name="logoutForm">
-                                <input type="submit" value="Logout" />
-                            </form>
-                            <a href="javascript: document.logoutForm.submit()" class="nav-link link-dark f">
-                                Logout
-                            </a>
-                        </li>
-                    </ul>
-
+            <div class="profile-card">
+                <img class="profile-avatar" th:src="${doctor != null and doctor.profilePicture != null}
+                         ? 'data:' + ${doctor.profilePictureType} + ';base64,' + ${doctor.profilePicture}
+                         : '/image/img_avatar1.png'" alt="Profile Picture" />
+                <div class="profile-info">
+                    <div class="name" th:text="${doctor != null} ? ${doctor.name} : 'Doctor'">Doctor</div>
+                    <span class="role-badge"
+                        th:text="${doctor != null and doctor.position != null} ? ${doctor.position} : 'Doctor'">Doctor</span>
                 </div>
             </div>
-            <div class="col-9">
-                <h1 d-flex justify-content-start>My Patient</h1>
-                <br>
-                <!-- search button -->
-                <!-- <input type="text" placeholder="Enter keyword to search" id="search-input" style="width: 50%" class="search-input" > -->
-                <form th:action="@{/doctor/myPatient}" method="get">
-                    <input type="text" id="search-input" name="searchQuery" placeholder="Enter keyword to search" th:value="${searchQuery}" style="width: 50%">
-                    <input type="hidden" name="pageNo" th:value="${currentPage}">
-                    <input type="hidden" name="pageSize" th:value="${pageSize}">
-                    <button type="submit" class="btn btn-primary">Search</button>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Main Menu</div>
+                <a th:href="@{/doctor}" class="nav-link-item">
+                    <i class="fa-solid fa-house-medical"></i>
+                    Dashboard
+                </a>
+                <a th:href="@{/doctor/myPatient}" class="nav-link-item active">
+                    <i class="fa-solid fa-user-injured"></i>
+                    My Patient
+                </a>
+                <a th:href="@{/assignpatient}" class="nav-link-item">
+                    <i class="fa-solid fa-user-plus"></i>
+                    Assign Patient
+                </a>
+                <a th:href="@{/patient/list}" class="nav-link-item">
+                    <i class="fa-solid fa-list"></i>
+                    List of Assigned Patient
+                </a>
+                <a th:href="@{/doctor/predictionReview}" class="nav-link-item">
+                    <i class="fa-solid fa-microscope"></i>
+                    Prediction Review
+                </a>
+                <a th:href="@{/clinicassistant/appointments}" class="nav-link-item">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    Appointments
+                </a>
+                <div class="nav-section-label" style="margin-top: 8px;">Account</div>
+                <a th:href="@{/doctor/updateProfile}" class="nav-link-item">
+                    <i class="fa-solid fa-user-pen"></i>
+                    Edit Profile
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <form th:action="@{/logout}" method="post" hidden name="logoutForm">
+                    <input type="submit" value="Logout" />
                 </form>
-                <!-- search button end-->
-                <div style="padding-top: 30px; width: auto;" class="d-flex justify-content-center align-items-center">
-                    <table class="table table-bordered medicineTable" >
-                        <thead>
+                <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- ════════════ MAIN ════════════ -->
+        <main class="main">
+
+            <div class="page-header">
+                <span class="greeting">Manage your patients</span>
+                <h2>My Patient</h2>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="appt-search-wrap">
+                <form th:action="@{/doctor/myPatient}" method="get"
+                    style="display:flex; gap:10px; flex:1; align-items:center;">
+                    <input type="hidden" name="pageNo" value="0">
+                    <input type="hidden" name="pageSize" th:value="${pageSize}">
+                    <div class="appt-search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" name="searchQuery" th:value="${searchQuery}"
+                            placeholder="Search by name or ID...">
+                    </div>
+                    <button type="submit" class="appt-search-btn">
+                        <i class="fa-solid fa-magnifying-glass"></i> Search
+                    </button>
+                    <a th:href="@{/doctor/myPatient}" class="appt-reset-btn" style="text-decoration:none;">
+                        <i class="fa-solid fa-rotate-left"></i> Reset
+                    </a>
+                </form>
+            </div>
+
+            <!-- Patient Table -->
+            <div class="data-table-wrap">
+                <table class="data-table">
+                    <thead>
                         <tr>
-                            <th scope="col">No</th>
-                            <th scope="col"  style="width: 20%;">Patient Name</th>
-                            <th scope="col">Action</th>
+                            <th>No</th>
+                            <th>Patient Name</th>
+                            <th>Actions</th>
                         </tr>
-                        </thead>
-                        <tbody class="tbody">
-                            
-                            <!-- patient paging display start -->
-                            <tr th:each="pacnt, patientStat : ${patientList}"class="product" id="product">
-                                <td th:text="${startIndex + patientStat.index + 1}"></td>
-                                <td><span class="name" th:text="${pacnt.name}"></span></td>
-                                <!--VIEW HEALTH-->
-                                <td>
-                                    <form th:action="@{/viewPatientHealthStatus/a}" method="post" hidden="true"
-                                          name="viewPatient" class="viewPatientForm">
-                                        <input type="text" th:value="${doctor.userId}" th:name="doctorId" id="doctorId">
-                                        <input type="text" th:value="${pacnt.userId}" th:name="patientId" id="patientId">
-                                    </form>
-                                    
-                                    <button type="button"
-                                            class="btn btn-primary rounded viewBtn">
-                                        View
+                    </thead>
+                    <tbody>
+                        <tr th:if="${patientList == null or patientList.isEmpty()}">
+                            <td colspan="3" class="empty-row">No patients found.</td>
+                        </tr>
+                        <tr th:each="pacnt, patientStat : ${patientList}">
+                            <td th:text="${startIndex + patientStat.index + 1}">1</td>
+                            <td th:text="${pacnt.name}">Patient Name</td>
+                            <td>
+                                <!-- View Health Status -->
+                                <form th:action="@{/viewPatientHealthStatus/a}" method="post"
+                                    th:id="'viewForm-' + ${patientStat.index}" style="display:none;">
+                                    <input type="hidden" th:value="${doctor.userId}" name="doctorId">
+                                    <input type="hidden" th:value="${pacnt.userId}" name="patientId">
+                                </form>
+                                <button type="button" class="action-btn blue"
+                                    th:onclick="'document.getElementById(\'viewForm-' + ${patientStat.index} + '\').submit()'">
+                                    <i class="fa-solid fa-eye"></i> View
+                                </button>
+
+                                <!-- Send Prescription -->
+                                <a th:href="@{/prescription/form(patientId=${pacnt.userId})}" class="action-btn green">
+                                    <i class="fa-solid fa-prescription-bottle-medical"></i> Prescription
+                                </a>
+
+                                <!-- Health Condition -->
+                                <a th:href="@{/doctor/sensorDashboard(patientId=${pacnt.userId})}"
+                                    class="action-btn orange">
+                                    <i class="fa-solid fa-heart-pulse"></i> Health Condition
+                                </a>
+
+                                <!-- Unassign -->
+                                <form th:action="@{/assignpatient/unassignDoctor}" method="post"
+                                    th:id="'unassignForm-' + ${patientStat.index}" style="display:inline;">
+                                    <input type="hidden" name="patientId" th:value="${pacnt.userId}">
+                                    <input type="hidden" name="pageNo" th:value="${currentPage}">
+                                    <input type="hidden" name="pageSize" th:value="${pageSize}">
+                                    <input type="hidden" name="searchQuery" th:value="${searchQuery}">
+                                    <button type="button" class="action-btn red confirm-btn"
+                                        th:data-form-id="'unassignForm-' + ${patientStat.index}"
+                                        th:data-patient-name="${pacnt.name}" data-action="unassign">
+                                        <i class="fa-solid fa-user-minus"></i> Unassign
                                     </button>
+                                </form>
 
-                                    <!--SEND PRESCRIPTION-->
-                                    <a th:href="@{/prescription/form(patientId=${pacnt.userId})}"
-                                       class="btn btn-primary rounded">
-                                        Send Prescription</a>
-                                    <!--VIEW SENSOR READING-->
-                                    <a th:href="@{/doctor/sensorDashboard(patientId=${pacnt.userId})}" class="btn btn-primary rounded HealthConditionBtn" name="HealthCondition">Health Condition</a>
-                                </td>
-                                <td>
-                                    <form th:action="@{/assignpatient/unassignDoctor}" method="post">
-                                     <input type="hidden" name="patientId" th:value="${pacnt.userId}">
-                                     <input type="hidden" name="pageNo" th:value="${currentPage}">
-                                     <input type="hidden" name="pageSize" th:value="${pageSize}">
-                                     <input type="hidden" name="searchQuery" th:value="${searchQuery}">
-                                     <button type="submit" class="btn btn-primary rounded">
-        UnassignedPatient
-    </button>
-</form>
+                                <!-- Release -->
+                                <form th:action="@{/assignpatient/releasepatient}" method="post"
+                                    th:id="'releaseForm-' + ${patientStat.index}" style="display:inline;">
+                                    <input type="hidden" name="patientId" th:value="${pacnt.userId}">
+                                    <input type="hidden" name="pageNo" th:value="${currentPage}">
+                                    <input type="hidden" name="pageSize" th:value="5">
+                                    <input type="hidden" name="searchQuery" th:value="${searchQuery}">
+                                    <button type="button" class="action-btn red confirm-btn"
+                                        th:data-form-id="'releaseForm-' + ${patientStat.index}"
+                                        th:data-patient-name="${pacnt.name}" data-action="release">
+                                        <i class="fa-solid fa-door-open"></i> Release
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-                                    
-    
-                                </td>
-                                <td>
-                                    <form th:action="@{/assignpatient/releasepatient}" method="post">
-                                     <input type="hidden" name="patientId" th:value="${pacnt.userId}" />
-                                     <input type="hidden" name="pageNo" th:value="${currentPage}" />
-                                     <input type="hidden" name="pageSize" th:value="5" />
-                                     <input type="hidden" name="searchQuery" th:value="${searchQuery}" />
-                                     <button type="submit" class="btn btn-primary">ReleasePatient</button>
-                                        </form>
+            <!-- Pagination -->
+            <div class="pagination-bar">
+                <a class="page-btn" th:classappend="${currentPage == 0} ? 'disabled'"
+                    th:href="@{/doctor/myPatient(pageNo=${currentPage - 1}, pageSize=${pageSize}, searchQuery=${searchQuery})}">
+                    &laquo; Prev
+                </a>
+                <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}" class="page-btn"
+                    th:classappend="${i == currentPage} ? 'active'"
+                    th:href="@{/doctor/myPatient(pageNo=${i}, pageSize=${pageSize}, searchQuery=${searchQuery})}"
+                    th:text="${i + 1}">1</a>
+                <a class="page-btn" th:classappend="${currentPage + 1 == totalPages} ? 'disabled'"
+                    th:href="@{/doctor/myPatient(pageNo=${currentPage + 1}, pageSize=${pageSize}, searchQuery=${searchQuery})}">
+                    Next &raquo;
+                </a>
+            </div>
 
-                
-    
-                                </td>
-                            </tr>
-                            <!-- patient paging display end -->
+        </main>
+    </div>
 
-                        </tbody>
-                    </table>
-                </div>
-                <!-- paging button start -->
-                               <!-- Pagination Controls -->
-                               <nav aria-label="Patient navigation">
-                                <ul class="pagination justify-content-center">
-                                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
-                                        <a class="page-link" th:href="@{/doctor/myPatient(pageNo=${currentPage - 1}, pageSize=${pageSize}, searchQuery=${searchQuery})}">Previous</a>
-                                    </li>
-                                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${i == currentPage} ? 'active' : ''">
-                                        <a class="page-link" th:href="@{/doctor/myPatient(pageNo=${i}, pageSize=${pageSize}, searchQuery=${searchQuery})}" th:text="${i + 1}"></a>
-                                    </li>
-                                    <li class="page-item" th:classappend="${currentPage + 1 == totalPages} ? 'disabled' : ''">
-                                        <a class="page-link" th:href="@{/doctor/myPatient(pageNo=${currentPage + 1}, pageSize=${pageSize}, searchQuery=${searchQuery})}">Next</a>
-                                    </li>
-                                </ul>
-                            </nav>
-                            
-                <!-- paging button end -->
+    <!-- ════════════ CONFIRMATION MODAL ════════════ -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h5 id="modalTitle" class="modal-title">Are you sure?</h5>
+            <p id="modalMessage" class="modal-message">This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button onclick="closeModal()" class="modal-btn-cancel">Cancel</button>
+                <button id="modalConfirmBtn" class="modal-btn-confirm">Yes, confirm</button>
             </div>
         </div>
     </div>
-</div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        var targetFormId = null;
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-        crossorigin="anonymous"></script>
-<script>
-    var i,z,j,x;
-    $(function () {
-        $('.viewBtn').click(function () {
-            i = $(".viewBtn").index(this);
-        })
+        document.querySelectorAll('.confirm-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                targetFormId = this.getAttribute('data-form-id');
+                var patientName = this.getAttribute('data-patient-name');
+                var action = this.getAttribute('data-action');
 
-        $(document).on('click', '.viewBtn', function () {
-            $('.viewPatientForm').get(i).submit();
-        })
-        $('.UnassignedPatientBtn').click(function (){
-            z = $( ".UnassignedPatientBtn" ).index( this );
+                var title = document.getElementById('modalTitle');
+                var message = document.getElementById('modalMessage');
 
-        })
-        $(document).on('click', '.UnassignedPatientBtn', function () {
-            $('.UnassignedPatient').get(z).submit();
+                if (action === 'unassign') {
+                    title.innerText = 'Unassign ' + patientName + '?';
+                    message.innerText = 'This patient will be removed from your assigned list.';
+                } else {
+                    title.innerText = 'Release ' + patientName + '?';
+                    message.innerText = 'This patient will be fully released from the system.';
+                }
 
-        })
-        $('.ReleasePatientBtn').click(function (){
-            j = $( ".ReleasePatientBtn" ).index( this );
+                document.getElementById('confirmModal').style.display = 'flex';
+            });
+        });
 
+        function closeModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            targetFormId = null;
+        }
 
-        })
-        $(document).on('click', '.ReleasePatientBtn', function () {
-            $('.ReleasePatient').get(j).submit();
-        })
-        $('.HealthConditionBtn').click(function (){
-            x = $( ".HealthConditionBtn" ).index( this );
+        document.getElementById('modalConfirmBtn').addEventListener('click', function () {
+            if (targetFormId) {
+                document.getElementById(targetFormId).submit();
+            }
+        });
 
-
-
-        })
-        $(document).on('click', '.HealthConditionBtn', function () {
-            $('.HealthConditionBtn').get(x).submit();
-        })
-    })
-   
-
-
-const searchInput = document.getElementById('search-input');
-    searchInput.addEventListener('input', () => {
-        // ... JavaScript code for client-side filtering ...
-    });
-</script>
+        document.getElementById('confirmModal').addEventListener('click', function (e) {
+            if (e.target === this) closeModal();
+        });
+    </script>
 
 </body>
+
 </html>

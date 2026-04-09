@@ -1,6 +1,7 @@
 package com.SmartHealthRemoteSystem.SHSR.User.ClinicAssistant;
 
 import com.SmartHealthRemoteSystem.SHSR.Service.ClinicAssistantService;
+import com.SmartHealthRemoteSystem.SHSR.User.Doctor.Doctor;
 import com.SmartHealthRemoteSystem.SHSR.updateStatusAppointment.Model.Appointment;
 import com.SmartHealthRemoteSystem.SHSR.updateStatusAppointment.Service.AppointmentHandler;
 import com.SmartHealthRemoteSystem.SHSR.WebConfiguration.MyUserDetails;
@@ -11,12 +12,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.bind.annotation.RequestParam;
+import com.SmartHealthRemoteSystem.SHSR.User.Doctor.Doctor;
+import com.SmartHealthRemoteSystem.SHSR.Service.DoctorService;
+import java.util.stream.Collectors;
 
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import java.util.Base64;
 
 @Controller
@@ -28,6 +32,9 @@ public class ClinicAssistantController {
 
     @Autowired
     private AppointmentHandler appointmentHandler;
+
+    @Autowired
+    private DoctorService doctorService;
 
     // ── Dashboard (appointment list) ──────────────────────────────────
     @GetMapping
@@ -91,17 +98,46 @@ public class ClinicAssistantController {
 
     // ── Appointment page (for Doctor view) ──────────────────────────────
     @GetMapping("/appointments")
-    public String appointmentsPage(Model model) {
+    public String appointmentsPage(Model model,
+            @RequestParam(defaultValue = "0") int activePageNo,
+            @RequestParam(defaultValue = "0") int expiredPageNo,
+            @RequestParam(defaultValue = "5") int pageSize) throws ExecutionException, InterruptedException {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
+        Doctor doctor = doctorService.getDoctor(userDetails.getUsername());
+
         List<Appointment> allAppointments = appointmentHandler.getAllAppointments();
 
-        long activeCount = allAppointments.stream()
-                .filter(a -> !"Expired".equals(a.getStatusAppointment())).count();
-        long expiredCount = allAppointments.stream()
-                .filter(a -> "Expired".equals(a.getStatusAppointment())).count();
+        // Split active and expired
+        List<Appointment> activeAppointments = allAppointments.stream()
+                .filter(a -> !"Expired".equals(a.getStatusAppointment()))
+                .collect(Collectors.toList());
 
-        model.addAttribute("appointments", allAppointments);
-        model.addAttribute("activeCount", activeCount);
-        model.addAttribute("expiredCount", expiredCount);
+        List<Appointment> expiredAppointments = allAppointments.stream()
+                .filter(a -> "Expired".equals(a.getStatusAppointment()))
+                .collect(Collectors.toList());
+
+        // Paginate active
+        int activeTotal = activeAppointments.size();
+        int activeStart = Math.min(activePageNo * pageSize, activeTotal);
+        int activeEnd = Math.min(activeStart + pageSize, activeTotal);
+
+        // Paginate expired
+        int expiredTotal = expiredAppointments.size();
+        int expiredStart = Math.min(expiredPageNo * pageSize, expiredTotal);
+        int expiredEnd = Math.min(expiredStart + pageSize, expiredTotal);
+
+        model.addAttribute("doctor", doctor);
+        model.addAttribute("activeAppointments", activeAppointments.subList(activeStart, activeEnd));
+        model.addAttribute("expiredAppointments", expiredAppointments.subList(expiredStart, expiredEnd));
+        model.addAttribute("activeCount", activeTotal);
+        model.addAttribute("expiredCount", expiredTotal);
+        model.addAttribute("activePageNo", activePageNo);
+        model.addAttribute("expiredPageNo", expiredPageNo);
+        model.addAttribute("activeTotalPages", (int) Math.ceil((double) activeTotal / pageSize));
+        model.addAttribute("expiredTotalPages", (int) Math.ceil((double) expiredTotal / pageSize));
+        model.addAttribute("pageSize", pageSize);
 
         return "updateStatusAppointment";
     }
