@@ -1,0 +1,12 @@
+# Maven build output
+target/
+
+# VS Code
+.vscode/
+
+# IntelliJ / SHSR
+*.iml
+.idea/
+
+# System
+.DS_Store
