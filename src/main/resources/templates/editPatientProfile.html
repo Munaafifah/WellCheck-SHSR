@@ -3,95 +3,206 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Edit Patient Profile</title>
+    <title>Edit Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>.f:hover { background-color: #e6e6e6; }</style>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/editPatientProfile.css}">
 </head>
 <body>
+<div class="layout">
 
-<div class="container shadow p-3 mb-5 bg-primary bg-opacity-25 rounded" style="position: relative; top: 50px;">
-    <div class="container overflow-hidden">
-        <div class="row gx-5">
-            <!-- Sidebar -->
-            <div class="col">
-                <div class="d-flex shadow flex-column flex-shrink-0 p-3 bg-primary bg-opacity-25 rounded">
-                    <a th:href="@{/patient}" class="card-link text-decoration-none text-dark">
-                        <div class="card bg-primary bg-opacity-25 rounded">
-                            <img th:if="${patient.profilePicture != null}"
-                                 th:src="${'data:' + patient.profilePictureType + ';base64,' + patient.profilePicture}"
-                                 alt="Profile Picture" class="card-img-top" />
-                            <img th:if="${patient.profilePicture == null}"
-                                 th:src="@{/image/img_avatar1.png}"
-                                 alt="Profile Picture" class="card-img-top" />
-                            <div class="card-body">
-                                <h3 class="card-title" th:text="${patient.name}"></h3>
-                                <p style="font-size: 12px;">Contact No.: <span th:text="${patient.contact}"></span></p>
-                                <p style="font-size: 12px;">Address: <span th:text="${patient.address}"></span></p>
-                                <p style="font-size: 12px;">Emergency Contact: <span th:text="${patient.emergencyContact}"></span></p>
-                            </div>
-                        </div>
-                    </a>
-                    <hr>
-                    <ul class="nav nav-pills flex-column mb-auto">
-                        <li class="nav-item">
-                            <a th:href="@{/patient}" class="nav-link">Dashboard</a>
-                        </li>
-                        <li><a class="nav-link active">Edit Profile</a></li>
-                        <li>
-                            <form th:action="@{/logout}" method="post" hidden="true" name="logoutForm"></form>
-                            <a href="javascript: document.logoutForm.submit()" class="nav-link link-dark f">Logout</a>
-                        </li>
-                    </ul>
+    <!-- ════════════ SIDEBAR ════════════ -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-label">WellCheck System</div>
+            <h1>Patient <span>Portal</span></h1>
+        </div>
+
+        <div class="profile-card">
+            <img class="profile-avatar"
+                 th:src="${patient != null and patient.profilePicture != null}
+                         ? 'data:' + ${patient.profilePictureType} + ';base64,' + ${patient.profilePicture}
+                         : '/image/img_avatar1.png'"
+                 alt="Profile Picture" />
+            <div class="profile-info">
+                <div class="name" th:text="${patient != null} ? ${patient.name} : 'Patient'">Patient</div>
+                <span class="role-badge">Patient</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main Menu</div>
+            <a th:href="@{/patient}" class="nav-link-item">
+                <i class="fa-solid fa-house-medical"></i>
+                Dashboard
+            </a>
+            <a th:href="@{/viewPatientHealthStatus/b(patientId=${patient?.userId}, doctorId=${patient?.assigned_doctor}, pageNo=1)}"
+               class="nav-link-item">
+                <i class="fa-solid fa-notes-medical"></i>
+                View Health Status
+            </a>
+            <a th:href="@{/patient/sensorDashboard(patientId=${patient?.userId}, role='patient')}"
+               class="nav-link-item">
+                <i class="fa-solid fa-heart-pulse"></i>
+                Health Condition
+            </a>
+            <div class="nav-section-label" style="margin-top: 8px;">Account</div>
+            <a th:href="@{/patient/editProfile}" class="nav-link-item active">
+                <i class="fa-solid fa-user-pen"></i>
+                Edit Profile
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post" hidden name="logoutForm">
+                <input type="submit" value="Logout" />
+            </form>
+            <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- ════════════ MAIN ════════════ -->
+    <main class="main">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <a th:href="@{/patient}" class="back-btn" title="Back to Dashboard">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h2>Edit Profile</h2>
+        </div>
+
+        <!-- Success / Error Alerts -->
+        <div th:if="${success}" class="alert-success">
+            <i class="fa-solid fa-circle-check"></i>
+            <span th:text="${success}">Profile updated successfully.</span>
+        </div>
+        <div th:if="${error}" class="alert-error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span th:text="${error}">Something went wrong.</span>
+        </div>
+
+        <form th:object="${patient}"
+              th:action="@{/patient/editProfile/submit}"
+              method="post"
+              enctype="multipart/form-data">
+
+            <input type="hidden" th:field="*{userId}" />
+            <input type="hidden" th:field="*{password}" />
+            <input type="hidden" th:field="*{role}" />
+            <input type="hidden" th:field="*{sensorDataId}" />
+
+            <!-- Avatar Section -->
+            <div class="avatar-section">
+                <img class="avatar-preview"
+                     th:src="${patient.profilePicture != null}
+                             ? 'data:' + ${patient.profilePictureType} + ';base64,' + ${patient.profilePicture}
+                             : '/image/img_avatar1.png'"
+                     alt="Profile Picture"
+                     id="avatarPreview" />
+                <div class="avatar-info">
+                    <h6>Profile Picture</h6>
+                    <p>JPG or PNG. Max size 2MB.</p>
+                    <label class="file-input-label">
+                        <i class="fa-solid fa-upload"></i>
+                        Choose Photo
+                        <input type="file" name="imageFile" accept="image/png,image/jpeg,image/jpg"
+                               onchange="previewImage(this)">
+                    </label>
+                    <div class="file-name-display" id="fileName">No file chosen</div>
                 </div>
             </div>
 
-            <!-- Main Form -->
-            <div class="col-9">
-                <!-- Back Button -->
-                <form th:action="@{/patient}" method="get">
-                    <button type="submit" class="btn btn-secondary mb-3">Back to Dashboard</button>
-                </form>
+            <!-- Personal Info Form Card -->
+            <div class="form-card">
+                <div class="form-card-header">
+                    <i class="fa-solid fa-id-card"></i>
+                    <span>Personal Information</span>
+                </div>
 
-                <h1>Edit Profile</h1>
-                <form th:object="${patient}" th:action="@{/patient/editProfile/submit}" method="post" enctype="multipart/form-data">
-                    <input type="hidden" th:field="*{userId}" />
-                    <input type="hidden" th:field="*{password}" />
-                    <input type="hidden" th:field="*{role}" />
-                    <input type="hidden" th:field="*{sensorDataId}" />
+                <div class="form-card-body">
+                    <div class="form-grid">
 
-                    <table class="table">
-                        <tr>
-                            <th>Full Name:</th>
-                            <td><input type="text" th:field="*{name}" class="form-control" required></td>
-                        </tr>
-                        <tr>
-                            <th>Contact Number:</th>
-                            <td><input type="text" th:field="*{contact}" class="form-control" required></td>
-                        </tr>
-                        <tr>
-                            <th>Address:</th>
-                            <td><input type="text" th:field="*{address}" class="form-control" required></td>
-                        </tr>
-                        <tr>
-                            <th>Emergency Contact Number:</th>
-                            <td><input type="text" th:field="*{emergencyContact}" class="form-control" required></td>
-                        </tr>
-                        <tr>
-                            <th>Profile Picture (PNG/JPG):</th>
-                            <td><input type="file" name="imageFile" accept="image/png,image/jpeg,image/jpg" class="form-control"></td>
-                        </tr>
-                    </table>
+                        <div class="form-group">
+                            <label class="form-label-custom">Full Name</label>
+                            <input type="text" th:field="*{name}"
+                                   class="form-control-custom"
+                                   placeholder="Enter full name" required>
+                        </div>
 
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary">Update</button>
+                        <div class="form-group">
+                            <label class="form-label-custom">Contact Number</label>
+                            <input type="text" th:field="*{contact}"
+                                   class="form-control-custom"
+                                   placeholder="e.g. 012-3456789" required>
+                            <div class="helper-text">Numbers and dashes only</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label-custom">Address</label>
+                            <input type="text" th:field="*{address}"
+                                   class="form-control-custom"
+                                   placeholder="Current address" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label-custom">Emergency Contact Number</label>
+                            <input type="text" th:field="*{emergencyContact}"
+                                   class="form-control-custom"
+                                   placeholder="e.g. 012-3456789" required>
+                            <div class="helper-text">Contact of next of kin</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label-custom">Patient ID</label>
+                            <input type="text" th:value="${patient.userId}"
+                                   class="form-control-custom" disabled>
+                            <div class="helper-text">Cannot be changed</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label-custom">Email</label>
+                            <input type="text" th:value="${patient.email}"
+                                   class="form-control-custom" disabled>
+                            <div class="helper-text">Contact admin to update</div>
+                        </div>
+
                     </div>
-                </form>
+                </div>
+
+                <div class="form-card-footer">
+                    <a th:href="@{/patient}" class="btn-outline-rose">
+                        <i class="fa-solid fa-xmark"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn-rose">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                    </button>
+                </div>
             </div>
 
-        </div>
-    </div>
+        </form>
+
+    </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function previewImage(input) {
+        const fileName = document.getElementById('fileName');
+        const preview  = document.getElementById('avatarPreview');
+        if (input.files && input.files[0]) {
+            fileName.textContent = input.files[0].name;
+            const reader = new FileReader();
+            reader.onload = e => preview.src = e.target.result;
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            fileName.textContent = 'No file chosen';
+        }
+    }
+</script>
 </body>
 </html>

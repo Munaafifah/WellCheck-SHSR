@@ -177,38 +177,47 @@ public class PatientController {
 
     // ViewPrescription//
     @GetMapping("/viewPrescription")
-    public String viewLatestPrescription(@RequestParam(defaultValue = "0") int pageNo,
-            Model model) throws Exception {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
-        String patientId = userDetails.getUsername();
+public String viewLatestPrescription(@RequestParam(defaultValue = "0") int pageNo,
+        Model model) throws Exception {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
+    String patientId = userDetails.getUsername();
 
-        Patient patient = patientService.getPatientById(patientId);
-        Map<String, Prescription> prescriptions = patient.getPrescription();
+    Patient patient = patientService.getPatientById(patientId);
+    Map<String, Prescription> prescriptions = patient.getPrescription();
 
-        // Always pass patient even if no prescription
-        model.addAttribute("patient", patient);
+    model.addAttribute("patient", patient);
 
-        if (prescriptions == null || prescriptions.isEmpty()) {
-            model.addAttribute("error", "No prescription found.");
-            return "viewPrescription";
-        }
-
-        Prescription latestPrescription = prescriptions.values().stream()
-                .sorted(Comparator.comparing(Prescription::getTimestamp).reversed())
-                .findFirst()
-                .orElse(null);
-
-        Doctor doctor = doctorService.getDoctor(latestPrescription.getDoctorId());
-
-        model.addAttribute("patient", patient);
-        model.addAttribute("doctor", doctor);
-        model.addAttribute("prescription", latestPrescription);
-        model.addAttribute("currentPage", pageNo);
-        model.addAttribute("totalPage", 1);
-
+    if (prescriptions == null || prescriptions.isEmpty()) {
+        model.addAttribute("error", "No prescription found.");
         return "viewPrescription";
     }
+
+    // Sort all prescriptions newest first
+    List<Prescription> sortedList = prescriptions.values().stream()
+            .sorted(Comparator.comparing(Prescription::getTimestamp).reversed())
+            .collect(Collectors.toList());
+
+    int totalPages = sortedList.size(); // 1 prescription per page
+    int safePage = Math.max(0, Math.min(pageNo, totalPages - 1));
+
+    Prescription currentPrescription = sortedList.get(safePage);
+    Doctor doctor = null;
+    try {
+        if (currentPrescription.getDoctorId() != null) {
+            doctor = doctorService.getDoctor(currentPrescription.getDoctorId());
+        }
+    } catch (Exception e) {
+        System.out.println("⚠️ Could not fetch doctor: " + e.getMessage());
+    }
+
+    model.addAttribute("doctor", doctor);
+    model.addAttribute("prescription", currentPrescription);
+    model.addAttribute("currentPage", safePage);
+    model.addAttribute("totalPages", totalPages);
+
+    return "viewPrescription";
+}
 
     // BackController//
     @PostMapping("/backDashboard")

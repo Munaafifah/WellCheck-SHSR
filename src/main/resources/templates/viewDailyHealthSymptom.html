@@ -1,162 +1,176 @@
-<!doctype html>
-<html lang="en"
-      xmlns:th="https://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Health Status History</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .f:hover { background-color: #e6e6e6; }
-    </style>
-    <title>View Daily Health</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/viewHealthStatus.css}">
 </head>
+
 <body>
+    <div class="layout">
 
-<div class="container shadow p-3 mb-5 bg-primary bg-opacity-25 rounded" style="position: relative; top: 50px;">
-    <div class="container overflow-hidden">
-        <div class="row gx-5">
-            <!-- Sidebar -->
-            <div class="col">
-                <div class="d-flex shadow flex-column flex-shrink-0 p-3 bg-primary bg-opacity-25 rounded">
-                    <a th:href="@{/patient}" class="card-link" style="text-decoration: none; color: black;">
-                        <div class="card bg-primary bg-opacity-25 rounded">
-                            <img th:if="${patient.profilePicture != null}"
-                                 th:src="${'data:' + patient.profilePictureType + ';base64,' + patient.profilePicture}"
-                                 alt="Profile Picture" class="card-img-top" />
-                            <img th:if="${patient.profilePicture == null}"
-                                 th:src="@{/image/img_avatar1.png}"
-                                 alt="Profile Picture" class="card-img-top" />
-                            <div class="card-body">
-                                <h3 class="card-title" th:text="${patient.name}">Patient Name</h3>
-                                <p style="font-size: 12px;">Patient Contact No.: <span th:text="${patient.contact}">-</span></p>
-                                <p style="font-size: 12px;">Patient Address: <span th:text="${patient.address}">-</span></p>
-                                <p style="font-size: 12px;">Emergency Contact No.: <span th:text="${patient.emergencyContact}">-</span></p>
-                            </div>
-                        </div>
-                    </a>
-                    <hr>
-                    <ul class="nav nav-pills flex-column mb-auto">
-    <li class="nav-item">
-        <a href="#" class="nav-link">Dashboard</a>
-    </li>
-    <li>
-        <a class="nav-link active" aria-current="page">View</a>
-    </li>
+        <!-- ════════════ SIDEBAR ════════════ -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-label">WellCheck System</div>
+                <h1>Patient <span>Portal</span></h1>
+            </div>
 
-                       <li>
-                        <a th:href="@{/patient/editProfile(patientId=${patient?.userId})}" class="nav-link link-dark f">
-                            Edit Profile 
-                        </a>
-                    </li>
-                        <li>
-                        <a th:href="@{/patient/sensorDashboard(patientId=${patient?.userId}, role='patient')}" class="nav-link link-dark f">
-                        Health Condition
-                        </a>
-
-                    </li>
-                        <li>
-                            <form th:action="@{/logout}" method="post" hidden="true" name="logoutForm"></form>
-                            <a href="javascript: document.logoutForm.submit()" class="nav-link link-dark f">Logout</a>
-                        </li>
-                    </ul>
+            <div class="profile-card">
+                <img class="profile-avatar" th:src="${patient != null and patient.profilePicture != null}
+                         ? 'data:' + ${patient.profilePictureType} + ';base64,' + ${patient.profilePicture}
+                         : '/image/img_avatar1.png'" alt="Profile Picture" />
+                <div class="profile-info">
+                    <div class="name" th:text="${patient != null} ? ${patient.name} : 'Patient'">Patient</div>
+                    <span class="role-badge">Patient</span>
                 </div>
             </div>
 
-            <!-- Main Content -->
-            <div class="col-9">
-                <form th:action="@{/patient/backDashboard}" method="post">
-                    <input type="hidden" th:name="patientId" th:value="${patient.userId}" />
-                    <input type="hidden" th:name="doctorId" th:value="${doctor.userId}" />
-                    <div class="m-3 d-flex justify-content-left align-items-center">
-                        <input class="btn btn-secondary" value="Back" type="submit">
-                    </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Main Menu</div>
+                <a th:href="@{/patient}" class="nav-link-item">
+                    <i class="fa-solid fa-house-medical"></i>
+                    Dashboard
+                </a>
+                <a th:href="@{/viewPatientHealthStatus/b(patientId=${patient?.userId}, doctorId=${doctor?.userId}, pageNo=1)}"
+                    class="nav-link-item active">
+                    <i class="fa-solid fa-notes-medical"></i>
+                    View Health Status
+                </a>
+                <a th:href="@{/patient/sensorDashboard(patientId=${patient?.userId}, role='patient')}"
+                    class="nav-link-item">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    Health Condition
+                </a>
+                <div class="nav-section-label" style="margin-top: 8px;">Account</div>
+                <a th:href="@{/patient/editProfile(patientId=${patient?.userId})}" class="nav-link-item">
+                    <i class="fa-solid fa-user-pen"></i>
+                    Edit Profile
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <form th:action="@{/logout}" method="post" hidden name="logoutForm">
+                    <input type="submit" value="Logout" />
                 </form>
+                <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                </a>
+            </div>
+        </aside>
 
-                <h1>History of health status</h1>
-                <h3 th:text="${patient.name}"></h3>
-                <h3 th:text="${patient.contact}"></h3>
+        <!-- ════════════ MAIN ════════════ -->
+        <main class="main">
 
-                <legend>History of your daily health</legend>
-                <input type="text" placeholder="Enter keyword to search" id="search-input" style="width: 50%" class="mb-2" />
+            <!-- Page Header -->
+            <div class="page-header">
+                <a th:href="@{/patient}" class="back-btn" title="Back to Dashboard">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <h2>Health Status History</h2>
+            </div>
 
-                <table class="table">
+            <!-- Search -->
+            <div class="appt-search-wrap">
+                <div class="appt-search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Search symptoms or date...">
+                </div>
+                <button class="appt-search-btn" onclick="doSearch()">
+                    <i class="fa-solid fa-magnifying-glass"></i> Search
+                </button>
+                <button class="appt-reset-btn" onclick="resetSearch()">
+                    <i class="fa-solid fa-rotate-left"></i> Reset
+                </button>
+            </div>
+
+            <!-- Table Card -->
+            <div class="table-card">
+                <div class="table-card-header">
+                    <i class="fa-solid fa-notes-medical"></i>
+                    <span>Submitted Symptoms</span>
+                    <span class="record-count"
+                        th:text="${healthStatusList != null} ? ${healthStatusList.size()} + ' records' : '0 records'">
+                    </span>
+                </div>
+
+                <table class="health-table">
                     <thead>
                         <tr>
-                            <th>Timestamp</th>
+                            <th style="width:5%;">#</th>
+                            <th style="width:20%;">Date &amp; Time</th>
                             <th>Symptoms</th>
-                            <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody>
-<tr th:each="entry : ${healthStatusList}">
-    <td><span th:text="${#dates.format(entry.value.timestamp, 'dd MMM yyyy HH:mm')}"></span></td>
-    <td>
-        <ul>
-            <li th:each="symptom : ${entry.value.symptomsList}" th:text="${symptom}"></li>
-        </ul>
-    </td>
-    <td>
-        <form th:action="@{/viewPatientHealthStatus/deletesymptom}" method="post">
-            <input type="hidden" th:name="healthstatus" th:value="${entry.key}" />
-            <input type="hidden" th:name="patientId" th:value="${patient.userId}" />
-            <input type="hidden" th:name="doctorId" th:value="${doctor.userId}" />
-            <button class="btn btn-danger" type="submit">Delete</button>
-        </form>
-    </td>
-</tr>
-</tbody>
-
+                    <tbody id="healthTableBody">
+                        <tr th:if="${healthStatusList == null or healthStatusList.isEmpty()}">
+                            <td colspan="3" class="empty-row">
+                                <i class="fa-solid fa-clipboard-check"
+                                    style="font-size:24px; color: var(--rose-300); margin-bottom:8px; display:block;"></i>
+                                No health status records found.
+                            </td>
+                        </tr>
+                        <tr th:each="entry, stat : ${healthStatusList}">
+                            <td th:text="${stat.count}">1</td>
+                            <td>
+                                <span class="timestamp-text" th:text="${entry.value.timestamp}">Date</span>
+                            </td>
+                            <td>
+                                <span th:each="symptom : ${entry.value.symptomsList}" class="symptom-badge"
+                                    th:text="${symptom}">Symptom</span>
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
 
-                <!-- Pagination Controls -->
-                <div class="d-flex justify-content-center align-items-center">
-                    <nav th:if="${totalPage > 1}">
-                        <ul class="pagination">
-                            <li class="page-item">
-                                <a class="page-link" th:href="@{/viewPatientHealthStatus/b(patientId=${patient.userId},doctorId=${doctor.userId},pageNo=${prevPage})}">&lt;</a>
-                            </li>
-                            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPage)}">
-                                <a class="page-link" th:href="@{/viewPatientHealthStatus/b(patientId=${patient.userId},doctorId=${doctor.userId},pageNo=${i})}"
-                                   th:text="${i}"></a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" th:href="@{/viewPatientHealthStatus/b(patientId=${patient.userId},doctorId=${doctor.userId},pageNo=${nextPage})}">&gt;</a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-                <div class="d-flex justify-content-center align-items-center bg-primary bg-opacity-25 shadow-lg rounded">
-                    <p class="btn"><b>Page: <span th:text="${currentPage}"></span></b></p>
+                <!-- Pagination -->
+                <div class="pagination-wrap" th:if="${totalPage != null and totalPage > 1}">
+                    <a class="page-btn" th:classappend="${currentPage == 1} ? ' disabled'"
+                        th:href="@{/viewPatientHealthStatus/b(patientId=${patient.userId}, doctorId=${doctor.userId}, pageNo=${prevPage})}">
+                        &laquo; Prev
+                    </a>
+                    <a th:each="i : ${#numbers.sequence(1, totalPage)}" class="page-btn"
+                        th:classappend="${i == currentPage} ? ' active'"
+                        th:href="@{/viewPatientHealthStatus/b(patientId=${patient.userId}, doctorId=${doctor.userId}, pageNo=${i})}"
+                        th:text="${i}">1</a>
+                    <a class="page-btn" th:classappend="${currentPage == totalPage} ? ' disabled'"
+                        th:href="@{/viewPatientHealthStatus/b(patientId=${patient.userId}, doctorId=${doctor.userId}, pageNo=${nextPage})}">
+                        Next &raquo;
+                    </a>
                 </div>
             </div>
-        </div>
+
+        </main>
     </div>
-</div>
 
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<script type="text/javascript">
-    // Search functionality
-    const searchInput = document.getElementById("search-input");
-    const table = document.getElementsByTagName("table")[0];
-    searchInput.addEventListener("input", function () {
-        const searchQuery = this.value.toLowerCase();
-        const rows = table.getElementsByTagName("tr");
-        for (let i = 1; i < rows.length; i++) {
-            const columns = rows[i].getElementsByTagName("td");
-            let hideRow = true;
-            for (let j = 0; j < columns.length; j++) {
-                const columnText = columns[j].textContent.toLowerCase();
-                if (columnText.indexOf(searchQuery) !== -1) {
-                    hideRow = false;
-                    break;
-                }
-            }
-            rows[i].style.display = hideRow ? "none" : "";
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function doSearch() {
+            var query = document.getElementById('searchInput').value.toLowerCase();
+            var rows = document.querySelectorAll('#healthTableBody tr');
+            rows.forEach(function (row) {
+                row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
+            });
         }
-    });
-</script>
+
+        function resetSearch() {
+            document.getElementById('searchInput').value = '';
+            var rows = document.querySelectorAll('#healthTableBody tr');
+            rows.forEach(function (row) { row.style.display = ''; });
+        }
+
+        document.getElementById('searchInput').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') doSearch();
+        });
+    </script>
 </body>
+
 </html>

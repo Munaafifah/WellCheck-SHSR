@@ -1,151 +1,166 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register Sensor</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            background-color: #ffffff;
-            padding: 20px 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .alert {
-            padding: 12px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            text-align: center;
-        }
-
-        .error {
-            background-color: #ffebee;
-            color: #c62828;
-            border: 1px solid #ffcdd2;
-        }
-
-        .success {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #c8e6c9;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        input[type="text"]:focus {
-            border-color: #007bff;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-bottom: 10px;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .back-button {
-            background-color: #6c757d;
-        }
-
-        .back-button:hover {
-            background-color: #5a6268;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/registerSensor.css}">
 </head>
+
 <body>
-    <div class="container">
-        <h1>Register Sensor</h1>
-        
-        <div th:if="${errorMessage}" class="alert error">
-            <p th:text="${errorMessage}"></p>
-        </div>
-        
-        <div th:if="${successMessage}" class="alert success">
-            <p th:text="${successMessage}"></p>
-        </div>
+    <div class="layout">
 
-        <!-- Display patient info 
-        <div class="form-group info-display">
-            <p><strong>Patient ID:</strong> <span th:text="${patient.userId}"></span></p>
-            <p><strong>Patient Name:</strong> <span th:text="${patient.name}"></span></p>
-        </div>-->
-
-        <form method="post" action="/api/sensors/register" onsubmit="return validateForm()">
-            <div class="form-group">
-                <label for="sensorID">Sensor ID:</label>
-                <input type="text" id="sensorID" name="sensorID" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="uniqueKey">Unique Key:</label>
-                <input type="text" id="uniqueKey" name="uniqueKey" required>
+        <!-- ════════════ SIDEBAR ════════════ -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-label">WellCheck System</div>
+                <h1>Patient <span>Portal</span></h1>
             </div>
 
-            <button type="submit">Submit</button>
-            <button type="button" class="back-button" onclick="goBack()">Back</button>
-        </form>
+            <div class="profile-card">
+                <img class="profile-avatar" th:src="${patient != null and patient.profilePicture != null}
+                         ? 'data:' + ${patient.profilePictureType} + ';base64,' + ${patient.profilePicture}
+                         : '/image/img_avatar1.png'" alt="Profile Picture" />
+                <div class="profile-info">
+                    <div class="name" th:text="${patient != null} ? ${patient.name} : 'Patient'">Patient</div>
+                    <span class="role-badge">Patient</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Main Menu</div>
+                <a th:href="@{/patient}" class="nav-link-item">
+                    <i class="fa-solid fa-house-medical"></i>
+                    Dashboard
+                </a>
+                <a th:href="@{/viewPatientHealthStatus/b(patientId=${patient?.userId}, doctorId=${patient?.assigned_doctor}, pageNo=1)}"
+                    class="nav-link-item">
+                    <i class="fa-solid fa-notes-medical"></i>
+                    View Health Status
+                </a>
+                <a th:href="@{/patient/sensorDashboard(patientId=${patient?.userId}, role='patient')}"
+                    class="nav-link-item">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    Health Condition
+                </a>
+                <div class="nav-section-label" style="margin-top: 8px;">Account</div>
+                <a th:href="@{/patient/editProfile}" class="nav-link-item">
+                    <i class="fa-solid fa-user-pen"></i>
+                    Edit Profile
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <form th:action="@{/logout}" method="post" hidden name="logoutForm">
+                    <input type="submit" value="Logout" />
+                </form>
+                <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- ════════════ MAIN ════════════ -->
+        <main class="main">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <a th:href="@{/patient}" class="back-btn" title="Back to Dashboard">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <h2>Register Sensor</h2>
+            </div>
+
+            <!-- Success Message -->
+            <div th:if="${successMessage}" class="alert-success">
+                <i class="fa-solid fa-circle-check"></i>
+                <span th:text="${successMessage}">Sensor registered successfully.</span>
+            </div>
+
+            <!-- Error Message -->
+            <div th:if="${errorMessage}" class="alert-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span th:text="${errorMessage}">Something went wrong.</span>
+            </div>
+
+            <!-- Already has sensor -->
+            <div th:if="${patient != null and patient.sensorDataId != null and !#strings.isEmpty(patient.sensorDataId)}"
+                class="registered-card">
+                <div class="registered-icon">
+                    <i class="fa-solid fa-microchip"></i>
+                </div>
+                <div class="registered-info">
+                    <div class="reg-label">Registered Sensor ID</div>
+                    <div class="reg-id" th:text="${patient.sensorDataId}">SENSOR-001</div>
+                    <div class="reg-sub">Your sensor is already connected and active.</div>
+                </div>
+            </div>
+
+            <!-- Info banner -->
+            <div class="info-banner">
+                <i class="fa-solid fa-circle-info"></i>
+                <div class="info-banner-text">
+                    <div class="info-title">How to register your sensor</div>
+                    <div class="info-sub">Enter the Sensor ID and Unique Key provided with your health monitoring
+                        device. Each sensor can only be registered once.</div>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <div class="form-card"
+                th:if="${patient == null or patient.sensorDataId == null or #strings.isEmpty(patient.sensorDataId)}">
+                <div class="form-card-header">
+                    <i class="fa-solid fa-microchip"></i>
+                    <span>Device Registration</span>
+                </div>
+
+                <form method="post" action="/api/sensors/register" onsubmit="return validateForm()">
+                    <div class="form-card-body">
+
+                        <div class="form-group">
+                            <label class="form-label-custom" for="sensorID">Sensor ID</label>
+                            <input type="text" id="sensorID" name="sensorID" class="form-control-custom"
+                                placeholder="e.g. SENSOR-001" required>
+                            <div class="helper-text">Found on the label of your device</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label-custom" for="uniqueKey">Unique Key</label>
+                            <input type="text" id="uniqueKey" name="uniqueKey" class="form-control-custom"
+                                placeholder="e.g. ABC-12345-XYZ" required>
+                            <div class="helper-text">Security key included in your device package</div>
+                        </div>
+
+                    </div>
+
+                    <div class="form-card-footer">
+                        <a th:href="@{/patient}" class="btn-outline-rose">
+                            <i class="fa-solid fa-xmark"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn-rose">
+                            <i class="fa-solid fa-link"></i> Register Sensor
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function goBack() {
-            window.history.back();
-        }
-
         function validateForm() {
             const fields = ['sensorID', 'uniqueKey'];
             for (const field of fields) {
-                const value = document.getElementById(field).value.trim();
-                if (!value) {
-                    alert('Please fill in all fields');
+                if (!document.getElementById(field).value.trim()) {
+                    alert('Please fill in all fields.');
                     return false;
                 }
             }
@@ -153,4 +168,5 @@
         }
     </script>
 </body>
+
 </html>

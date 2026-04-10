@@ -1,129 +1,154 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <title>Patient Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Patient Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .f:hover {
-            background-color: #e6e6e6;
-        }
-    </style>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/patientDashboard.css}">
 </head>
+
 <body>
+    <div class="layout">
 
-<div class="container shadow p-3 mb-5 bg-primary bg-opacity-25 rounded" style="margin-top: 50px;">
-    <div class="row gx-5">
-        <!-- Sidebar -->
-        <div class="col-3">
-            <div class="d-flex flex-column p-3 bg-primary bg-opacity-25 rounded shadow">
-                <a th:href="@{/patient}" class="card-link text-dark text-decoration-none">
-                    <div class="card bg-primary bg-opacity-25 rounded">
+        <!-- ════════════ SIDEBAR ════════════ -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-label">WellCheck System</div>
+                <h1>Patient <span>Portal</span></h1>
+            </div>
 
-                        <!-- Image Display Logic -->
-                        <img th:if="${patient.profilePicture != null}"
-                             th:src="${'data:' + patient.profilePictureType + ';base64,' + patient.profilePicture}"
-                             alt="Profile Picture" class="card-img-top" />
+            <div class="profile-card">
+                <img class="profile-avatar" th:src="${patient != null and patient.profilePicture != null}
+                         ? 'data:' + ${patient.profilePictureType} + ';base64,' + ${patient.profilePicture}
+                         : '/image/img_avatar1.png'" alt="Profile Picture" />
+                <div class="profile-info">
+                    <div class="name" th:text="${patient != null} ? ${patient.name} : 'Patient'">Patient</div>
+                    <span class="role-badge">Patient</span>
+                </div>
+            </div>
 
-                        <img th:if="${patient.profilePicture == null}"
-                             th:src="@{/image/img_avatar1.png}" 
-                             alt="Profile Picture" class="card-img-top" />
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Main Menu</div>
+                <a th:href="@{/patient}" class="nav-link-item active">
+                    <i class="fa-solid fa-house-medical"></i>
+                    Dashboard
+                </a>
+                <a th:href="@{/viewPatientHealthStatus/b(patientId=${patient?.userId}, doctorId=${doctor?.userId}, pageNo=1)}"
+                    class="nav-link-item">
+                    <i class="fa-solid fa-notes-medical"></i>
+                    View Health Status
+                </a>
+                <a th:href="@{/patient/sensorDashboard(patientId=${patient?.userId}, role='patient')}"
+                    class="nav-link-item">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    Health Condition
+                </a>
 
-                        <div class="card-body">
-                            <h3 class="card-title" th:text="${patient?.name}">Patient Name</h3>
-                            <p style="font-size: 12px;">Contact No: <span th:text="${patient?.contact}">N/A</span></p>
-                            <p style="font-size: 12px;">Address: <span th:text="${patient?.address}">N/A</span></p>
-                            <p style="font-size: 12px;">Emergency Contact: <span th:text="${patient?.emergencyContact}">N/A</span></p>
+                <div class="nav-section-label" style="margin-top: 8px;">Account</div>
+                <a th:href="@{/patient/editProfile(patientId=${patient?.userId})}" class="nav-link-item">
+                    <i class="fa-solid fa-user-pen"></i>
+                    Edit Profile
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <form th:action="@{/logout}" method="post" hidden name="logoutForm">
+                    <input type="submit" value="Logout" />
+                </form>
+                <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- ════════════ MAIN ════════════ -->
+        <main class="main">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <span class="greeting">Welcome back,</span>
+                <h2 th:text="${patient != null} ? ${patient.name} : 'Patient'">Patient</h2>
+            </div>
+
+            <!-- Assigned Doctor -->
+            <div>
+                <div class="section-title">Your Doctor</div>
+                <div class="doctor-card">
+                    <div class="doctor-icon">
+                        <i class="fa-solid fa-user-doctor"></i>
+                    </div>
+                    <div class="doctor-info">
+                        <div class="label">Assigned Doctor</div>
+                        <div class="doctor-name" th:text="${doctor != null} ? ${doctor.name} : 'No doctor assigned'">
+                            Doctor Name
+                        </div>
+                        <div class="doctor-position"
+                            th:text="${doctor != null and doctor.position != null} ? ${doctor.position} : ''">
+                            Specialization
                         </div>
                     </div>
-                </a>
-                <hr>
-                <ul class="nav nav-pills flex-column mb-auto">
-                    <li class="nav-item">
-                        <a href="#" class="nav-link active">Dashboard</a>
-                    </li>
-                    <li>
-                        <a th:href="@{/viewPatientHealthStatus/b(
-                            patientId=${patient?.userId},
-                            doctorId=${doctor?.userId},
-                            pageNo=1)}"
-                           class="nav-link link-dark f">View Health Status</a>
-                    </li>
-                    <li>
-                        <a th:href="@{/patient/editProfile(patientId=${patient?.userId})}" class="nav-link link-dark f">
-                            Edit Profile 
-                        </a>
-                    </li>
-                    <li>
-                        <a th:href="@{/patient/sensorDashboard(patientId=${patient?.userId})}" class="nav-link link-dark f">
-                            Health Condition
-                        </a>
-                    </li>
-                    <li>
-                        <form th:action="@{/logout}" method="post" hidden="true" name="logoutForm">
-                            <button>Logout</button>
-                        </form>
-                        <a href="javascript: document.logoutForm.submit()" class="nav-link link-dark f">
-                            Logout
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="col-9">
-            <h1>Hello <span th:text="${patient?.name}">Patient</span></h1>
-            <p>How are you feeling today?</p>
-
-            <div class="row gx-3 m-5">
-                <div class="col">
-                    <div class="container bg-primary bg-opacity-25 shadow-lg rounded border border-primary p-3">
-                        <h3>Your Doctor</h3>
-                        <h5 th:text="${doctor?.name}">Dr. Unknown</h5>
-                        <p th:text="${doctor?.position}">Position N/A</p>
-                    </div>
-                </div>
-                <div class="col"></div>
-            </div>
-
-            <div class="row m-5">
-                <div class="col">
-                    <div class="list-group bg-primary bg-opacity-25 shadow-lg rounded">
-                        <a th:href="@{/patient/viewPrescription(pageNo=-1)}"
-                           class="list-group-item m-3 d-flex justify-content-center align-items-center bg-primary bg-opacity-50 rounded"
-                           style="height: 75px;">
-                            <h3>View Latest Doctor's Prescription</h3>
-                        </a>
-
-                        <form th:action="@{/Health-status/viewHealthStatusForm}" method="post" hidden name="healthStatusForm">
-                            <input type="text" th:value ="${patient?.userId}" name="patientId" id="patientId">
-                            <button>Submit</button>
-                        </form>
-
-                        <a href="javascript: document.healthStatusForm.submit()"
-                           class="list-group-item m-3 d-flex justify-content-center align-items-center bg-primary bg-opacity-50 rounded"
-                           style="height: 75px;">
-                            <h3>Send Health Symptoms to Doctor</h3>
-                        </a>
-
-                        <a th:href="@{/register}"
-                           class="list-group-item m-3 d-flex justify-content-center align-items-center bg-success bg-opacity-75 rounded"
-                           style="height: 75px;">
-                            <h3>Register Sensor</h3>
-                        </a>
-                    </div>
                 </div>
             </div>
 
-        </div>
+            <!-- Quick Actions -->
+            <div>
+                <div class="section-title">Quick Actions</div>
+                <div class="actions-grid">
+
+                    <!-- View Prescription -->
+                    <a th:href="@{/patient/viewPrescription(pageNo=0)}" class="action-btn rose">
+                        <div class="btn-icon">
+                            <i class="fa-solid fa-file-prescription"></i>
+                        </div>
+                        <div class="btn-text">
+                            <div class="btn-title">View Latest Doctor's Prescription</div>
+                            <div class="btn-sub">Check your current medications</div>
+                        </div>
+                        <div class="btn-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                    </a>
+
+                    <!-- Send Health Symptoms -->
+                    <form th:action="@{/Health-status/viewHealthStatusForm}" method="post" class="hidden-form"
+                        name="healthStatusForm">
+                        <input type="hidden" th:value="${patient?.userId}" name="patientId">
+                    </form>
+                    <a href="javascript: document.healthStatusForm.submit()" class="action-btn pink">
+                        <div class="btn-icon">
+                            <i class="fa-solid fa-stethoscope"></i>
+                        </div>
+                        <div class="btn-text">
+                            <div class="btn-title">Send Health Symptoms to Doctor</div>
+                            <div class="btn-sub">Report how you're feeling today</div>
+                        </div>
+                        <div class="btn-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                    </a>
+
+                    <!-- Register Sensor -->
+                    <a th:href="@{/register}" class="action-btn green">
+                        <div class="btn-icon">
+                            <i class="fa-solid fa-microchip"></i>
+                        </div>
+                        <div class="btn-text">
+                            <div class="btn-title">Register Sensor</div>
+                            <div class="btn-sub">Connect your health monitoring device</div>
+                        </div>
+                        <div class="btn-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                    </a>
+
+                </div>
+            </div>
+
+        </main>
     </div>
-</div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-        crossorigin="anonymous"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

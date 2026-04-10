@@ -24,7 +24,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private AuthenticationSuccessHandler successHandler;
 
     @Autowired
-    public SecurityConfiguration(MyUserDetailsService myUserDetailsService, AuthenticationSuccessHandler successHandler) {
+    public SecurityConfiguration(MyUserDetailsService myUserDetailsService,
+            AuthenticationSuccessHandler successHandler) {
         this.myUserDetailsService = myUserDetailsService;
         this.successHandler = successHandler;
     }
@@ -32,42 +33,45 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(myUserDetailsService)
-            .passwordEncoder(passwordEncoder());
+                .passwordEncoder(passwordEncoder());
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .requiresChannel()
+                .requiresChannel()
                 .requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null)
                 .requiresSecure()
-            .and()
-            .authorizeRequests()
+                .and()
+                .authorizeRequests()
                 .antMatchers("/registerPatient").permitAll()
                 .antMatchers("/Sensor-data/**").permitAll()
+                .antMatchers("/api/diagnosis/receiveSymptoms").permitAll()
+                .antMatchers("/js/**", "/css/**", "/image/**").permitAll()
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers("/doctor/**").hasAnyRole("ADMIN", "DOCTOR")
                 .antMatchers("/assignpatient/**").hasAnyRole("ADMIN", "DOCTOR")
                 .antMatchers("/prescription/**").hasAnyRole("ADMIN", "DOCTOR")
                 .antMatchers("/patient/**").hasAnyRole("ADMIN", "DOCTOR", "PATIENT")
                 .antMatchers("/pharmacist/**").hasAnyRole("ADMIN", "PHARMACIST")
-                .antMatchers("/clinicassistant/**").hasAnyRole("ADMIN", "CLINIC_ASSISTANT", "DOCTOR") // ✅ updated
-                .antMatchers("/js/**", "/css/**").permitAll()
-            .and()
-            .formLogin()
+                .antMatchers("/clinicassistant/**").hasAnyRole("ADMIN", "CLINIC_ASSISTANT", "DOCTOR")
+                .antMatchers("/DiagnosisResult").hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
+                .antMatchers("/predictionHistory").hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
+                .antMatchers("/Health-status/**").hasAnyRole("PATIENT", "ADMIN", "DOCTOR") // ✅
+                .antMatchers("/ViewDailyHealthSymptom/**").hasAnyRole("PATIENT", "ADMIN", "DOCTOR") // ✅
+                .antMatchers("/viewPatientHealthStatus/**").hasAnyRole("PATIENT", "ADMIN", "DOCTOR") // ✅
+                .anyRequest().authenticated()
+                .and()
+                .formLogin()
                 .loginPage("/login").permitAll()
                 .successHandler(successHandler)
-            .and()
-            .logout()
+                .and()
+                .logout()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/login")
-            .and()
-            .csrf().disable()
-            .authorizeRequests()
-                .antMatchers("/api/diagnosis/receiveSymptoms").permitAll()
-                .anyRequest().authenticated()
-            .and()
-            .httpBasic();
+                .and()
+                .csrf().disable()
+                .httpBasic();
     }
 
     @Bean
