@@ -1,67 +1,285 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Register Patient</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet"
-          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          crossorigin="anonymous">
+    <title>SHSR — Patient Registration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/register.css}">
 </head>
 <body>
-<div class="container mt-3">
-    <form th:action="@{/registerPatient}" method="post" th:object="${patient}">
-        <legend>Patient Registration</legend>
-        <fieldset>
 
-            <div class="form-group">
-                <label>Patient ID:</label>
-                <input name="userId" class="form-control" type="text" placeholder="Enter ID" required>
+<div class="page-wrapper">
+
+    <!-- ════════ LEFT: BRAND PANEL ════════ -->
+    <div class="brand-panel">
+
+        <div class="brand-logo">
+            <div class="logo-icon">
+                <i class="fa-solid fa-heart-pulse"></i>
+            </div>
+            <span class="logo-text">WellCheck SHSR</span>
+        </div>
+
+        <div class="brand-hero">
+            <p class="tagline">Smart Healthcare Remote System</p>
+            <h2>Join us,<br><em>get monitored</em><br>with care.</h2>
+            <p>Register as a patient and connect with your assigned doctor, track prescriptions, and monitor your health remotely.</p>
+
+            <div class="step-list">
+                <div class="step-item">
+                    <div class="step-num">1</div>
+                    <div class="step-text">
+                        <strong>Create your account</strong>
+                        <span>Fill in your personal and contact details below.</span>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">2</div>
+                    <div class="step-text">
+                        <strong>Get assigned a doctor</strong>
+                        <span>An admin will link you to your assigned physician.</span>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">3</div>
+                    <div class="step-text">
+                        <strong>Start monitoring</strong>
+                        <span>Access your dashboard, health data and prescriptions.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="brand-footer">
+            &copy; 2025 WellCheck SHSR &mdash; Smart Healthcare Remote System
+        </div>
+
+    </div>
+
+    <!-- ════════ RIGHT: FORM PANEL ════════ -->
+    <div class="form-panel">
+        <div class="form-container">
+
+            <p class="form-eyebrow">New patient</p>
+            <h2 class="form-title">Create your account</h2>
+            <p class="form-subtitle">Please fill in your details accurately. All fields are required.</p>
+            <div class="form-divider"></div>
+
+            <div th:if="${error}" class="alert-msg error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span th:text="${error}">Something went wrong. Please try again.</span>
             </div>
 
-            <div class="form-group">
-                <label>Full Name:</label>
-                <input name="name" class="form-control" type="text" placeholder="Enter Full Name" required>
-            </div>
+            <form th:action="@{/registerPatient}" method="post" th:object="${patient}" novalidate>
 
-            <div class="form-group">
-                <label>Password:</label>
-                <input name="password" class="form-control" type="password" placeholder="Enter Password" required>
-            </div>
+                <!-- ACCOUNT INFO -->
+                <div class="section-label">Account Information</div>
 
-            <div class="form-group">
-                <label>Contact No:</label>
-                <input name="contact" class="form-control" type="text" placeholder="012-3456789" required>
-            </div>
+                <div class="field-row">
+                    <div class="field-group">
+                        <label class="field-label" for="userId">Patient ID</label>
+                        <div class="field-wrap">
+                            <input type="text" class="field-input" id="userId"
+                                   name="userId" placeholder="e.g. P001" required>
+                            <i class="fa-solid fa-id-badge field-icon"></i>
+                        </div>
+                    </div>
 
-            <div class="form-group">
-                <label>Email:</label>
-                <input name="email" class="form-control" type="email" placeholder="example@email.com" required>
-            </div>
+                    <div class="field-group">
+                        <label class="field-label" for="password">Password</label>
+                        <div class="field-wrap">
+                            <input type="password" class="field-input field-input--pad-right"
+                                   id="password" name="password"
+                                   placeholder="Create a password" required>
+                            <i class="fa-solid fa-lock field-icon"></i>
+                            <button type="button" class="eye-btn" onclick="togglePassword('password', this)"
+                                    tabindex="-1" aria-label="Toggle password visibility">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                        <p class="field-hint" id="password-hint"></p>
+                    </div>
+                </div>
 
-            <input type="hidden" name="role" value="PATIENT"/>
+                <!-- PERSONAL INFO -->
+                <div class="section-label">Personal Information</div>
 
-            <div class="form-group">
-                <label>Address:</label>
-                <input name="address" class="form-control" type="text" placeholder="Enter Address" required>
-            </div>
+                <div class="field-group">
+                    <label class="field-label" for="name">Full Name</label>
+                    <div class="field-wrap">
+                        <input type="text" class="field-input" id="name"
+                               name="name" placeholder="Enter your full name" required>
+                        <i class="fa-solid fa-user field-icon"></i>
+                    </div>
+                </div>
 
-            <div class="form-group">
-                <label>Emergency Contact No:</label>
-                <input name="emergencyContact" class="form-control" type="text" placeholder="Enter Emergency Contact No" required>
-            </div>
+                <div class="field-row">
+                    <div class="field-group">
+                        <label class="field-label" for="contact">Contact No.</label>
+                        <div class="field-wrap">
+                            <input type="tel" class="field-input" id="contact"
+                                   name="contact"
+                                   placeholder="012-3456789"
+                                   pattern="^(\+?60|0)[0-9]{1,2}-?[0-9]{7,8}$"
+                                   inputmode="tel"
+                                   maxlength="15"
+                                   required>
+                            <i class="fa-solid fa-phone field-icon"></i>
+                        </div>
+                        <p class="field-hint" id="contact-hint"></p>
+                    </div>
 
-            <div th:if="${error}" class="alert alert-danger" role="alert">
-                <span th:text="${error}"></span>
-            </div>
+                    <div class="field-group">
+                        <label class="field-label" for="email">Email</label>
+                        <div class="field-wrap">
+                            <input type="email" class="field-input" id="email"
+                                   name="email" placeholder="example@email.com" required>
+                            <i class="fa-solid fa-envelope field-icon"></i>
+                        </div>
+                        <p class="field-hint" id="email-hint"></p>
+                    </div>
+                </div>
 
-            <div class="form-group">
-                <button type="submit" class="btn btn-success">Submit Form</button>
-                <button type="reset" class="btn btn-warning">Reset Form</button>
-            </div>
+                <!-- ADDITIONAL INFO -->
+                <div class="section-label">Additional Details</div>
 
-        </fieldset>
-    </form>
+                <div class="field-group">
+                    <label class="field-label" for="address">Address</label>
+                    <div class="field-wrap">
+                        <input type="text" class="field-input" id="address"
+                               name="address" placeholder="Current address" required>
+                        <i class="fa-solid fa-location-dot field-icon"></i>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label" for="emergencyContact">Emergency Contact No.</label>
+                    <div class="field-wrap">
+                        <input type="tel" class="field-input" id="emergencyContact"
+                               name="emergencyContact"
+                               placeholder="012-3456789"
+                               pattern="^(\+?60|0)[0-9]{1,2}-?[0-9]{7,8}$"
+                               inputmode="tel"
+                               maxlength="15"
+                               required>
+                        <i class="fa-solid fa-phone-volume field-icon"></i>
+                    </div>
+                    <p class="field-hint" id="emergency-hint"></p>
+                </div>
+
+                <input type="hidden" name="role" value="PATIENT"/>
+
+                <div class="btn-row">
+                    <button type="submit" class="btn-submit">
+                        <i class="fa-solid fa-user-plus"></i>&nbsp; Register
+                    </button>
+                    <button type="reset" class="btn-reset" onclick="clearHints()">
+                        <i class="fa-solid fa-rotate-left"></i>&nbsp; Reset
+                    </button>
+                </div>
+
+            </form>
+
+            <hr class="choco-line">
+
+            <p class="form-footer-link">
+                Already have an account? <a th:href="@{/login}">Sign in</a>
+            </p>
+
+        </div>
+    </div>
+
 </div>
+
+<script>
+    /* ── PASSWORD TOGGLE ── */
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    /* ── CONTACT: block letters, auto-dash ── */
+    function setupPhone(inputId, hintId) {
+        const input = document.getElementById(inputId);
+        const hint  = document.getElementById(hintId);
+
+        input.addEventListener('keypress', function (e) {
+            const allowed = /[0-9\-\+]/;
+            if (!allowed.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+
+        input.addEventListener('input', function () {
+            // Strip anything that isn't digit, dash, or +
+            let val = this.value.replace(/[^0-9\-\+]/g, '');
+            this.value = val;
+
+            // Live format hint
+            if (val.length === 0) {
+                hint.textContent = '';
+                hint.className = 'field-hint';
+            } else if (!/^(\+?60|0)/.test(val)) {
+                hint.textContent = 'Must start with 0 or +60';
+                hint.className = 'field-hint hint-error';
+            } else if (val.length < 10) {
+                hint.textContent = 'Too short — e.g. 012-3456789';
+                hint.className = 'field-hint hint-warn';
+            } else {
+                hint.textContent = 'Looks good ✓';
+                hint.className = 'field-hint hint-ok';
+            }
+        });
+
+        input.addEventListener('blur', function () {
+            const valid = /^(\+?60|0)[0-9]{1,2}-?[0-9]{7,8}$/.test(this.value);
+            if (this.value && !valid) {
+                hint.textContent = 'Invalid format — use 012-3456789 or +60123456789';
+                hint.className = 'field-hint hint-error';
+            }
+        });
+    }
+
+    /* ── EMAIL HINT ── */
+    function setupEmail() {
+        const input = document.getElementById('email');
+        const hint  = document.getElementById('email-hint');
+
+        input.addEventListener('input', function () {
+            if (this.value.length === 0) {
+                hint.textContent = '';
+                hint.className = 'field-hint';
+            } else if (!this.validity.valid) {
+                hint.textContent = 'Enter a valid email — e.g. name@example.com';
+                hint.className = 'field-hint hint-error';
+            } else {
+                hint.textContent = 'Looks good ✓';
+                hint.className = 'field-hint hint-ok';
+            }
+        });
+    }
+
+    /* ── RESET HINTS ── */
+    function clearHints() {
+        document.querySelectorAll('.field-hint').forEach(el => {
+            el.textContent = '';
+            el.className = 'field-hint';
+        });
+    }
+
+    /* ── INIT ── */
+    setupPhone('contact', 'contact-hint');
+    setupPhone('emergencyContact', 'emergency-hint');
+    setupEmail();
+</script>
+
 </body>
 </html>

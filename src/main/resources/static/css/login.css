@@ -1,0 +1,435 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,400&display=swap');
+
+:root {
+    --ochre-900: #3d2800;
+    --ochre-700: #7a5000;
+    --ochre-500: #c8860a;
+    --ochre-400: #d9a02a;
+    --ochre-300: #e8bc5a;
+    --ochre-200: #f2d48e;
+    --ochre-100: #faeecb;
+    --ochre-50:  #fdf8ed;
+
+    --choco-900: #1e0e00;
+    --choco-700: #3b1f08;
+    --choco-500: #5c3317;
+    --choco-300: #8b5a38;
+    --choco-100: #c4997a;
+
+    --sand:      #faf6ef;
+    --sand-dark: #ede4d4;
+    --white:     #ffffff;
+    --text-dark: #1e1208;
+    --text-mid:  #5c3317;
+    --text-light:#a07858;
+
+    --danger:    #c0392b;
+    --danger-bg: #fdf0ee;
+    --success:   #2e7d52;
+    --success-bg:#edf7f2;
+
+    --shadow-sm: 0 2px 12px rgba(62, 40, 0, 0.08);
+    --shadow-md: 0 8px 32px rgba(62, 40, 0, 0.14);
+    --shadow-lg: 0 20px 60px rgba(62, 40, 0, 0.18);
+
+    --radius:    14px;
+    --radius-lg: 24px;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: var(--sand);
+    color: var(--text-dark);
+    min-height: 100vh;
+    display: flex;
+    align-items: stretch;
+}
+
+/* ── SPLIT LAYOUT ── */
+.page-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* ── LEFT BRAND PANEL ── */
+.brand-panel {
+    background: var(--choco-700);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 52px 56px;
+    position: relative;
+    overflow: hidden;
+}
+
+.brand-panel::before {
+    content: '';
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    border: 1px solid rgba(200, 134, 10, 0.18);
+    top: -120px;
+    right: -120px;
+    pointer-events: none;
+}
+
+.brand-panel::after {
+    content: '';
+    position: absolute;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    border: 1px solid rgba(200, 134, 10, 0.12);
+    bottom: 60px;
+    left: -80px;
+    pointer-events: none;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 1;
+}
+
+.brand-logo .logo-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--ochre-500);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--white);
+    flex-shrink: 0;
+}
+
+.brand-logo .logo-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ochre-200);
+    letter-spacing: 0.5px;
+}
+
+.brand-hero {
+    z-index: 1;
+}
+
+.brand-hero .tagline {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    color: var(--ochre-400);
+    margin-bottom: 20px;
+}
+
+.brand-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 600;
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.brand-hero h1 em {
+    font-style: italic;
+    color: var(--ochre-300);
+}
+
+.brand-hero p {
+    font-size: 14px;
+    color: var(--choco-100);
+    line-height: 1.7;
+    max-width: 340px;
+}
+
+.stat-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 40px;
+    z-index: 1;
+}
+
+.stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(200, 134, 10, 0.20);
+    border-radius: 14px;
+    padding: 12px 18px;
+}
+
+.stat-pill .pill-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(200, 134, 10, 0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--ochre-300);
+    flex-shrink: 0;
+}
+
+.stat-pill .pill-info .val {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--white);
+    line-height: 1;
+}
+
+.stat-pill .pill-info .lbl {
+    font-size: 11px;
+    color: var(--choco-100);
+    margin-top: 3px;
+}
+
+.brand-footer {
+    font-size: 11px;
+    color: var(--choco-300);
+    z-index: 1;
+}
+
+/* ── RIGHT FORM PANEL ── */
+.form-panel {
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 72px;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+.form-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ochre-500);
+    margin-bottom: 10px;
+}
+
+.form-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+}
+
+.form-subtitle {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-bottom: 28px;
+    line-height: 1.6;
+}
+
+.form-divider {
+    width: 40px;
+    height: 3px;
+    background: var(--ochre-400);
+    border-radius: 4px;
+    margin-bottom: 32px;
+}
+
+/* ── ALERTS ── */
+.alert-msg {
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+}
+
+.alert-msg.error {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border: 1px solid rgba(192, 57, 43, 0.18);
+}
+
+.alert-msg.success {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 1px solid rgba(46, 125, 82, 0.18);
+}
+
+/* ── FIELDS ── */
+.field-group {
+    margin-bottom: 20px;
+}
+
+.field-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-mid);
+    margin-bottom: 8px;
+}
+
+.field-wrap {
+    position: relative;
+}
+
+.field-wrap .field-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    color: var(--choco-100);
+    pointer-events: none;
+    transition: color 0.2s;
+}
+
+.field-wrap:focus-within .field-icon {
+    color: var(--ochre-500);
+}
+
+.field-input {
+    width: 100%;
+    padding: 13px 14px 13px 42px;
+    border: 1.5px solid var(--sand-dark);
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text-dark);
+    background: var(--ochre-50);
+    outline: none;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.field-input::placeholder {
+    color: var(--choco-100);
+    font-size: 13px;
+}
+
+.field-input:focus {
+    border-color: var(--ochre-400);
+    background: var(--white);
+    box-shadow: 0 0 0 4px rgba(200, 134, 10, 0.09);
+}
+
+/* ── BUTTON ── */
+.btn-login {
+    width: 100%;
+    padding: 14px;
+    background: var(--choco-700);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    margin-top: 6px;
+}
+
+.btn-login:hover {
+    background: var(--ochre-700);
+    box-shadow: 0 6px 20px rgba(62, 40, 0, 0.22);
+    transform: translateY(-1px);
+}
+
+.btn-login:active {
+    transform: translateY(0);
+}
+
+/* ── FOOTER LINK ── */
+.choco-line {
+    border: none;
+    border-top: 1px solid var(--sand-dark);
+    margin: 28px 0;
+}
+
+.form-footer-link {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+.form-footer-link a {
+    color: var(--ochre-500);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.form-footer-link a:hover {
+    color: var(--choco-500);
+    text-decoration: underline;
+}
+
+/* ── EYE TOGGLE BUTTON ── */
+.field-input--pad-right {
+    padding-right: 44px;
+}
+
+.eye-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--choco-100);
+    font-size: 14px;
+    padding: 4px;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.eye-btn:hover {
+    color: var(--ochre-500);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+    .page-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .brand-panel {
+        min-height: 260px;
+        padding: 36px 28px;
+    }
+
+    .brand-hero h1 {
+        font-size: 28px;
+    }
+
+    .stat-row {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .form-panel {
+        padding: 40px 28px;
+    }
+}

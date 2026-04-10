@@ -1,7 +1,6 @@
-// EmailService.java    
-
 package com.SmartHealthRemoteSystem.SHSR.updateStatusAppointment.Service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -9,27 +8,34 @@ import java.util.Properties;
 
 @Service
 public class EmailService {
-    private static final String FROM_EMAIL = "tacc6277@gmail.com"; 
-    private static final String EMAIL_PASSWORD = "giji plmj llox cpfw"; 
-    public void sendAppointmentStatusEmail(String toEmail, String appointmentId, String status) {
+
+    @Value("${spring.mail.username}")
+    private String fromEmail;
+
+    @Value("${spring.mail.password}")
+    private String emailPassword;
+
+    private Session createSession() {
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587");
 
-        Session session = Session.getInstance(props, new Authenticator() {
+        return Session.getInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(FROM_EMAIL, EMAIL_PASSWORD);
+                return new PasswordAuthentication(fromEmail, emailPassword);
             }
         });
+    }
 
+    public void sendAppointmentStatusEmail(String toEmail, String appointmentId, String status) {
         try {
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(FROM_EMAIL));
+            Message message = new MimeMessage(createSession());
+            message.setFrom(new InternetAddress(fromEmail));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
-            
+
             if (status.equals("Approved")) {
                 message.setSubject("Appointment Approved - ID: " + appointmentId);
                 message.setText("Dear Patient,\n\n" +
@@ -51,34 +57,20 @@ public class EmailService {
     }
 
     public void sendAppointmentUpdateEmail(String patientEmail, String appointmentId, String newDate, String newTime) {
-    Properties props = new Properties();
-    props.put("mail.smtp.auth", "true");
-    props.put("mail.smtp.starttls.enable", "true");
-    props.put("mail.smtp.host", "smtp.gmail.com");
-    props.put("mail.smtp.port", "587");
+        try {
+            Message message = new MimeMessage(createSession());
+            message.setFrom(new InternetAddress(fromEmail));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(patientEmail));
+            message.setSubject("Appointment Date/Time Updated");
+            message.setText(String.format(
+                "Dear Patient,\n\nYour appointment (ID: %s) has been rescheduled to %s at %s. " +
+                "Please contact the hospital if this time doesn't work for you.\n\nBest regards,\nYour Healthcare Team",
+                appointmentId, newDate, newTime
+            ));
 
-    Session session = Session.getInstance(props, new Authenticator() {
-        @Override
-        protected PasswordAuthentication getPasswordAuthentication() {
-            return new PasswordAuthentication(FROM_EMAIL, EMAIL_PASSWORD);
+            Transport.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send email notification: " + e.getMessage());
         }
-    });
-
-    try {
-        Message message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(FROM_EMAIL));
-        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(patientEmail));
-        message.setSubject("Appointment Date/Time Updated");
-        message.setText(String.format(
-            "Dear Patient,\n\nYour appointment (ID: %s) has been rescheduled to %s at %s. " +
-            "Please contact the hospital if this time doesn't work for you.\n\nBest regards,\nYour Healthcare Team",
-            appointmentId, newDate, newTime
-        ));
-
-        Transport.send(message);
-    } catch (MessagingException e) {
-        throw new RuntimeException("Failed to send email notification: " + e.getMessage());
     }
-}
-
 }
