@@ -23,6 +23,8 @@ document.addEventListener("DOMContentLoaded", function () {
     //   [3] = Pharmacist
     //   [4] = Clinic Assistant
     //   [5] = Assigned Patient
+    //   [6] = Radiographer
+    //   [7] = Radiologist
 
     // TABLE ORDER in HTML:
     //   [0] = patient
@@ -31,6 +33,8 @@ document.addEventListener("DOMContentLoaded", function () {
     //   [3] = clinic_assistant
     //   [4] = admin
     //   [5] = assigned
+    //   [6] = radiographer
+    //   [7] = radiologist
 
     // tabMap = which BUTTON index to highlight
     const tabMap = {
@@ -39,7 +43,9 @@ document.addEventListener("DOMContentLoaded", function () {
         "admin":            2,
         "pharmacist":       3,
         "clinic_assistant": 4,
-        "assigned":         5
+        "assigned":         5,
+        "radiographer":     6,
+        "radiologist":      7
     };
 
     // tableIndexMap = which TABLE index to show
@@ -49,7 +55,9 @@ document.addEventListener("DOMContentLoaded", function () {
         "admin":            4,
         "pharmacist":       2,
         "clinic_assistant": 3,
-        "assigned":         5
+        "assigned":         5,
+        "radiographer":     6,
+        "radiologist":      7
     };
 
     // Auto-select tab based on ?tab= parameter in URL
@@ -88,6 +96,10 @@ document.addEventListener("DOMContentLoaded", function () {
             userTable[3].classList.add("tableActive");
         } else if (itemClass.includes('asspatBtn')) {
             userTable[5].classList.add("tableActive");
+        } else if (itemClass.includes('radiographerBtn')) {
+            userTable[6].classList.add("tableActive");
+        } else if (itemClass.includes('radiologistBtn')) {
+            userTable[7].classList.add("tableActive");
         }
 
         this.classList.add("admin_navBtn_active");
@@ -101,9 +113,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // extraForm[1] = Doctor fields
     // extraForm[2] = Pharmacist fields
     // extraForm[3] = Clinic Assistant fields
+    // extraForm[4] = Radiographer fields
+    // extraForm[5] = Radiologist fields
     const userForm = document.getElementsByClassName('extraForm');
 
-    // radioFormInput: [0]=ADMIN [1]=PATIENT [2]=DOCTOR [3]=PHARMACIST [4]=CLINIC_ASSISTANT
+    // radioFormInput: [0]=ADMIN [1]=PATIENT [2]=DOCTOR [3]=PHARMACIST [4]=CLINIC_ASSISTANT [5]=RADIOGRAPHER [6]=RADIOLOGIST
     const radioFormInput = document.querySelectorAll('input[type=radio][name="role"]');
 
     function toggleForm() {
@@ -119,6 +133,10 @@ document.addEventListener("DOMContentLoaded", function () {
             userForm[2].classList.add("activeForm");
         } else if (this.classList.contains('clinicAssistant')) {
             userForm[3].classList.add("activeForm");
+        } else if (this.classList.contains('radiographer')) {
+            userForm[4].classList.add("activeForm");
+        } else if (this.classList.contains('radiologist')) {
+            userForm[5].classList.add("activeForm");
         }
     }
 
@@ -178,9 +196,13 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("doctorPosition").value          = "";
         document.getElementById("pharmacistHospital").value      = "";
         document.getElementById("pharmacistPosition").value      = "";
-        document.getElementById("clinicAssistantClinic").value   = "";
-        document.getElementById("clinicAssistantPosition").value = "";
-        document.getElementById("userId").readOnly               = false;
+        document.getElementById("clinicAssistantClinic").value      = "";
+        document.getElementById("clinicAssistantPosition").value   = "";
+        document.getElementById("radiographerDepartment").value    = "";
+        document.getElementById("radiographerPosition").value      = "";
+        document.getElementById("radiologistDepartment").value     = "";
+        document.getElementById("radiologistSpecialization").value = "";
+        document.getElementById("userId").readOnly                 = false;
         document.getElementById("userPassword").readOnly         = false;
     });
 
@@ -214,6 +236,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 role = "PHARMACIST";
             } else if (row.closest("#clinicAssistantTable")) {
                 role = "CLINIC_ASSISTANT";
+            } else if (row.closest("#radiographerTable")) {
+                role = "RADIOGRAPHER";
+            } else if (row.closest("#radiologistTable")) {
+                role = "RADIOLOGIST";
             } else if (row.closest("#adminTable")) {
                 const roleCell = row.querySelector('[data-column="role"]');
                 role = roleCell ? roleCell.innerText.trim().toUpperCase() : "ADMIN";
@@ -269,6 +295,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 radioFormInput[4].checked = true;
                 document.getElementById("clinicAssistantClinic").value   = cells[4].innerText;
                 document.getElementById("clinicAssistantPosition").value = cells[5].innerText;
+            } else if (editClassName.includes('editRadiographer')) {
+                userForm[4].classList.add("activeForm");
+                radioFormInput[5].checked = true;
+                document.getElementById("radiographerDepartment").value = cells[4].innerText;
+                document.getElementById("radiographerPosition").value   = cells[5].innerText;
+            } else if (editClassName.includes('editRadiologist')) {
+                userForm[5].classList.add("activeForm");
+                radioFormInput[6].checked = true;
+                document.getElementById("radiologistDepartment").value     = cells[4].innerText;
+                document.getElementById("radiologistSpecialization").value = cells[5].innerText;
             } else {
                 radioFormInput[0].checked = true;
             }
@@ -337,6 +373,18 @@ document.addEventListener("DOMContentLoaded", function () {
         const query = this.value.trim().toLowerCase();
         resetTableDisplay('clinicAssistantTable');
         handleSearchInput('clinicAssistantTable', query);
+    });
+
+    document.getElementById('search-input-radiographer').addEventListener('input', function () {
+        const query = this.value.trim().toLowerCase();
+        resetTableDisplay('radiographerTable');
+        handleSearchInput('radiographerTable', query);
+    });
+
+    document.getElementById('search-input-radiologist').addEventListener('input', function () {
+        const query = this.value.trim().toLowerCase();
+        resetTableDisplay('radiologistTable');
+        handleSearchInput('radiologistTable', query);
     });
 
     // Assigned patient filter

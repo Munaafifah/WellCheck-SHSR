@@ -35,6 +35,12 @@ public class SuccessHandler implements AuthenticationSuccessHandler {
             } else if (grantedAuthority.getAuthority().equals("ROLE_CLINIC_ASSISTANT")) {
                 redirectUrl = "/clinicassistant";
                 break;
+            } else if (grantedAuthority.getAuthority().equals("ROLE_RADIOGRAPHER")) {
+                redirectUrl = "/radiographer";
+                break;
+            } else if (grantedAuthority.getAuthority().equals("ROLE_RADIOLOGIST")) {
+                redirectUrl = "/radiologist";
+                break;
             } else {
                 redirectUrl = "/admin";
                 break;

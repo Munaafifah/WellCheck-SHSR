@@ -81,6 +81,12 @@
                             <button type="button" class="asspatBtn admin_navBtn"
                                 th:classappend="${currentTab} == 'assigned' ? ' admin_navBtn_active'">Assigned
                                 Patient</button>
+
+                            <button type="button" class="radiographerBtn admin_navBtn"
+                                th:classappend="${currentTab} == 'radiographer' ? ' admin_navBtn_active'">Radiographer</button>
+
+                            <button type="button" class="radiologistBtn admin_navBtn"
+                                th:classappend="${currentTab} == 'radiologist' ? ' admin_navBtn_active'">Radiologist</button>
                         </div>
                     </div>
                     <hr class="admin_line">
@@ -528,6 +534,138 @@
                         </div>
                     </div>
 
+                    <!-- Radiographer table -->
+                    <div class="user_table" th:classappend="${currentTab} == 'radiographer' ? ' tableActive'">
+                        <div style="padding-left: 10;">
+                            <input type="text" placeholder="Enter keyword to search" id="search-input-radiographer"
+                                style="width: 50%; padding-left: 10px;" class="search-input">
+                        </div>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="width: 2%;" class="text-center">No</th>
+                                    <th scope="col" style="width: 10%;" class="text-center">User Id</th>
+                                    <th scope="col" style="width: 15%;" class="text-center">Name</th>
+                                    <th scope="col" style="width: 15%;" class="text-center">Contact No</th>
+                                    <th scope="col" style="width: 15%;" class="text-center">Email</th>
+                                    <th scope="col" style="width: 15%;" class="text-center">Department</th>
+                                    <th scope="col" style="width: 10%;" class="text-center">Position</th>
+                                    <th scope="col" style="width: 50%;" class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="radiographerTable" class="radiographerTable">
+                                <tr th:each="rg, stat: ${radiographerPagination.dataToDisplay}">
+                                    <th class="text-center" scope="row"
+                                        th:text="${stat.index + 1 + (radiographerPagination.totalPage * (radiographerPagination.currentPage - 1))}">
+                                    </th>
+                                    <td class="text-center" th:text="${rg.userId}" data-column="userId"></td>
+                                    <td class="text-center" th:text="${rg.name}" data-column="name"></td>
+                                    <td class="text-center" th:text="${rg.contact}" data-column="contact"></td>
+                                    <td class="text-center" th:text="${rg.email}" data-column="email"></td>
+                                    <td class="text-center" th:text="${rg.department}" data-column="department"></td>
+                                    <td class="text-center" th:text="${rg.position}" data-column="position"></td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-warning editUserBtn editRadiographer">Edit</button>
+                                        <button type="button" class="btn btn-danger deleteUserBtn">Delete</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="d-flex justify-content-center align-items-center">
+                            <nav aria-label="Radiographer Pagination"
+                                th:if="${radiographerPagination != null and radiographerPagination.totalPage > 1}">
+                                <ul class="pagination">
+                                    <li class="page-item"
+                                        th:classappend="${radiographerPagination.currentPage == 1} ? ' disabled'">
+                                        <a class="page-link"
+                                            th:href="@{'/admin?pageNo=' + ${radiographerPagination.currentPage - 1} + '&tab=radiographer'}">&laquo;</a>
+                                    </li>
+                                    <li th:each="i: ${#numbers.sequence(1, radiographerPagination.totalPage)}"
+                                        class="page-item"
+                                        th:classappend="${i == radiographerPagination.currentPage} ? ' active'">
+                                        <a class="page-link"
+                                            th:href="@{'/admin?pageNo=' + ${i} + '&tab=radiographer'}"
+                                            th:text="${i}"></a>
+                                    </li>
+                                    <li class="page-item"
+                                        th:classappend="${radiographerPagination.currentPage == radiographerPagination.totalPage} ? ' disabled'">
+                                        <a class="page-link"
+                                            th:href="@{'/admin?pageNo=' + ${radiographerPagination.currentPage + 1} + '&tab=radiographer'}">&raquo;</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <div class="d-flex justify-content-center align-items-center bg-primary bg-opacity-25 shadow-lg rounded">
+                            <p class="btn"><b>Page: <span th:text="${radiographerPagination.currentPage}"></span></b></p>
+                        </div>
+                    </div>
+
+                    <!-- Radiologist table -->
+                    <div class="user_table" th:classappend="${currentTab} == 'radiologist' ? ' tableActive'">
+                        <div style="padding-left: 10;">
+                            <input type="text" placeholder="Enter keyword to search" id="search-input-radiologist"
+                                style="width: 50%; padding-left: 10px;" class="search-input">
+                        </div>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="width: 2%;" class="text-center">No</th>
+                                    <th scope="col" style="width: 10%;" class="text-center">User Id</th>
+                                    <th scope="col" style="width: 15%;" class="text-center">Name</th>
+                                    <th scope="col" style="width: 15%;" class="text-center">Contact No</th>
+                                    <th scope="col" style="width: 15%;" class="text-center">Email</th>
+                                    <th scope="col" style="width: 15%;" class="text-center">Department</th>
+                                    <th scope="col" style="width: 10%;" class="text-center">Specialization</th>
+                                    <th scope="col" style="width: 50%;" class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="radiologistTable" class="radiologistTable">
+                                <tr th:each="rl, stat: ${radiologistPagination.dataToDisplay}">
+                                    <th class="text-center" scope="row"
+                                        th:text="${stat.index + 1 + (radiologistPagination.totalPage * (radiologistPagination.currentPage - 1))}">
+                                    </th>
+                                    <td class="text-center" th:text="${rl.userId}" data-column="userId"></td>
+                                    <td class="text-center" th:text="${rl.name}" data-column="name"></td>
+                                    <td class="text-center" th:text="${rl.contact}" data-column="contact"></td>
+                                    <td class="text-center" th:text="${rl.email}" data-column="email"></td>
+                                    <td class="text-center" th:text="${rl.department}" data-column="department"></td>
+                                    <td class="text-center" th:text="${rl.specialization}" data-column="specialization"></td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-warning editUserBtn editRadiologist">Edit</button>
+                                        <button type="button" class="btn btn-danger deleteUserBtn">Delete</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="d-flex justify-content-center align-items-center">
+                            <nav aria-label="Radiologist Pagination"
+                                th:if="${radiologistPagination != null and radiologistPagination.totalPage > 1}">
+                                <ul class="pagination">
+                                    <li class="page-item"
+                                        th:classappend="${radiologistPagination.currentPage == 1} ? ' disabled'">
+                                        <a class="page-link"
+                                            th:href="@{'/admin?pageNo=' + ${radiologistPagination.currentPage - 1} + '&tab=radiologist'}">&laquo;</a>
+                                    </li>
+                                    <li th:each="i: ${#numbers.sequence(1, radiologistPagination.totalPage)}"
+                                        class="page-item"
+                                        th:classappend="${i == radiologistPagination.currentPage} ? ' active'">
+                                        <a class="page-link"
+                                            th:href="@{'/admin?pageNo=' + ${i} + '&tab=radiologist'}"
+                                            th:text="${i}"></a>
+                                    </li>
+                                    <li class="page-item"
+                                        th:classappend="${radiologistPagination.currentPage == radiologistPagination.totalPage} ? ' disabled'">
+                                        <a class="page-link"
+                                            th:href="@{'/admin?pageNo=' + ${radiologistPagination.currentPage + 1} + '&tab=radiologist'}">&raquo;</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <div class="d-flex justify-content-center align-items-center bg-primary bg-opacity-25 shadow-lg rounded">
+                            <p class="btn"><b>Page: <span th:text="${radiologistPagination.currentPage}"></span></b></p>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!--add/edit user form-->
@@ -593,6 +731,16 @@
                                         id="clinicAssistant" value="CLINIC_ASSISTANT">
                                     <label class="form-check-label" for="clinicAssistant">Clinic Assistant</label>
                                 </div>
+                                <div class="form-check radioBtn">
+                                    <input class="form-check-input radiographer" type="radio" name="role"
+                                        id="radiographer" value="RADIOGRAPHER">
+                                    <label class="form-check-label" for="radiographer">Radiographer</label>
+                                </div>
+                                <div class="form-check radioBtn">
+                                    <input class="form-check-input radiologist" type="radio" name="role"
+                                        id="radiologist" value="RADIOLOGIST">
+                                    <label class="form-check-label" for="radiologist">Radiologist</label>
+                                </div>
                             </div>
 
                             <!-- extraForm[0]: Patient fields -->
@@ -653,6 +801,34 @@
                                     <label for="clinicAssistantPosition">Position</label>
                                     <input type="text" class="form-control" id="clinicAssistantPosition"
                                         name="clinicAssistantPosition" placeholder="Clinic Assistant">
+                                </div>
+                            </div>
+
+                            <!-- extraForm[4]: Radiographer fields -->
+                            <div class="extraForm form-group">
+                                <div class="form-group">
+                                    <label for="radiographerDepartment">Department</label>
+                                    <input type="text" class="form-control" id="radiographerDepartment"
+                                        name="radiographerDepartment" placeholder="e.g. Radiology">
+                                </div>
+                                <div class="form-group">
+                                    <label for="radiographerPosition">Position</label>
+                                    <input type="text" class="form-control" id="radiographerPosition"
+                                        name="radiographerPosition" placeholder="e.g. Senior Radiographer">
+                                </div>
+                            </div>
+
+                            <!-- extraForm[5]: Radiologist fields -->
+                            <div class="extraForm form-group">
+                                <div class="form-group">
+                                    <label for="radiologistDepartment">Department</label>
+                                    <input type="text" class="form-control" id="radiologistDepartment"
+                                        name="radiologistDepartment" placeholder="e.g. Radiology">
+                                </div>
+                                <div class="form-group">
+                                    <label for="radiologistSpecialization">Specialization</label>
+                                    <input type="text" class="form-control" id="radiologistSpecialization"
+                                        name="radiologistSpecialization" placeholder="e.g. MRI, CT Scan">
                                 </div>
                             </div>
 

@@ -19,6 +19,8 @@ import com.SmartHealthRemoteSystem.SHSR.User.Patient.Patient;
 import com.SmartHealthRemoteSystem.SHSR.User.Pharmacist.Pharmacist;
 import com.SmartHealthRemoteSystem.SHSR.User.User;
 import com.SmartHealthRemoteSystem.SHSR.User.ClinicAssistant.ClinicAssistant;
+import com.SmartHealthRemoteSystem.SHSR.User.Radiographer.Radiographer;
+import com.SmartHealthRemoteSystem.SHSR.User.Radiologist.Radiologist;
 
 @Controller
 @RequestMapping("/admin")
@@ -31,6 +33,8 @@ public class AdminController {
     private final PharmacistService pharmacistService;
     private final MailService mailService;
     private final ClinicAssistantService clinicAssistantService;
+    private final RadiographerService radiographerService;
+    private final RadiologistService radiologistService;
 
     @Autowired
     public AdminController(UserService userService,
@@ -38,13 +42,17 @@ public class AdminController {
             DoctorService doctorService,
             PharmacistService pharmacistService,
             ClinicAssistantService clinicAssistantService,
+            RadiographerService radiographerService,
+            RadiologistService radiologistService,
             MailService mailService) {
-                
+
         this.userService = userService;
         this.patientService = patientService;
         this.doctorService = doctorService;
         this.pharmacistService = pharmacistService;
         this.clinicAssistantService = clinicAssistantService;
+        this.radiographerService = radiographerService;
+        this.radiologistService = radiologistService;
         this.mailService = mailService;
     }
 
@@ -61,6 +69,8 @@ public class AdminController {
         List<Doctor> doctorList = doctorService.getAllDoctors();
         List<Pharmacist> pharmacistList = pharmacistService.getListPharmacist();
         List<ClinicAssistant> clinicAssistantList = clinicAssistantService.getListClinicAssistant();
+        List<Radiographer> radiographerList = radiographerService.getListRadiographer();
+        List<Radiologist> radiologistList = radiologistService.getListRadiologist();
 
         // assigned / unassigned split
         List<Patient> assignedPatients = allPatients.stream()
@@ -81,6 +91,10 @@ public class AdminController {
         PaginationInfo pharmacistPg = getPaginationInfo(pharmacistList, tab.equals("pharmacist") ? pageNo : 1);
         PaginationInfo clinicAssistantPg = getPaginationInfo(clinicAssistantList,
                 tab.equals("clinic_assistant") ? pageNo : 1);
+        PaginationInfo radiographerPg = getPaginationInfo(radiographerList,
+                tab.equals("radiographer") ? pageNo : 1);
+        PaginationInfo radiologistPg = getPaginationInfo(radiologistList,
+                tab.equals("radiologist") ? pageNo : 1);
 
         PaginationInfo assignedPg = getPaginationInfo(assignedPatients, tab.equals("assigned") ? pageNo : 1);
         PaginationInfo unassignedPg = getPaginationInfo(unassignedPatients, tab.equals("assigned") ? pageNo : 1);
@@ -91,12 +105,16 @@ public class AdminController {
         model.addAttribute("doctorList", doctorPg.getDataToDisplay());
         model.addAttribute("pharmacistList", pharmacistPg.getDataToDisplay());
         model.addAttribute("clinicAssistantList", clinicAssistantList);
+        model.addAttribute("radiographerList", radiographerPg.getDataToDisplay());
+        model.addAttribute("radiologistList", radiologistPg.getDataToDisplay());
 
         model.addAttribute("adminPagination", adminPg);
         model.addAttribute("patientPagination", patientPg);
         model.addAttribute("doctorPagination", doctorPg);
         model.addAttribute("pharmacistPagination", pharmacistPg);
         model.addAttribute("clinicAssistantPagination", clinicAssistantPg);
+        model.addAttribute("radiographerPagination", radiographerPg);
+        model.addAttribute("radiologistPagination", radiologistPg);
 
         model.addAttribute("assignedPatients", assignedPg.getDataToDisplay());
         model.addAttribute("unassignedPatients", unassignedPg.getDataToDisplay());
@@ -124,6 +142,10 @@ public class AdminController {
             @RequestParam(value = "pharmacistPosition", required = false) String pharmacistPosition,
             @RequestParam(value = "clinicAssistantClinic", required = false) String clinicAssistantClinic,
             @RequestParam(value = "clinicAssistantPosition", required = false) String clinicAssistantPosition,
+            @RequestParam(value = "radiographerDepartment", required = false) String radiographerDepartment,
+            @RequestParam(value = "radiographerPosition", required = false) String radiographerPosition,
+            @RequestParam(value = "radiologistDepartment", required = false) String radiologistDepartment,
+            @RequestParam(value = "radiologistSpecialization", required = false) String radiologistSpecialization,
             @RequestParam("action") String action,
             RedirectAttributes redirect) // <─ flash-scope
             throws ExecutionException, InterruptedException {
@@ -172,6 +194,26 @@ public class AdminController {
                                     + "\n\nPlease log in and change your password.");
                     break;
 
+                case "RADIOGRAPHER":
+                    Radiographer rg = new Radiographer(userId, name, password, contact, role, email,
+                            radiographerDepartment, radiographerPosition);
+                    message = radiographerService.createRadiographer(rg);
+                    mailService.sendMail(email, "Welcome to WellCheck",
+                            "Dear " + name + ",\n\nYou have been registered as a Radiographer.\nUser ID: " + userId
+                                    + "\nTemporary Password: " + password
+                                    + "\n\nPlease log in and change your password.");
+                    break;
+
+                case "RADIOLOGIST":
+                    Radiologist rl = new Radiologist(userId, name, password, contact, role, email,
+                            radiologistDepartment, radiologistSpecialization);
+                    message = radiologistService.createRadiologist(rl);
+                    mailService.sendMail(email, "Welcome to WellCheck",
+                            "Dear Dr. " + name + ",\n\nYou have been registered as a Radiologist.\nUser ID: " + userId
+                                    + "\nTemporary Password: " + password
+                                    + "\n\nPlease log in and change your password.");
+                    break;
+
                 default:
                     User u = new User(userId, name, password, contact, role, email);
                     message = userService.createUser(u);
@@ -204,6 +246,10 @@ public class AdminController {
             @RequestParam(value = "pharmacistPosition", required = false) String pharmacistPosition,
             @RequestParam(value = "clinicAssistantClinic", required = false) String clinicAssistantClinic,
             @RequestParam(value = "clinicAssistantPosition", required = false) String clinicAssistantPosition,
+            @RequestParam(value = "radiographerDepartment", required = false) String radiographerDepartment,
+            @RequestParam(value = "radiographerPosition", required = false) String radiographerPosition,
+            @RequestParam(value = "radiologistDepartment", required = false) String radiologistDepartment,
+            @RequestParam(value = "radiologistSpecialization", required = false) String radiologistSpecialization,
             RedirectAttributes redirect) // flash scope
             throws ExecutionException, InterruptedException {
 
@@ -227,6 +273,24 @@ public class AdminController {
                 Pharmacist ph = new Pharmacist(userId, name, "", contact, role, email,
                         pharmacistHospital, pharmacistPosition);
                 msg = pharmacistService.updatePharmacist(ph);
+                break;
+
+            case "CLINIC_ASSISTANT":
+                ClinicAssistant ca = new ClinicAssistant(userId, name, "", contact, role, email,
+                        clinicAssistantClinic, clinicAssistantPosition);
+                msg = clinicAssistantService.updateClinicAssistant(ca);
+                break;
+
+            case "RADIOGRAPHER":
+                Radiographer rg = new Radiographer(userId, name, "", contact, role, email,
+                        radiographerDepartment, radiographerPosition);
+                msg = radiographerService.updateRadiographer(rg);
+                break;
+
+            case "RADIOLOGIST":
+                Radiologist rl = new Radiologist(userId, name, "", contact, role, email,
+                        radiologistDepartment, radiologistSpecialization);
+                msg = radiologistService.updateRadiologist(rl);
                 break;
 
             default:
