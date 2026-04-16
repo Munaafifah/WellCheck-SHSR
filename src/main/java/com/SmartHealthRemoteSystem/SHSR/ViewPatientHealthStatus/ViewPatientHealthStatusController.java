@@ -28,8 +28,8 @@ public class ViewPatientHealthStatusController {
 
     @Autowired
     public ViewPatientHealthStatusController(HealthStatusService healthStatusService,
-                                             DoctorService doctorService,
-                                             PatientService patientService) {
+            DoctorService doctorService,
+            PatientService patientService) {
         this.healthStatusService = healthStatusService;
         this.doctorService = doctorService;
         this.patientService = patientService;
@@ -37,9 +37,9 @@ public class ViewPatientHealthStatusController {
 
     @PostMapping("/a")
     public String getPredictionSymptomHistoryForDoctor(@RequestParam("patientId") String patientId,
-                                                       @RequestParam("doctorId") String doctorId,
-                                                       @RequestParam(value = "pageNo", defaultValue = "1") int pageNo,
-                                                       Model model) throws ExecutionException, InterruptedException {
+            @RequestParam("doctorId") String doctorId,
+            @RequestParam(value = "pageNo", defaultValue = "1") int pageNo,
+            Model model) throws ExecutionException, InterruptedException {
         Patient patient = patientService.getPatientById(patientId);
         Doctor doctor = doctorService.getDoctor(doctorId);
 
@@ -72,15 +72,17 @@ public class ViewPatientHealthStatusController {
         model.addAttribute("prevPage", Math.max(pageNo - 1, 1));
         model.addAttribute("patient", patient);
         model.addAttribute("doctor", doctor);
+        model.addAttribute("totalPages", totalPages); // add this
+        model.addAttribute("totalPage", totalPages); // keep this too
 
-        return "viewDailyHealthSymptom";
+        return "viewPatientHealthStatus"; // ← change from viewDailyHealthSymptom
     }
 
     @GetMapping("/b")
     public String getPredictionSymptomHistory(@RequestParam("patientId") String patientId,
-                                              @RequestParam("doctorId") String doctorId,
-                                              @RequestParam("pageNo") int pageNo,
-                                              Model model) throws ExecutionException, InterruptedException {
+            @RequestParam("doctorId") String doctorId,
+            @RequestParam("pageNo") int pageNo,
+            Model model) throws ExecutionException, InterruptedException {
 
         Patient patient = patientService.getPatientById(patientId);
         Doctor doctor = doctorService.getDoctor(doctorId);
@@ -120,8 +122,8 @@ public class ViewPatientHealthStatusController {
 
     @PostMapping("/deletesymptom")
     public String deletesymptom(@RequestParam("patientId") String patientId,
-                                @RequestParam("doctorId") String doctorId,
-                                @RequestParam("healthstatus") String healthstatusId) {
+            @RequestParam("doctorId") String doctorId,
+            @RequestParam("healthstatus") String healthstatusId) {
         healthStatusService.deleteHealthStatus(healthstatusId, patientId);
         return "redirect:/viewPatientHealthStatus/b?patientId=" + patientId + "&doctorId=" + doctorId + "&pageNo=1";
     }
