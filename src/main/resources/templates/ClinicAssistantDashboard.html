@@ -291,8 +291,6 @@
                             id="vw-type"></span></div>
                     <div class="detail-row"><span class="detail-key">Email</span><span class="detail-value"
                             id="vw-email"></span></div>
-                    <div class="detail-row"><span class="detail-key">Appointment Cost</span><span class="detail-value"
-                            id="vw-cost"></span></div>
                     <div id="vw-cost-items-container"></div>
                     <div class="detail-row" style="font-weight:600;">
                         <span class="detail-key">Total Charges</span>
@@ -458,7 +456,6 @@
             document.getElementById('vw-time').textContent = time;
             document.getElementById('vw-type').textContent = type;
             document.getElementById('vw-email').textContent = email;
-            document.getElementById('vw-cost').textContent = 'RM ' + parseFloat(cost || 0).toFixed(2);
 
             const container = document.getElementById('vw-cost-items-container');
             container.innerHTML = '';
