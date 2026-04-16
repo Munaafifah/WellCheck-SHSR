@@ -379,6 +379,33 @@
         </div>
     </div>
 
+    <!-- ════════════ MODAL: CONFIRM STATUS UPDATE ════════════ -->
+    <div class="modal fade" id="statusModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="statusModalTitle">
+                        <i class="fa-solid fa-triangle-exclamation" style="margin-right:8px;"></i>Confirm Action
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="text-align:center; padding:28px 24px;">
+                    <div id="statusModalIcon"
+                        style="width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+                    </div>
+                    <p style="font-size:14px; color:var(--text-mid);" id="statusModalMsg">Are you sure?</p>
+                    <input type="hidden" id="status-appt-id">
+                    <input type="hidden" id="status-new-status">
+                </div>
+                <div class="modal-footer" style="justify-content:center; gap:10px;">
+                    <button type="button" class="btn-outline-teal" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="statusModalConfirmBtn" onclick="executeStatusUpdate()">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Toast container -->
     <div class="toast-container" id="toastContainer"></div>
@@ -455,13 +482,40 @@
             const list = document.getElementById('costItemsList');
             list.innerHTML = '';
             const existing = appointmentCostData[apptId] || [];
-            if (existing.length === 0) {
+
+            // Fixed consultation fee row (always first, not deletable)
+            const savedConsult = existing.find(i => i.label === 'Consultation Fee');
+            addConsultationRow(savedConsult ? savedConsult.amount : 20);
+
+            // Dynamic rows — skip consultation fee since it's handled above
+            const dynamic = existing.filter(i => i.label !== 'Consultation Fee');
+            if (dynamic.length === 0) {
                 addCostRow('', 0);
             } else {
-                existing.forEach(item => addCostRow(item.label, item.amount));
+                dynamic.forEach(item => addCostRow(item.label, item.amount));
             }
+
             updateTotalDisplay();
             new bootstrap.Modal(document.getElementById('costModal')).show();
+        }
+
+        function addConsultationRow(amount = 20) {
+            const list = document.getElementById('costItemsList');
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex; gap:8px; align-items:center;';
+            row.innerHTML = `
+        <input type="text" class="form-control-custom cost-label"
+               value="Consultation Fee" readonly
+               style="flex:2; background:var(--teal-50); color:var(--teal-700); font-weight:600; cursor:not-allowed;">
+        <div style="display:flex; align-items:center; flex:1;">
+            <span class="input-prefix">RM</span>
+            <input type="number" step="0.01" min="0"
+                   class="form-control-custom with-prefix cost-amount"
+                   placeholder="0.00" value="${parseFloat(amount).toFixed(2)}"
+                   oninput="updateTotalDisplay()">
+        </div>
+        <div style="width:30px; height:30px; flex-shrink:0;"></div>`;
+            list.appendChild(row);
         }
 
         function addCostRow(label = '', amount = 0) {
@@ -505,10 +559,7 @@
                 const amount = parseFloat(amounts[i].value) || 0;
                 if (label) costItems.push({ label, amount });
             });
-            if (costItems.length === 0) {
-                showToast('Please add at least one cost item.', 'error');
-                return;
-            }
+            // Consultation Fee is always present, so costItems is never empty
             fetch('/clinicassistant/api/appointments/updateCost', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -524,7 +575,37 @@
         }
 
         function updateStatus(apptId, newStatus) {
-            if (!confirm('Are you sure you want to ' + (newStatus === 'Approved' ? 'approve' : 'cancel') + ' this appointment?')) return;
+            const isApprove = newStatus === 'Approved';
+            document.getElementById('status-appt-id').value = apptId;
+            document.getElementById('status-new-status').value = newStatus;
+
+            const title = document.getElementById('statusModalTitle');
+            const icon = document.getElementById('statusModalIcon');
+            const msg = document.getElementById('statusModalMsg');
+            const btn = document.getElementById('statusModalConfirmBtn');
+
+            if (isApprove) {
+                title.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--success); margin-right:8px;"></i>Confirm Approval';
+                icon.style.background = 'rgba(34,197,94,0.1)';
+                icon.innerHTML = '<i class="fa-solid fa-check" style="color:var(--success); font-size:22px;"></i>';
+                msg.innerHTML = 'You are about to <strong>approve</strong> this appointment. Continue?';
+                btn.className = 'btn-teal';
+                btn.innerHTML = '<i class="fa-solid fa-check" style="margin-right:6px;"></i>Approve';
+            } else {
+                title.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:var(--danger); margin-right:8px;"></i>Confirm Cancellation';
+                icon.style.background = 'rgba(224,92,92,0.1)';
+                icon.innerHTML = '<i class="fa-solid fa-xmark" style="color:var(--danger); font-size:22px;"></i>';
+                msg.innerHTML = 'You are about to <strong>cancel</strong> this appointment. Continue?';
+                btn.className = 'btn-red';
+                btn.innerHTML = '<i class="fa-solid fa-xmark" style="margin-right:6px;"></i>Cancel Appointment';
+            }
+
+            new bootstrap.Modal(document.getElementById('statusModal')).show();
+        }
+
+        function executeStatusUpdate() {
+            const apptId = document.getElementById('status-appt-id').value;
+            const newStatus = document.getElementById('status-new-status').value;
             fetch('/clinicassistant/api/appointments/updateStatus', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -532,6 +613,7 @@
             })
                 .then(r => r.json())
                 .then(data => {
+                    bootstrap.Modal.getInstance(document.getElementById('statusModal')).hide();
                     showToast(data.success ? 'Status updated to ' + newStatus + '!' : (data.message || 'Update failed.'), data.success ? 'success' : 'error');
                     if (data.success) setTimeout(() => location.reload(), 1200);
                 })
