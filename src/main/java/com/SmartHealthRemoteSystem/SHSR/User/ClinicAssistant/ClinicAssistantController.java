@@ -12,16 +12,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import com.SmartHealthRemoteSystem.SHSR.User.Doctor.Doctor;
 import com.SmartHealthRemoteSystem.SHSR.Service.DoctorService;
 import java.util.stream.Collectors;
 
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 import java.util.Base64;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 @RequestMapping("/clinicassistant")
@@ -56,12 +56,24 @@ public class ClinicAssistantController {
         model.addAttribute("appointments", allAppointments);
         model.addAttribute("activeCount", activeCount);
         model.addAttribute("expiredCount", expiredCount);
-        model.addAttribute("pendingCount", pendingCount); // ✅ ADD THIS
+        model.addAttribute("pendingCount", pendingCount);
+
+        // Serialize costItems to JSON strings per appointment for the view
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, String> costItemsJson = new HashMap<>();
+        for (Appointment appt : allAppointments) {
+            try {
+                costItemsJson.put(appt.getAppointmentId(), mapper.writeValueAsString(appt.getCostItems()));
+            } catch (Exception e) {
+                costItemsJson.put(appt.getAppointmentId(), "[]");
+            }
+        }
+        model.addAttribute("costItemsJson", costItemsJson);
 
         return "ClinicAssistantDashboard";
     }
 
-    // ── Approve / Cancel appointment ─────────────────────────────────
+    // ── Approve / Cancel appointment ──────────────────────────────────
     @ResponseBody
     @PostMapping("/api/appointments/updateStatus")
     public Map<String, Object> updateStatus(@RequestBody Map<String, String> request) {
@@ -86,17 +98,33 @@ public class ClinicAssistantController {
         return response;
     }
 
-    // ── Add consultation & equipment cost ────────────────────────────
+    // ── Update cost items (dynamic) ───────────────────────────────────
     @ResponseBody
     @PostMapping("/api/appointments/updateCost")
     public Map<String, Object> updateCost(@RequestBody Map<String, Object> request) {
         String appointmentId = (String) request.get("appointmentId");
-        double consultationCost = Double.parseDouble(request.get("consultationCost").toString());
-        double equipmentCost = Double.parseDouble(request.get("equipmentCost").toString());
-        return appointmentHandler.updateAppointmentCost(appointmentId, consultationCost, equipmentCost);
+
+        // costItems comes in as List<Map<String, Object>> from JSON body
+        List<Map<String, Object>> costItems = new ArrayList<>();
+        Object raw = request.get("costItems");
+        if (raw instanceof List) {
+            for (Object item : (List<?>) raw) {
+                if (item instanceof Map) {
+                    Map<?, ?> m = (Map<?, ?>) item;
+                    Map<String, Object> entry = new HashMap<>();
+                    entry.put("label", m.get("label") != null ? m.get("label").toString() : "");
+                    Object amt = m.get("amount");
+                    entry.put("amount", amt instanceof Number ? ((Number) amt).doubleValue()
+                            : Double.parseDouble(amt.toString()));
+                    costItems.add(entry);
+                }
+            }
+        }
+
+        return appointmentHandler.updateAppointmentCost(appointmentId, costItems);
     }
 
-    // ── Appointment page (for Doctor view) ──────────────────────────────
+    // ── Appointment page (for Doctor view) ───────────────────────────
     @GetMapping("/appointments")
     public String appointmentsPage(Model model,
             @RequestParam(defaultValue = "0") int activePageNo,
@@ -109,7 +137,6 @@ public class ClinicAssistantController {
 
         List<Appointment> allAppointments = appointmentHandler.getAllAppointments();
 
-        // Split active and expired
         List<Appointment> activeAppointments = allAppointments.stream()
                 .filter(a -> !"Expired".equals(a.getStatusAppointment()))
                 .collect(Collectors.toList());
@@ -118,12 +145,10 @@ public class ClinicAssistantController {
                 .filter(a -> "Expired".equals(a.getStatusAppointment()))
                 .collect(Collectors.toList());
 
-        // Paginate active
         int activeTotal = activeAppointments.size();
         int activeStart = Math.min(activePageNo * pageSize, activeTotal);
         int activeEnd = Math.min(activeStart + pageSize, activeTotal);
 
-        // Paginate expired
         int expiredTotal = expiredAppointments.size();
         int expiredStart = Math.min(expiredPageNo * pageSize, expiredTotal);
         int expiredEnd = Math.min(expiredStart + pageSize, expiredTotal);
@@ -142,7 +167,7 @@ public class ClinicAssistantController {
         return "updateStatusAppointment";
     }
 
-    // ── Edit Profile ──────────────────────────────────────────────────────
+    // ── Edit Profile ──────────────────────────────────────────────────
     @GetMapping("/updateProfile")
     public String showEditProfile(Model model) throws ExecutionException, InterruptedException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

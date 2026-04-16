@@ -1,6 +1,10 @@
 // File: Model/Appointment.java
 package com.SmartHealthRemoteSystem.SHSR.updateStatusAppointment.Model;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public class Appointment {
     private String id;
     private String appointmentId;
@@ -17,8 +21,7 @@ public class Appointment {
     private String insurancePolicyNumber;
     private String email;
     private int appointmentCost;
-    private double consultationCost;
-    private double equipmentCost;
+    private List<Map<String, Object>> costItems;
     private String statusPayment;
     private String statusAppointment;
     private String timestamp;
@@ -47,14 +50,12 @@ public class Appointment {
         this.statusPayment = statusPayment;
         this.statusAppointment = statusAppointment;
         this.timestamp = timestamp;
+        this.costItems = new ArrayList<>();
     }
 
-    public void setConsultationCost(double consultationCost) {
-        this.consultationCost = consultationCost;
-    }
-
-    public void setEquipmentCost(double equipmentCost) {
-        this.equipmentCost = equipmentCost;
+    // Setter for costItems
+    public void setCostItems(List<Map<String, Object>> costItems) {
+        this.costItems = costItems != null ? costItems : new ArrayList<>();
     }
 
     // Getters
@@ -106,12 +107,20 @@ public class Appointment {
         return appointmentCost;
     }
 
-    public double getConsultationCost() {
-        return consultationCost;
+    public List<Map<String, Object>> getCostItems() {
+        return costItems;
     }
 
-    public double getEquipmentCost() {
-        return equipmentCost;
+    // Convenience method — sums all costItems amounts for display
+    public double getTotalCostItems() {
+        if (costItems == null) return 0.0;
+        return costItems.stream()
+                .mapToDouble(item -> {
+                    Object amt = item.get("amount");
+                    if (amt instanceof Number) return ((Number) amt).doubleValue();
+                    return 0.0;
+                })
+                .sum();
     }
 
     public String getStatusPayment() {

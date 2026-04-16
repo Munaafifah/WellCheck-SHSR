@@ -34,7 +34,26 @@ public class AppointmentHandler {
     @Autowired
     private EmailService emailService;
 
-    // fetch all appointments
+    // ── Helper: read costItems array from a MongoDB document ─────────────────
+    private List<Map<String, Object>> extractCostItems(Document doc) {
+        List<Map<String, Object>> costItems = new ArrayList<>();
+        Object raw = doc.get("costItems");
+        if (raw instanceof List) {
+            for (Object item : (List<?>) raw) {
+                if (item instanceof Document) {
+                    Document d = (Document) item;
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("label", d.getString("label"));
+                    Object amt = d.get("amount");
+                    map.put("amount", amt instanceof Number ? ((Number) amt).doubleValue() : 0.0);
+                    costItems.add(map);
+                }
+            }
+        }
+        return costItems;
+    }
+
+    // ── fetch all appointments ────────────────────────────────────────────────
     public List<Appointment> getAllAppointments() {
         List<Appointment> appointments = new ArrayList<>();
         MongoClient mongoClient = null;
@@ -52,7 +71,6 @@ public class AppointmentHandler {
                 String appointmentDate = null;
                 boolean isExpired = false;
 
-                // Handle appointment date
                 Object dateObj = doc.get("appointmentDate");
                 try {
                     if (dateObj instanceof Date) {
@@ -60,13 +78,11 @@ public class AppointmentHandler {
                                 .toInstant()
                                 .atZone(ZoneId.systemDefault())
                                 .toLocalDate()
-                                // .format(formatter);
                                 .toString();
                     } else if (dateObj instanceof String) {
                         appointmentDate = (String) dateObj;
                     }
 
-                    // Check if appointment is expired
                     if (appointmentDate != null) {
                         LocalDate appDate = LocalDate.parse(appointmentDate, formatter);
                         isExpired = appDate.isBefore(today);
@@ -74,10 +90,9 @@ public class AppointmentHandler {
                     }
                 } catch (DateTimeParseException e) {
                     logger.error("Error parsing date: {} - {}", appointmentDate, e.getMessage());
-                    continue; // Skip this appointment if date parsing fails
+                    continue;
                 }
 
-                // Handle timestamp
                 String timestampStr = null;
                 Object timestampObj = doc.get("timestamp");
                 if (timestampObj instanceof Date) {
@@ -89,12 +104,10 @@ public class AppointmentHandler {
                     }
                 }
 
-                // Set status
                 String status = doc.getString("statusAppointment");
                 if (isExpired) {
                     status = "Expired";
-                    // Update the status in the database if it's not already marked as expired
-                    if (!"Expired".equals(doc.getString("statusAppointment"))) { // ← flip it, safe from null
+                    if (!"Expired".equals(doc.getString("statusAppointment"))) {
                         Document filter = new Document("appointmentId", doc.getString("appointmentId"));
                         Document update = new Document("$set", new Document("statusAppointment", "Expired"));
                         collection.updateOne(filter, update);
@@ -120,10 +133,9 @@ public class AppointmentHandler {
                         doc.getString("statusPayment"),
                         status,
                         timestampStr);
-                appointment.setConsultationCost(
-                        doc.getDouble("consultationCost") != null ? doc.getDouble("consultationCost") : 0.0);
-                appointment.setEquipmentCost(
-                        doc.getDouble("equipmentCost") != null ? doc.getDouble("equipmentCost") : 0.0);
+
+                // ── replaced setConsultationCost/setEquipmentCost with costItems ──
+                appointment.setCostItems(extractCostItems(doc));
 
                 appointments.add(appointment);
                 logger.info("Added appointment: ID={}, Date={}, Status={}",
@@ -149,42 +161,35 @@ public class AppointmentHandler {
             MongoDatabase database = mongoClient.getDatabase("Wellcheck2");
             MongoCollection<Document> collection = database.getCollection("appointments");
 
-            // Build query to check for conflicting appointments
             Document query = new Document()
                     .append("doctorId", doctorId)
                     .append("appointmentDate", appointmentDate)
                     .append("appointmentTime", appointmentTime)
                     .append("statusAppointment", "Approved");
 
-            // If updating an existing appointment, exclude it from the check
             if (currentAppointmentId != null && !currentAppointmentId.isEmpty()) {
                 query.append("appointmentId", new Document("$ne", currentAppointmentId));
             }
 
-            // Log the query for debugging
             logger.info("Checking time slot with query: {}", query.toJson());
 
-            // Count conflicting appointments
             long conflictingAppointments = collection.countDocuments(query);
 
             logger.info("Time slot check - Doctor: {}, Date: {}, Time: {}, Current Appt ID: {}, Conflicts: {}",
                     doctorId, appointmentDate, appointmentTime, currentAppointmentId, conflictingAppointments);
 
-            // Get the appointment details for additional validation
             Document currentAppointment = collection.find(new Document("appointmentId", currentAppointmentId)).first();
             if (currentAppointment != null) {
                 String appointmentDoctorId = currentAppointment.getString("doctorId");
                 logger.info("Current appointment's doctor ID: {}, Checking doctor ID: {}", appointmentDoctorId,
                         doctorId);
 
-                // Only check for conflicts if it's the same doctor
                 if (!appointmentDoctorId.equals(doctorId)) {
                     logger.info("Different doctors - no conflict check needed");
                     return true;
                 }
             }
 
-            // The slot is available if there are no conflicting appointments
             return conflictingAppointments == 0;
 
         } catch (Exception e) {
@@ -204,14 +209,12 @@ public class AppointmentHandler {
             MongoDatabase database = mongoClient.getDatabase("Wellcheck2");
             MongoCollection<Document> collection = database.getCollection("appointments");
 
-            // First, get the appointment details
             Document appointment = collection.find(new Document("appointmentId", appointmentId)).first();
             if (appointment == null) {
                 logger.error("Appointment not found: {}", appointmentId);
                 return false;
             }
 
-            // Only check for conflicts if trying to approve the appointment
             if (newStatus.equals("Approved")) {
                 String doctorId = appointment.getString("doctorId");
                 String appointmentDate = appointment.getString("appointmentDate");
@@ -223,14 +226,12 @@ public class AppointmentHandler {
                 }
             }
 
-            // Proceed with the update if no conflicts or if not approving
             Document filter = new Document("appointmentId", appointmentId);
             Document update = new Document("$set", new Document("statusAppointment", newStatus));
 
             UpdateResult result = collection.updateOne(filter, update);
 
             if (result.getModifiedCount() > 0) {
-                // Send email notification
                 String patientEmail = appointment.getString("email");
                 try {
                     emailService.sendAppointmentStatusEmail(patientEmail, appointmentId, newStatus);
@@ -244,7 +245,7 @@ public class AppointmentHandler {
 
         } catch (RuntimeException e) {
             if (e.getMessage().equals("SLOT_CONFLICT")) {
-                throw e; // Re-throw for specific handling
+                throw e;
             }
             logger.error("Error updating appointment status: {}", e.getMessage());
             return false;
@@ -288,7 +289,6 @@ public class AppointmentHandler {
                     appointmentDate = dateObj != null ? dateObj.toString() : null;
                 }
 
-                // Check if appointment is expired
                 boolean isExpired = false;
                 try {
                     LocalDate appDate = LocalDate.parse(appointmentDate, formatter);
@@ -332,6 +332,10 @@ public class AppointmentHandler {
                         doc.getString("statusPayment"),
                         status,
                         timestampStr);
+
+                // ── replaced setConsultationCost/setEquipmentCost with costItems ──
+                appointment.setCostItems(extractCostItems(doc));
+
                 appointments.add(appointment);
             }
         } catch (Exception e) {
@@ -353,7 +357,6 @@ public class AppointmentHandler {
             MongoDatabase database = mongoClient.getDatabase("Wellcheck2");
             MongoCollection<Document> collection = database.getCollection("appointments");
 
-            // First get the appointment we want to update
             Document appointmentToUpdate = collection.find(new Document("appointmentId", appointmentId)).first();
 
             if (appointmentToUpdate == null) {
@@ -362,17 +365,15 @@ public class AppointmentHandler {
                 return response;
             }
 
-            // If we're not approving, just update normally
             if (!"Approved".equals(newStatus)) {
                 return updateAppointmentStatusInternal(collection, appointmentId, newStatus);
             }
 
-            // Check for existing approved appointments in the same slot
             Document query = new Document("doctorId", appointmentToUpdate.getString("doctorId"))
                     .append("appointmentDate", appointmentToUpdate.get("appointmentDate"))
                     .append("appointmentTime", appointmentToUpdate.getString("appointmentTime"))
                     .append("statusAppointment", "Approved")
-                    .append("appointmentId", new Document("$ne", appointmentId)); // Exclude current appointment
+                    .append("appointmentId", new Document("$ne", appointmentId));
 
             long existingApprovedCount = collection.countDocuments(query);
 
@@ -382,7 +383,6 @@ public class AppointmentHandler {
                 return response;
             }
 
-            // If no conflicts, proceed with the update
             return updateAppointmentStatusInternal(collection, appointmentId, newStatus);
 
         } catch (Exception e) {
@@ -408,7 +408,6 @@ public class AppointmentHandler {
             UpdateResult result = collection.updateOne(filter, update);
 
             if (result.getModifiedCount() > 0) {
-                // Get updated appointment for email notification
                 Document appointment = collection.find(filter).first();
                 if (appointment != null) {
                     String patientEmail = appointment.getString("email");
@@ -442,7 +441,6 @@ public class AppointmentHandler {
             MongoDatabase database = mongoClient.getDatabase("Wellcheck2");
             MongoCollection<Document> collection = database.getCollection("appointments");
 
-            // Get the appointment we want to update
             Document appointmentToUpdate = collection.find(new Document("appointmentId", appointmentId)).first();
 
             if (appointmentToUpdate == null) {
@@ -451,7 +449,6 @@ public class AppointmentHandler {
                 return response;
             }
 
-            // Check for existing appointments in the new time slot
             Document query = new Document("doctorId", appointmentToUpdate.getString("doctorId"))
                     .append("appointmentDate", newDate)
                     .append("appointmentTime", newTime)
@@ -466,7 +463,6 @@ public class AppointmentHandler {
                 return response;
             }
 
-            // Update appointment date and time
             Document filter = new Document("appointmentId", appointmentId);
             Document update = new Document("$set", new Document()
                     .append("appointmentDate", newDate)
@@ -475,7 +471,6 @@ public class AppointmentHandler {
             UpdateResult result = collection.updateOne(filter, update);
 
             if (result.getModifiedCount() > 0) {
-                // Get updated appointment for email notification
                 Document appointment = collection.find(filter).first();
                 if (appointment != null) {
                     String patientEmail = appointment.getString("email");
@@ -523,7 +518,7 @@ public class AppointmentHandler {
                 response.put("success", true);
                 response.put("contact", patientData.getString("contact"));
                 response.put("emergencyContact", patientData.getString("emergencyContact"));
-                response.put("name", patientData.getString("name")); // Including name for reference
+                response.put("name", patientData.getString("name"));
             } else {
                 response.put("success", false);
                 response.put("message", "Patient not found");
@@ -542,8 +537,8 @@ public class AppointmentHandler {
         return response;
     }
 
-    public Map<String, Object> updateAppointmentCost(String appointmentId, double consultationCost,
-            double equipmentCost) {
+    // ── updateAppointmentCost — now accepts dynamic costItems list ────────────
+    public Map<String, Object> updateAppointmentCost(String appointmentId, List<Map<String, Object>> costItems) {
         Map<String, Object> response = new HashMap<>();
         MongoClient mongoClient = null;
         try {
@@ -551,21 +546,30 @@ public class AppointmentHandler {
             MongoDatabase database = mongoClient.getDatabase("Wellcheck2");
             MongoCollection<Document> collection = database.getCollection("appointments");
 
+            // Convert List<Map> to List<Document> for MongoDB
+            List<Document> costDocs = new ArrayList<>();
+            for (Map<String, Object> item : costItems) {
+                Document d = new Document();
+                d.append("label", item.get("label").toString());
+                Object amt = item.get("amount");
+                d.append("amount", amt instanceof Number ? ((Number) amt).doubleValue() : 0.0);
+                costDocs.add(d);
+            }
+
             Document filter = new Document("appointmentId", appointmentId);
-            Document update = new Document("$set", new Document("consultationCost", consultationCost)
-                    .append("equipmentCost", equipmentCost));
+            Document update = new Document("$set", new Document("costItems", costDocs));
 
             UpdateResult result = collection.updateOne(filter, update);
 
             if (result.getModifiedCount() > 0) {
                 response.put("success", true);
-                logger.info("Costs updated for appointment: {}", appointmentId);
+                logger.info("Cost items updated for appointment: {}", appointmentId);
             } else {
                 response.put("success", false);
                 response.put("message", "No appointment was updated");
             }
         } catch (Exception e) {
-            logger.error("Error updating costs: {}", e.getMessage(), e);
+            logger.error("Error updating cost items: {}", e.getMessage(), e);
             response.put("success", false);
             response.put("message", "An error occurred while updating costs");
         } finally {
@@ -633,85 +637,4 @@ public class AppointmentHandler {
         }
         return response;
     }
-
-    // public List<Appointment> getAppointmentsByDoctorId(String doctorId) {
-    // List<Appointment> appointments = new ArrayList<>();
-    // MongoClient mongoClient = null;
-    // logger.info(doctorId + ":
-    // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-
-    // try {
-    // logger.info("Connecting to MongoDB...");
-    // mongoClient = MongoClients.create(CONNECTION_STRING);
-    // MongoDatabase database = mongoClient.getDatabase("Wellcheck2");
-    // MongoCollection<Document> collection =
-    // database.getCollection("appointments");
-
-    // logger.info("Fetching appointments for doctorId: {}", doctorId);
-    // Document query = new Document("doctorId", doctorId);
-    // FindIterable<Document> results = collection.find(query);
-
-    // for (Document doc : results) {
-    // logger.info("Processing document: {}", doc.toJson());
-
-    // // Safely handle the appointment date
-    // String appointmentDate;
-    // Object dateObj = doc.get("appointmentDate");
-    // if (dateObj instanceof Date) {
-    // appointmentDate = ((Date) dateObj)
-    // .toInstant()
-    // .atZone(ZoneId.systemDefault())
-    // .toLocalDate()
-    // .toString();
-    // } else if (dateObj instanceof String) {
-    // appointmentDate = (String) dateObj;
-    // } else {
-    // logger.warn("Unexpected date format for appointmentId: {}",
-    // doc.getString("appointmentId"));
-    // appointmentDate = dateObj != null ? dateObj.toString() : null;
-    // }
-
-    // // Safely handle the timestamp
-    // String timestampStr = null;
-    // Object timestampObj = doc.get("timestamp");
-    // if (timestampObj instanceof Date) {
-    // timestampStr = ((Date) timestampObj).toInstant().toString();
-    // } else if (timestampObj instanceof Document) {
-    // Date embeddedDate = ((Document) timestampObj).getDate("$date");
-    // if (embeddedDate != null) {
-    // timestampStr = embeddedDate.toInstant().toString();
-    // }
-    // }
-
-    // Appointment appointment = new Appointment(
-    // doc.getObjectId("_id").toString(),
-    // doc.getString("appointmentId"),
-    // doc.getString("userId"),
-    // doc.getString("doctorId"),
-    // appointmentDate,
-    // doc.getString("appointmentTime"),
-    // doc.getString("duration"),
-    // doc.getString("typeOfSickness"),
-    // doc.getString("additionalNotes"),
-    // null, // Insurance policy number
-    // doc.getString("email"),
-    // doc.getInteger("appointmentCost"),
-    // doc.getString("statusPayment"),
-    // doc.getString("statusAppointment"),
-    // timestampStr
-    // );
-    // appointments.add(appointment);
-    // }
-
-    // logger.info("Total appointments found: {}", appointments.size());
-    // } catch (Exception e) {
-    // logger.error("Error fetching appointments: {}", e.getMessage(), e);
-    // } finally {
-    // if (mongoClient != null) {
-    // mongoClient.close();
-    // }
-    // }
-
-    // return appointments;
-    // }
 }
