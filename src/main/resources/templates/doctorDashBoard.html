@@ -60,6 +60,16 @@
                 <i class="fa-solid fa-calendar-check"></i>
                 Appointments
             </a>
+            <div class="nav-section-label" style="margin-top: 8px;">Imaging</div>
+            <a th:href="@{/radiology}" class="nav-link-item">
+                <i class="fa-solid fa-x-ray"></i>
+                Medical Imaging
+            </a>
+            <div class="nav-section-label" style="margin-top: 8px;">Collaboration</div>
+            <a th:href="@{/communication}" class="nav-link-item">
+                <i class="fa-solid fa-comments"></i>
+                Communication
+            </a>
             <div class="nav-section-label" style="margin-top: 8px;">Account</div>
             <a th:href="@{/doctor/updateProfile}" class="nav-link-item">
                 <i class="fa-solid fa-user-pen"></i>
@@ -175,6 +185,26 @@
                     </div>
                 </div>
 
+            </div>
+        </div>
+
+        <!-- Communication Quick Access -->
+        <div style="margin-top: 28px;">
+            <div class="section-title">Team Communication</div>
+            <div class="overview-card" style="display:flex; align-items:center; justify-content:space-between; padding: 20px 24px;">
+                <div style="display:flex; align-items:center; gap:16px;">
+                    <div class="stat-icon blue" style="width:48px;height:48px;border-radius:14px;">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:600; font-size:15px; color:var(--navy);">Communication Hub</div>
+                        <div style="font-size:12px; color:#888; margin-top:3px;">Chat with Radiologists & Radiographers · Share imaging references</div>
+                    </div>
+                </div>
+                <a th:href="@{/communication}"
+                   style="padding:10px 22px; background:#1a4f8a; color:#fff; border-radius:10px; text-decoration:none; font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; white-space:nowrap;">
+                    <i class="fa-solid fa-comment-medical"></i> Open Chat
+                </a>
             </div>
         </div>
 
