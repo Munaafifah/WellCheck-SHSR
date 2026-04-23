@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Schedule — WellCheck Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/adminDoctorSchedule.css}">
+</head>
+<body>
+<div class="layout">
+
+    <!-- ════════════ SIDEBAR ════════════ -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-label">WellCheck System</div>
+            <h1>Admin <span>Control</span></h1>
+        </div>
+
+        <div class="profile-card">
+            <img class="profile-avatar" src="/image/img_avatar1.png" alt="Admin"/>
+            <div class="profile-info">
+                <div class="name">Administrator</div>
+                <span class="role-badge">Admin</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Management</div>
+            <a th:href="@{/admin}" class="nav-link-item">
+                <i class="fa-solid fa-users"></i> User List
+            </a>
+            <a th:href="@{/admin/adduser}" class="nav-link-item">
+                <i class="fa-solid fa-user-plus"></i> Add User
+            </a>
+            <div class="nav-section-label">Sensor</div>
+            <a th:href="@{/generateUniqueKey}" class="nav-link-item">
+                <i class="fa-solid fa-microchip"></i> Assign Sensor
+            </a>
+            <a th:href="@{/admin/sensor-status}" class="nav-link-item">
+                <i class="fa-solid fa-satellite-dish"></i> Sensor Status
+            </a>
+            <div class="nav-section-label">Doctor Schedule</div>
+            <a th:href="@{/admin/doctor-schedule}" class="nav-link-item active">
+                <i class="fa-solid fa-calendar-days"></i> Manage Schedule
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post" th:hidden="true" name="logoutForm">
+                <input type="submit" value="Logout"/>
+            </form>
+            <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- ════════════ MAIN ════════════ -->
+    <main class="main">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <div class="greeting">System Administration</div>
+                <h2>Doctor Schedule Management</h2>
+                <p class="update-msg" th:if="${message}">
+                    <span th:text="${message}"></span>
+                </p>
+            </div>
+            <button type="button" class="btn-purple" onclick="openAddModal()">
+                <i class="fa-solid fa-plus"></i>
+                Add Schedule
+            </button>
+        </div>
+
+        <!-- ════ EXISTING SCHEDULES TABLE ════ -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Existing Schedules</span>
+                <span class="card-count"
+                      th:text="${schedules.size()} + ' doctor(s)'"></span>
+            </div>
+            <div class="data-table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Working Days</th>
+                            <th>Hours</th>
+                            <th>Slot</th>
+                            <th>Break</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${schedules == null or schedules.isEmpty()}">
+                            <td colspan="7" class="empty-row">
+                                <i class="fa-solid fa-calendar-xmark" style="font-size:28px; margin-bottom:8px; display:block;"></i>
+                                No schedules found. Click <strong>Add Schedule</strong> to create one.
+                            </td>
+                        </tr>
+                        <tr th:each="sch : ${schedules}">
+                            <td>
+                                <div class="doctor-name" th:text="${sch.doctorName}"></div>
+                                <div class="doctor-id" th:text="${sch.doctorId}"></div>
+                            </td>
+                            <td>
+                                <div class="days-tags">
+                                    <span class="day-tag" th:each="day : ${sch.workingDays}"
+                                          th:text="${day.substring(0,3)}"></span>
+                                </div>
+                            </td>
+                            <td th:text="${sch.workingHours != null} ? ${sch.workingHours.start} + ' – ' + ${sch.workingHours.end} : '—'"></td>
+                            <td th:text="${sch.slotDurationMinutes} + ' min'"></td>
+                            <td th:text="${sch.breakTimes != null and !sch.breakTimes.isEmpty()} ? ${sch.breakTimes[0].start} + ' – ' + ${sch.breakTimes[0].end} : 'None'"></td>
+                            <td>
+                                <span th:if="${sch.active}" class="badge badge-active">
+                                    <i class="fa-solid fa-circle" style="font-size:6px;"></i> Active
+                                </span>
+                                <span th:unless="${sch.active}" class="badge badge-inactive">
+                                    <i class="fa-solid fa-circle" style="font-size:6px;"></i> Inactive
+                                </span>
+                            </td>
+                            <td>
+                                <!-- Edit -->
+                                <button type="button" class="btn-edit" title="Edit"
+                                        th:data-id="${sch.doctorId}"
+                                        th:data-name="${sch.doctorName}"
+                                        th:data-days="${#strings.listJoin(sch.workingDays, ',')}"
+                                        th:data-start="${sch.workingHours != null ? sch.workingHours.start : '09:00'}"
+                                        th:data-end="${sch.workingHours != null ? sch.workingHours.end : '17:00'}"
+                                        th:data-slot="${sch.slotDurationMinutes}"
+                                        th:data-break-start="${sch.breakTimes != null and !sch.breakTimes.isEmpty() ? sch.breakTimes[0].start : ''}"
+                                        th:data-break-end="${sch.breakTimes != null and !sch.breakTimes.isEmpty() ? sch.breakTimes[0].end : ''}"
+                                        th:data-active="${sch.active}"
+                                        onclick="openEditModal(this)">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+
+                                <!-- Toggle active -->
+                                <form th:action="@{/admin/doctor-schedule/toggle}" method="post" style="display:inline;">
+                                    <input type="hidden" name="doctorId" th:value="${sch.doctorId}"/>
+                                    <button type="submit" class="btn-toggle"
+                                            th:title="${sch.active ? 'Deactivate' : 'Activate'}">
+                                        <i th:class="${sch.active ? 'fa-solid fa-toggle-on' : 'fa-solid fa-toggle-off'}"></i>
+                                    </button>
+                                </form>
+
+                                <!-- Delete -->
+                                <button type="button" class="btn-delete" title="Delete"
+                                        th:data-id="${sch.doctorId}"
+                                        th:data-name="${sch.doctorName}"
+                                        onclick="confirmDelete(this)">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ════════════ ADD / EDIT MODAL ════════════ -->
+<div class="modal-overlay" id="scheduleModal">
+    <div class="modal-box">
+
+        <!-- Modal Header -->
+        <div class="modal-header-custom">
+            <div>
+                <div class="modal-eyebrow">Doctor Schedule</div>
+                <div class="modal-title" id="modalTitle">Add Schedule</div>
+            </div>
+            <button type="button" class="modal-close-btn" onclick="closeModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body-custom">
+            <form id="scheduleForm" th:action="@{/admin/doctor-schedule/save}" method="post">
+
+                <div class="form-grid-2">
+
+                    <!-- Doctor picker -->
+                    <div class="field-group">
+                        <label class="field-label" for="doctorSelect">
+                            Select Doctor <span class="req">*</span>
+                        </label>
+                        <select class="field-input" id="doctorSelect" name="doctorId"
+                                onchange="onDoctorChange(this)" required>
+                            <option value="">— Choose a doctor —</option>
+                            <option th:each="doc : ${doctors}"
+                                    th:value="${doc.userId}"
+                                    th:text="${doc.name}"
+                                    th:data-name="${doc.name}">
+                            </option>
+                        </select>
+                        <input type="hidden" id="doctorName" name="doctorName"/>
+                    </div>
+
+                    <!-- Slot Duration -->
+                    <div class="field-group">
+                        <label class="field-label" for="slotDuration">
+                            Slot Duration <span class="req">*</span>
+                        </label>
+                        <select class="field-input" id="slotDuration" name="slotDurationMinutes" required>
+                            <option value="15">15 minutes</option>
+                            <option value="20">20 minutes</option>
+                            <option value="30" selected>30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60">60 minutes</option>
+                        </select>
+                    </div>
+
+                    <!-- Working Hours Start -->
+                    <div class="field-group">
+                        <label class="field-label">Start Time <span class="req">*</span></label>
+                        <input type="time" class="field-input" id="workingStart"
+                               name="workingHoursStart" value="09:00" required>
+                    </div>
+
+                    <!-- Working Hours End -->
+                    <div class="field-group">
+                        <label class="field-label">End Time <span class="req">*</span></label>
+                        <input type="time" class="field-input" id="workingEnd"
+                               name="workingHoursEnd" value="17:00" required>
+                    </div>
+
+                    <!-- Break Start -->
+                    <div class="field-group">
+                        <label class="field-label">Break Start <span style="color:var(--text-light); font-weight:400; text-transform:none; letter-spacing:0;">(optional)</span></label>
+                        <input type="time" class="field-input" id="breakStart"
+                               name="breakStart" value="13:00">
+                    </div>
+
+                    <!-- Break End -->
+                    <div class="field-group">
+                        <label class="field-label">Break End <span style="color:var(--text-light); font-weight:400; text-transform:none; letter-spacing:0;">(optional)</span></label>
+                        <input type="time" class="field-input" id="breakEnd"
+                               name="breakEnd" value="14:00">
+                    </div>
+
+                </div>
+
+                <!-- Working Days -->
+                <div class="field-group" style="margin-top: 4px;">
+                    <label class="field-label">Working Days <span class="req">*</span></label>
+                    <div class="days-grid">
+                        <input class="day-option" type="checkbox" name="workingDays" id="dayMon" value="Monday">
+                        <label for="dayMon">Monday</label>
+
+                        <input class="day-option" type="checkbox" name="workingDays" id="dayTue" value="Tuesday">
+                        <label for="dayTue">Tuesday</label>
+
+                        <input class="day-option" type="checkbox" name="workingDays" id="dayWed" value="Wednesday">
+                        <label for="dayWed">Wednesday</label>
+
+                        <input class="day-option" type="checkbox" name="workingDays" id="dayThu" value="Thursday">
+                        <label for="dayThu">Thursday</label>
+
+                        <input class="day-option" type="checkbox" name="workingDays" id="dayFri" value="Friday">
+                        <label for="dayFri">Friday</label>
+
+                        <input class="day-option" type="checkbox" name="workingDays" id="daySat" value="Saturday">
+                        <label for="daySat">Saturday</label>
+
+                        <input class="day-option" type="checkbox" name="workingDays" id="daySun" value="Sunday">
+                        <label for="daySun">Sunday</label>
+                    </div>
+                </div>
+
+                <!-- Active Toggle -->
+                <div class="toggle-row">
+                    <div>
+                        <div class="toggle-label">Active Schedule</div>
+                        <div class="toggle-sub">Patients can book slots when active</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="isActive" name="isActive" value="true" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <!-- Modal Footer / Actions -->
+                <div class="modal-footer-custom">
+                    <button type="button" class="btn-outline" onclick="resetForm()">
+                        <i class="fa-solid fa-rotate-left"></i> Reset
+                    </button>
+                    <button type="submit" class="btn-purple">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Schedule
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ════════════ DELETE CONFIRM OVERLAY ════════════ -->
+<div class="delete-overlay" id="deleteOverlay">
+    <div class="delete-card">
+        <div class="delete-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h3 class="delete-title">Delete Schedule?</h3>
+        <p class="delete-subtitle">
+            The schedule for <strong id="deleteDocName"></strong> will be removed.<br>
+            Patients will no longer be able to book slots.
+        </p>
+        <div class="delete-actions">
+            <button class="btn-cancel" onclick="closeDelete()">Cancel</button>
+            <button class="btn-danger" onclick="submitDelete()">
+                <i class="fa-solid fa-trash"></i> Delete
+            </button>
+        </div>
+        <form id="deleteForm" th:action="@{/admin/doctor-schedule/delete}" method="post" hidden>
+            <input type="text" id="deleteDocId" name="doctorId"/>
+        </form>
+    </div>
+</div>
+
+<script>
+    const DAY_MAP = {
+        'Monday':'Mon','Tuesday':'Tue','Wednesday':'Wed',
+        'Thursday':'Thu','Friday':'Fri','Saturday':'Sat','Sunday':'Sun'
+    };
+
+    // ── Open Add Modal ───────────────────────────────────────────────
+    function openAddModal() {
+        document.getElementById('modalTitle').textContent = 'Add Schedule';
+        document.getElementById('scheduleForm').reset();
+        document.getElementById('doctorName').value = '';
+        document.getElementById('scheduleModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // ── Open Edit Modal ──────────────────────────────────────────────
+    function openEditModal(btn) {
+        document.getElementById('modalTitle').textContent = 'Edit Schedule';
+
+        const doctorId   = btn.getAttribute('data-id');
+        const doctorName = btn.getAttribute('data-name');
+        const days       = btn.getAttribute('data-days').split(',');
+        const start      = btn.getAttribute('data-start');
+        const end        = btn.getAttribute('data-end');
+        const slot       = btn.getAttribute('data-slot');
+        const breakStart = btn.getAttribute('data-break-start');
+        const breakEnd   = btn.getAttribute('data-break-end');
+        const active     = btn.getAttribute('data-active') === 'true';
+
+        // Set doctor dropdown
+        const select = document.getElementById('doctorSelect');
+        for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].value === doctorId) {
+                select.selectedIndex = i;
+                break;
+            }
+        }
+        document.getElementById('doctorName').value = doctorName;
+
+        // Reset all days then check the right ones
+        Object.values(DAY_MAP).forEach(d => {
+            const el = document.getElementById('day' + d);
+            if (el) el.checked = false;
+        });
+        days.forEach(day => {
+            const id = 'day' + DAY_MAP[day.trim()];
+            const el = document.getElementById(id);
+            if (el) el.checked = true;
+        });
+
+        document.getElementById('workingStart').value = start      || '09:00';
+        document.getElementById('workingEnd').value   = end        || '17:00';
+        document.getElementById('slotDuration').value = slot       || '30';
+        document.getElementById('breakStart').value   = breakStart || '';
+        document.getElementById('breakEnd').value     = breakEnd   || '';
+        document.getElementById('isActive').checked   = active;
+
+        document.getElementById('scheduleModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // ── Close Modal ──────────────────────────────────────────────────
+    function closeModal() {
+        document.getElementById('scheduleModal').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('scheduleModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // ── Doctor picker ────────────────────────────────────────────────
+    function onDoctorChange(select) {
+        const opt = select.options[select.selectedIndex];
+        document.getElementById('doctorName').value = opt.getAttribute('data-name') || opt.text;
+    }
+
+    // ── Reset form ───────────────────────────────────────────────────
+    function resetForm() {
+        document.getElementById('scheduleForm').reset();
+        document.getElementById('doctorName').value = '';
+    }
+
+    // ── Delete overlay ───────────────────────────────────────────────
+    function confirmDelete(btn) {
+        document.getElementById('deleteDocId').value        = btn.getAttribute('data-id');
+        document.getElementById('deleteDocName').textContent = btn.getAttribute('data-name');
+        document.getElementById('deleteOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDelete() {
+        document.getElementById('deleteOverlay').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    function submitDelete() {
+        document.getElementById('deleteForm').submit();
+    }
+
+    // Close delete overlay when clicking outside
+    document.getElementById('deleteOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeDelete();
+    });
+
+    // ESC key closes any open modal
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal();
+            closeDelete();
+        }
+    });
+</script>
+</body>
+</html>

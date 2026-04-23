@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
+
+    // ── VALIDATION ──
     function validateForm() {
         let userId = document.getElementById("userId").value.trim();
         let userFullName = document.getElementById("userFullName").value.trim();
@@ -9,7 +11,6 @@ document.addEventListener("DOMContentLoaded", function () {
             alert("Please fill in all required fields.");
             return false;
         }
-
         return true;
     }
 
@@ -36,52 +37,50 @@ document.addEventListener("DOMContentLoaded", function () {
     //   [6] = radiographer
     //   [7] = radiologist
 
-    // tabMap = which BUTTON index to highlight
     const tabMap = {
-        "patient":          0,
-        "doctor":           1,
-        "admin":            2,
-        "pharmacist":       3,
+        "patient": 0,
+        "doctor": 1,
+        "admin": 2,
+        "pharmacist": 3,
         "clinic_assistant": 4,
-        "assigned":         5,
-        "radiographer":     6,
-        "radiologist":      7
+        "assigned": 5,
+        "radiographer": 6,
+        "radiologist": 7
     };
 
-    // tableIndexMap = which TABLE index to show
     const tableIndexMap = {
-        "patient":          0,
-        "doctor":           1,
-        "admin":            4,
-        "pharmacist":       2,
+        "patient": 0,
+        "doctor": 1,
+        "admin": 4,
+        "pharmacist": 2,
         "clinic_assistant": 3,
-        "assigned":         5,
-        "radiographer":     6,
-        "radiologist":      7
+        "assigned": 5,
+        "radiographer": 6,
+        "radiologist": 7
     };
 
-    // Auto-select tab based on ?tab= parameter in URL
+    // ── AUTO-SELECT TAB FROM URL ──
     const urlParams = new URLSearchParams(window.location.search);
     const currentTab = urlParams.get("tab") || "patient";
-
-    const activeTabIndex   = tabMap[currentTab];
+    const activeTabIndex = tabMap[currentTab];
     const activeTableIndex = tableIndexMap[currentTab];
 
     if (activeTabIndex !== undefined) {
         for (let i = 0; i < userTable.length; i++) {
             userTable[i].classList.remove('tableActive');
-            buttonTable[i].classList.remove('admin_navBtn_active');
+            buttonTable[i].classList.remove('active');         // ← fixed
         }
-        buttonTable[activeTabIndex].classList.add("admin_navBtn_active");
+        buttonTable[activeTabIndex].classList.add("active");   // ← fixed
         userTable[activeTableIndex].classList.add("tableActive");
     }
 
+    // ── TAB CLICK SWITCHING ──
     function toggleSkills() {
         let itemClass = this.className;
 
         for (let i = 0; i < userTable.length; i++) {
-            userTable[i].className = 'user_table';
-            buttonTable[i].classList.remove('admin_navBtn_active');
+            userTable[i].classList.remove('tableActive');
+            buttonTable[i].classList.remove('active');         // ← fixed
         }
 
         if (itemClass.includes('patientBtn')) {
@@ -102,29 +101,21 @@ document.addEventListener("DOMContentLoaded", function () {
             userTable[7].classList.add("tableActive");
         }
 
-        this.classList.add("admin_navBtn_active");
+        this.classList.add("active");                          // ← fixed
     }
 
     buttonTable.forEach((el) => {
         el.addEventListener('click', toggleSkills);
     });
 
-    // extraForm[0] = Patient fields
-    // extraForm[1] = Doctor fields
-    // extraForm[2] = Pharmacist fields
-    // extraForm[3] = Clinic Assistant fields
-    // extraForm[4] = Radiographer fields
-    // extraForm[5] = Radiologist fields
+    // ── EXTRA ROLE FORM TOGGLE (for edit modal) ──
     const userForm = document.getElementsByClassName('extraForm');
-
-    // radioFormInput: [0]=ADMIN [1]=PATIENT [2]=DOCTOR [3]=PHARMACIST [4]=CLINIC_ASSISTANT [5]=RADIOGRAPHER [6]=RADIOLOGIST
     const radioFormInput = document.querySelectorAll('input[type=radio][name="role"]');
 
     function toggleForm() {
         for (let i = 0; i < userForm.length; i++) {
-            userForm[i].className = 'extraForm form-group';
+            userForm[i].className = 'extraForm extra-fields';  // ← matches new CSS class
         }
-
         if (this.classList.contains('patient')) {
             userForm[0].classList.add("activeForm");
         } else if (this.classList.contains('doctor')) {
@@ -144,180 +135,173 @@ document.addEventListener("DOMContentLoaded", function () {
         e.addEventListener('click', toggleForm);
     });
 
-    const confirmAddUserBtn   = document.getElementById("confirmAddUserBtn"),
-          cancelAddUserBtn    = document.getElementById("cancelBtnAddUser"),
-          addUserBtn          = document.getElementById("addUserBtn"),
-          userListBtn         = document.getElementById("userListBtn"),
-          deleteUserBtn       = document.querySelectorAll(".deleteUserBtn"),
-          confirmDeleteUserBtn= document.getElementById("confirmDeleteUserBtn"),
-          cancelDeleteUserBtn = document.getElementById("cancelDeleteUserBtn"),
-          editUserBtn         = document.querySelectorAll(".editUserBtn");
+    // ── BUTTON REFERENCES ──
+    const deleteUserBtn = document.querySelectorAll(".deleteUserBtn"),
+        confirmDeleteUserBtn = document.getElementById("confirmDeleteUserBtn"),
+        cancelDeleteUserBtn = document.getElementById("cancelDeleteUserBtn"),
+        editUserBtn = document.querySelectorAll(".editUserBtn");
 
-    // User List button - show main content
-    if (userListBtn) {
-        userListBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-            document.getElementsByClassName("admin_main_content")[0].style.display = "block";
-            document.getElementsByClassName("add_user_page")[0].classList.remove("user_page_active");
-        });
-    }
-
-    // Add User button
-    addUserBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        document.getElementById("userFormTitle").textContent = "Add User";
-        document.getElementsByClassName("add_user_page")[0].classList.add("user_page_active");
-        document.getElementsByClassName("admin_main_content")[0].style.display = "none";
-        document.getElementById("action").value = "add";
-        document.getElementById("adduser").action = "/admin/adduser";
-    });
-
-    confirmAddUserBtn.addEventListener("click", function () {
-        if (validateForm()) {
-            const form = document.getElementById("adduser");
-            form.submit();
-        }
-    });
-
-    cancelAddUserBtn.addEventListener("click", function () {
-        document.getElementsByClassName("add_user_page")[0].classList.remove("user_page_active");
-        document.getElementsByClassName("admin_main_content")[0].style.display = "block";
-        activeRadioForm();
-
-        document.getElementById("userId").value                  = "";
-        document.getElementById("userFullName").value            = "";
-        document.getElementById("userPassword").value            = "";
-        document.getElementById("userEmail").value               = "";
-        document.getElementById("contact").value                 = "";
-        document.getElementById("address").value                 = "";
-        document.getElementById("emergencyContact").value        = "";
-        document.getElementById("sensorId").value                = "";
-        document.getElementById("doctorHospital").value          = "";
-        document.getElementById("doctorPosition").value          = "";
-        document.getElementById("pharmacistHospital").value      = "";
-        document.getElementById("pharmacistPosition").value      = "";
-        document.getElementById("clinicAssistantClinic").value      = "";
-        document.getElementById("clinicAssistantPosition").value   = "";
-        document.getElementById("radiographerDepartment").value    = "";
-        document.getElementById("radiographerPosition").value      = "";
-        document.getElementById("radiologistDepartment").value     = "";
-        document.getElementById("radiologistSpecialization").value = "";
-        document.getElementById("userId").readOnly                 = false;
-        document.getElementById("userPassword").readOnly         = false;
-    });
+    // Edit modal references (still used for edit, not add)
+    const addUserModal = document.querySelector(".add_user_page");
+    const mainContent = document.querySelector(".admin_main_content");
 
     function activeRadioForm() {
-        const radioFormBtn = document.querySelectorAll('.radioBtn');
-        radioFormBtn.forEach((btn) => {
+        document.querySelectorAll('.radioBtn').forEach((btn) => {
             btn.classList.remove("radioBtn_hide");
         });
     }
 
     function hideRadioForm() {
-        const radioFormBtn = document.querySelectorAll('.radioBtn');
-        radioFormBtn.forEach((btn) => {
+        document.querySelectorAll('.radioBtn').forEach((btn) => {
             btn.classList.add("radioBtn_hide");
         });
     }
 
-    // Delete logic
+    function clearForm() {
+        document.getElementById("userId").value = "";
+        document.getElementById("userFullName").value = "";
+        document.getElementById("userPassword").value = "";
+        document.getElementById("userEmail").value = "";
+        document.getElementById("contact").value = "";
+        document.getElementById("address").value = "";
+        document.getElementById("emergencyContact").value = "";
+        document.getElementById("sensorId").value = "";
+        document.getElementById("doctorHospital").value = "";
+        document.getElementById("doctorPosition").value = "";
+        document.getElementById("pharmacistHospital").value = "";
+        document.getElementById("pharmacistPosition").value = "";
+        document.getElementById("clinicAssistantClinic").value = "";
+        document.getElementById("clinicAssistantPosition").value = "";
+        document.getElementById("radiographerDepartment").value = "";
+        document.getElementById("radiographerPosition").value = "";
+        document.getElementById("radiologistDepartment").value = "";
+        document.getElementById("radiologistSpecialization").value = "";
+        document.getElementById("userId").readOnly = false;
+        document.getElementById("userPassword").readOnly = false;
+    }
+
+    // Cancel button inside edit modal
+    const cancelAddUserBtn = document.getElementById("cancelBtnAddUser");
+    if (cancelAddUserBtn) {
+        cancelAddUserBtn.addEventListener("click", function () {
+            if (addUserModal) addUserModal.classList.remove("user_page_active");
+            if (mainContent) mainContent.style.display = "block";
+            activeRadioForm();
+            clearForm();
+        });
+    }
+
+    // Confirm button inside edit modal
+    const confirmAddUserBtn = document.getElementById("confirmAddUserBtn");
+    if (confirmAddUserBtn) {
+        confirmAddUserBtn.addEventListener("click", function () {
+            if (validateForm()) {
+                document.getElementById("adduser").submit();
+            }
+        });
+    }
+
+    // ── DELETE LOGIC ──
     deleteUserBtn.forEach((e) => {
         e.addEventListener("click", function () {
-            document.getElementsByClassName("confirmation_deleteUser_page")[0].classList.add("user_page_active");
+            const deleteModal = document.querySelector(".confirmation_deleteUser_page");
+            if (deleteModal) deleteModal.classList.add("user_page_active");
+
             const row = this.closest("tr");
             const userIdCell = row.querySelector('[data-column="userId"]');
             let role = "";
 
-            if (row.closest("#patientTable")) {
-                role = "PATIENT";
-            } else if (row.closest("#doctorTable")) {
-                role = "DOCTOR";
-            } else if (row.closest("#pharmacistTable")) {
-                role = "PHARMACIST";
-            } else if (row.closest("#clinicAssistantTable")) {
-                role = "CLINIC_ASSISTANT";
-            } else if (row.closest("#radiographerTable")) {
-                role = "RADIOGRAPHER";
-            } else if (row.closest("#radiologistTable")) {
-                role = "RADIOLOGIST";
-            } else if (row.closest("#adminTable")) {
+            if (row.closest("#patientTable")) role = "PATIENT";
+            else if (row.closest("#doctorTable")) role = "DOCTOR";
+            else if (row.closest("#pharmacistTable")) role = "PHARMACIST";
+            else if (row.closest("#clinicAssistantTable")) role = "CLINIC_ASSISTANT";
+            else if (row.closest("#radiographerTable")) role = "RADIOGRAPHER";
+            else if (row.closest("#radiologistTable")) role = "RADIOLOGIST";
+            else if (row.closest("#adminTable")) {
                 const roleCell = row.querySelector('[data-column="role"]');
                 role = roleCell ? roleCell.innerText.trim().toUpperCase() : "ADMIN";
             }
 
-            document.getElementById("userIdToBeDelete").value   = userIdCell ? userIdCell.innerText.trim() : '';
+            document.getElementById("userIdToBeDelete").value = userIdCell ? userIdCell.innerText.trim() : '';
             document.getElementById("userRoleToBeDelete").value = role;
         });
     });
 
-    confirmDeleteUserBtn.addEventListener("click", function () {
-        document.getElementById("deleteUserForm").submit();
-    });
+    if (confirmDeleteUserBtn) {
+        confirmDeleteUserBtn.addEventListener("click", function () {
+            document.getElementById("deleteUserForm").submit();
+        });
+    }
 
-    cancelDeleteUserBtn.addEventListener("click", function () {
-        document.getElementsByClassName("confirmation_deleteUser_page")[0].classList.remove("user_page_active");
-        document.getElementById("userIdToBeDelete").value = "";
-    });
+    if (cancelDeleteUserBtn) {
+        cancelDeleteUserBtn.addEventListener("click", function () {
+            const deleteModal = document.querySelector(".confirmation_deleteUser_page");
+            if (deleteModal) deleteModal.classList.remove("user_page_active");
+            document.getElementById("userIdToBeDelete").value = "";
+        });
+    }
 
-    // Edit logic
+    // ── EDIT LOGIC ──
     editUserBtn.forEach((e) => {
         e.addEventListener("click", hideRadioForm);
         e.addEventListener("click", function () {
             const row = this.closest("tr");
             const cells = row.getElementsByTagName("td");
 
-            document.getElementById("userId").value       = cells[0].innerText;
-            document.getElementById("userId").readOnly    = true;
-            document.getElementById("userFullName").value = cells[1].innerText;
-            document.getElementById("contact").value      = cells[2].innerText;
-            document.getElementById("userEmail").value    = cells[3].innerText;
+            // cells[0] = No, cells[1] = userId, cells[2] = name, cells[3] = contact, cells[4] = email
+            document.getElementById("userId").value = cells[1].innerText;
+            document.getElementById("userId").readOnly = true;
+            document.getElementById("userFullName").value = cells[2].innerText;
+            document.getElementById("contact").value = cells[3].innerText;
+            document.getElementById("userEmail").value = cells[4].innerText;
 
             const editClassName = this.className;
 
             if (editClassName.includes('editPatient')) {
                 userForm[0].classList.add("activeForm");
                 radioFormInput[1].checked = true;
-                document.getElementById("emergencyContact").value = cells[4].innerText;
-                document.getElementById("address").value          = cells[5].innerText;
-                document.getElementById("sensorId").value         = cells[6].innerText;
+                // Patient no longer shows these columns in table, leave blank
+                document.getElementById("emergencyContact").value = "";
+                document.getElementById("address").value = "";
+                document.getElementById("sensorId").value = "";
             } else if (editClassName.includes('editDoctor')) {
                 userForm[1].classList.add("activeForm");
                 radioFormInput[2].checked = true;
-                document.getElementById("doctorHospital").value = cells[4].innerText;
-                document.getElementById("doctorPosition").value = cells[5].innerText;
+                document.getElementById("doctorHospital").value = cells[5].innerText;
+                document.getElementById("doctorPosition").value = cells[6].innerText;
             } else if (editClassName.includes('editPharmacist')) {
                 userForm[2].classList.add("activeForm");
                 radioFormInput[3].checked = true;
-                document.getElementById("pharmacistHospital").value = cells[4].innerText;
-                document.getElementById("pharmacistPosition").value  = cells[5].innerText;
+                document.getElementById("pharmacistHospital").value = cells[5].innerText;
+                document.getElementById("pharmacistPosition").value = cells[6].innerText;
             } else if (editClassName.includes('editClinicAssistant')) {
                 userForm[3].classList.add("activeForm");
                 radioFormInput[4].checked = true;
-                document.getElementById("clinicAssistantClinic").value   = cells[4].innerText;
-                document.getElementById("clinicAssistantPosition").value = cells[5].innerText;
+                document.getElementById("clinicAssistantClinic").value = cells[5].innerText;
+                document.getElementById("clinicAssistantPosition").value = cells[6].innerText;
             } else if (editClassName.includes('editRadiographer')) {
                 userForm[4].classList.add("activeForm");
                 radioFormInput[5].checked = true;
-                document.getElementById("radiographerDepartment").value = cells[4].innerText;
-                document.getElementById("radiographerPosition").value   = cells[5].innerText;
+                document.getElementById("radiographerDepartment").value = cells[5].innerText;
+                document.getElementById("radiographerPosition").value = cells[6].innerText;
             } else if (editClassName.includes('editRadiologist')) {
                 userForm[5].classList.add("activeForm");
                 radioFormInput[6].checked = true;
-                document.getElementById("radiologistDepartment").value     = cells[4].innerText;
-                document.getElementById("radiologistSpecialization").value = cells[5].innerText;
+                document.getElementById("radiologistDepartment").value = cells[5].innerText;
+                document.getElementById("radiologistSpecialization").value = cells[6].innerText;
             } else {
                 radioFormInput[0].checked = true;
             }
 
             document.getElementById("adduser").action = "/admin/edituser";
             document.getElementById("userFormTitle").textContent = "Edit User";
-            document.getElementsByClassName("add_user_page")[0].classList.add("user_page_active");
-            document.getElementsByClassName("admin_main_content")[0].style.display = "none";
+            if (addUserModal) addUserModal.classList.add("user_page_active");
+            if (mainContent) mainContent.style.display = "none";
             document.getElementById("action").value = "update";
         });
     });
 
-    // Search logic
+    // ── SEARCH LOGIC ──
     function handleSearchInput(tableId, query) {
         const tableRows = document.getElementById(tableId).getElementsByTagName('tr');
         for (const row of tableRows) {
@@ -345,69 +329,60 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    document.getElementById('search-input-patient').addEventListener('input', function () {
-        const query = this.value.trim().toLowerCase();
-        resetTableDisplay('patientTable');
-        handleSearchInput('patientTable', query);
+    const searchBindings = [
+        { inputId: 'search-input-patient', tableId: 'patientTable' },
+        { inputId: 'search-input-admin', tableId: 'adminTable' },
+        { inputId: 'search-input-doctor', tableId: 'doctorTable' },
+        { inputId: 'search-input-pharmacist', tableId: 'pharmacistTable' },
+        { inputId: 'search-input-clinicassistant', tableId: 'clinicAssistantTable' },
+        { inputId: 'search-input-radiographer', tableId: 'radiographerTable' },
+        { inputId: 'search-input-radiologist', tableId: 'radiologistTable' },
+    ];
+
+    searchBindings.forEach(({ inputId, tableId }) => {
+        const el = document.getElementById(inputId);
+        if (el) {
+            el.addEventListener('input', function () {
+                const query = this.value.trim().toLowerCase();
+                resetTableDisplay(tableId);
+                handleSearchInput(tableId, query);
+            });
+        }
     });
 
-    document.getElementById('search-input-admin').addEventListener('input', function () {
-        const query = this.value.trim().toLowerCase();
-        resetTableDisplay('adminTable');
-        handleSearchInput('adminTable', query);
-    });
-
-    document.getElementById('search-input-doctor').addEventListener('input', function () {
-        const query = this.value.trim().toLowerCase();
-        resetTableDisplay('doctorTable');
-        handleSearchInput('doctorTable', query);
-    });
-
-    document.getElementById('search-input-pharmacist').addEventListener('input', function () {
-        const query = this.value.trim().toLowerCase();
-        resetTableDisplay('pharmacistTable');
-        handleSearchInput('pharmacistTable', query);
-    });
-
-    document.getElementById('search-input-clinicassistant').addEventListener('input', function () {
-        const query = this.value.trim().toLowerCase();
-        resetTableDisplay('clinicAssistantTable');
-        handleSearchInput('clinicAssistantTable', query);
-    });
-
-    document.getElementById('search-input-radiographer').addEventListener('input', function () {
-        const query = this.value.trim().toLowerCase();
-        resetTableDisplay('radiographerTable');
-        handleSearchInput('radiographerTable', query);
-    });
-
-    document.getElementById('search-input-radiologist').addEventListener('input', function () {
-        const query = this.value.trim().toLowerCase();
-        resetTableDisplay('radiologistTable');
-        handleSearchInput('radiologistTable', query);
-    });
-
-    // Assigned patient filter
+    // ── ASSIGNED PATIENT FILTER ──
     const filterDropdown = document.getElementById("filterAssigned");
-    const rows = document.querySelectorAll("#assignedPatientTable tr");
-
-    filterDropdown.addEventListener("change", function () {
-        const value = this.value;
-
-        rows.forEach(row => {
-            const doctorCell = row.querySelector("td:nth-child(2)");
-            if (!doctorCell) return;
-            const doctorText = doctorCell.textContent.trim().toLowerCase();
-
-            if (value === "all") {
-                row.style.display = "";
-            } else if (value === "assigned" && doctorText !== "not assigned") {
-                row.style.display = "";
-            } else if (value === "unassigned" && doctorText === "not assigned") {
-                row.style.display = "";
-            } else {
-                row.style.display = "none";
-            }
+    if (filterDropdown) {
+        const rows = document.querySelectorAll("#assignedPatientTable tr");
+        filterDropdown.addEventListener("change", function () {
+            const value = this.value;
+            rows.forEach(row => {
+                const doctorCell = row.querySelector("td:nth-child(2)");
+                if (!doctorCell) return;
+                const doctorText = doctorCell.textContent.trim().toLowerCase();
+                if (value === "all") {
+                    row.style.display = "";
+                } else if (value === "assigned" && doctorText !== "not assigned") {
+                    row.style.display = "";
+                } else if (value === "unassigned" && doctorText === "not assigned") {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
         });
-    });
+    }
+
+    // ── SEARCH BUTTON & RESET BUTTON ──
+    window.triggerSearch = function (inputId) {
+        const query = document.getElementById(inputId).value.trim();
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get("tab") || "patient";
+        window.location.href = `/admin?tab=${tab}&pageNo=1&searchQuery=${encodeURIComponent(query)}`;
+    };
+
+    window.resetSearch = function(tab) {
+    window.location.href = `/admin?tab=${tab}&pageNo=1&searchQuery=`;
+};
+
 });
