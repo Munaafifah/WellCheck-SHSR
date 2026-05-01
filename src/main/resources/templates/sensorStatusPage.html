@@ -2,84 +2,192 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Sensor Status Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Status — WellCheck Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .status-available {
-            background-color: #e0f7e9;
-            color: #2e7d32;
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-weight: 600;
-        }
-
-        .status-unavailable {
-            background-color: #ffebee;
-            color: #c62828;
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-weight: 600;
-        }
-
-        .filter-section {
-            margin-bottom: 20px;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/sensorStatusPage.css}">
 </head>
 <body>
+<div class="layout">
 
-<div class="container mt-5">
+    <!-- ════════════ SIDEBAR ════════════ -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-label">WellCheck System</div>
+            <h1>Admin <span>Control</span></h1>
+        </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Sensor Registration Status</h2>
-        <a class="btn btn-secondary" th:href="@{/admin}">Back</a>
-    </div>
+        <div class="profile-card">
+            <div class="profile-avatar-icon">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <div class="profile-info">
+                <div class="name">Administrator</div>
+                <span class="role-badge">Admin</span>
+            </div>
+        </div>
 
-    <div class="filter-section">
-        <input type="text" id="searchInput" class="form-control" placeholder="Search by Unique Key / Sensor ID / Patient Name">
-    </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Management</div>
+            <a th:href="@{/admin}" class="nav-link-item">
+                <i class="fa-solid fa-users"></i> User List
+            </a>
+            <a th:href="@{/admin/adduser}" class="nav-link-item">
+                <i class="fa-solid fa-user-plus"></i> Add User
+            </a>
+            <div class="nav-section-label">Sensor</div>
+            <a th:href="@{/admin/assign-sensor}" class="nav-link-item">
+                <i class="fa-solid fa-microchip"></i> Assign Sensor
+            </a>
+            <a th:href="@{/admin/sensor-status}" class="nav-link-item active">
+                <i class="fa-solid fa-satellite-dish"></i> Sensor Status
+            </a>
+            <div class="nav-section-label">Doctor Schedule</div>
+            <a th:href="@{/admin/doctor-schedule}" class="nav-link-item">
+                <i class="fa-solid fa-calendar-days"></i> Manage Schedule
+            </a>
+        </nav>
 
-    <div class="table-responsive">
-        <table class="table table-hover table-bordered" id="sensorTable">
-            <thead class="table-light">
-                <tr>
-                    <th>Unique Key</th>
-                    <th>Sensor ID</th>
-                    <th>Patient Name</th>
-                    <th>Patient ID</th>
-                    <th>Hospital</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="status : ${sensorStatuses}">
-                    <td th:text="${status.uniqueKey}"></td>
-                    <td th:text="${status.sensorId != null ? status.sensorId : 'Not Assigned'}"></td>
-                    <td th:text="${status.patientName != null ? status.patientName : 'N/A'}"></td>
-                    <td th:text="${status.patientId != null ? status.patientId : '-'}"></td>
-                    <td th:text="${status.registeredHospital != null ? status.registeredHospital : '-'}"></td>
-                    <td>
-                        <span th:class="${status.sensorId == null ? 'status-available' : 'status-unavailable'}"
-                              th:text="${status.sensorId == null ? 'Available' : 'Registered'}"></span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post" hidden name="logoutForm">
+                <input type="submit" value="Logout"/>
+            </form>
+            <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </a>
+        </div>
+    </aside>
 
+    <!-- ════════════ MAIN ════════════ -->
+    <main class="main">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <div class="page-subtitle">System Administration</div>
+                <div class="page-title">Sensor Status</div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-icon total">
+                    <i class="fa-solid fa-microchip"></i>
+                </div>
+                <div>
+                    <div class="summary-count"
+                         th:text="${sensorStatuses != null ? sensorStatuses.size() : 0}">0</div>
+                    <div class="summary-label">Total Sensors</div>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon active">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                    <div class="summary-count"
+                         th:text="${sensorStatuses != null ?
+                             #lists.size(sensorStatuses.?[sensorId != null]) : 0}">0</div>
+                    <div class="summary-label">Registered</div>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon inactive">
+                    <i class="fa-solid fa-circle-minus"></i>
+                </div>
+                <div>
+                    <div class="summary-count"
+                         th:text="${sensorStatuses != null ?
+                             #lists.size(sensorStatuses.?[sensorId == null]) : 0}">0</div>
+                    <div class="summary-label">Available</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="table-card">
+
+            <!-- Search Toolbar -->
+            <div class="table-toolbar">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text"
+                           id="searchInput"
+                           class="search-input"
+                           placeholder="Search by Unique Key, Sensor ID, Patient Name...">
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-wrap">
+                <table class="data-table" id="sensorTable">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Unique Key</th>
+                            <th>Sensor ID</th>
+                            <th>Patient Name</th>
+                            <th>Patient ID</th>
+                            <th>Hospital</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${sensorStatuses == null or sensorStatuses.isEmpty()}">
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <i class="fa-solid fa-satellite-dish"></i>
+                                    No sensors found in the system.
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:each="status, i : ${sensorStatuses}">
+                            <td th:text="${i.count}">1</td>
+                            <td>
+                                <span class="key-text"
+                                      th:text="${status.uniqueKey}">KEY-001</span>
+                            </td>
+                            <td th:text="${status.sensorId != null ? status.sensorId : 'Not Assigned'}">
+                                SENSOR-001
+                            </td>
+                            <td th:text="${status.patientName != null ? status.patientName : 'N/A'}">
+                                John Doe
+                            </td>
+                            <td th:text="${status.patientId != null ? status.patientId : '-'}">
+                                P001
+                            </td>
+                            <td th:text="${status.registeredHospital != null ? status.registeredHospital : '-'}">
+                                Hospital A
+                            </td>
+                            <td>
+                                <span th:if="${status.sensorId == null}"
+                                      class="status-badge available">
+                                    <i class="fa-solid fa-circle-check"></i> Available
+                                </span>
+                                <span th:if="${status.sensorId != null}"
+                                      class="status-badge registered">
+                                    <i class="fa-solid fa-microchip"></i> Registered
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-    // Simple client-side search
     document.addEventListener("DOMContentLoaded", function () {
         const searchInput = document.getElementById("searchInput");
         const rows = document.querySelectorAll("#sensorTable tbody tr");
 
         searchInput.addEventListener("keyup", function () {
             const filter = searchInput.value.toLowerCase();
-
             rows.forEach(row => {
                 const text = row.innerText.toLowerCase();
                 row.style.display = text.includes(filter) ? "" : "none";

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Agreement — WellCheck</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/sensorAgreementPage.css}">
+</head>
+
+<body>
+    <div class="layout">
+
+        <!-- ════════════ SIDEBAR ════════════ -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-label">WellCheck System</div>
+                <h1>Patient <span>Portal</span></h1>
+            </div>
+
+            <div class="profile-card">
+                <div th:if="${patient.profilePicture != null and !#strings.isEmpty(patient.profilePicture)}">
+                    <img class="profile-avatar"
+                        th:src="@{'data:' + patient.profilePictureType + ';base64,' + patient.profilePicture}"
+                        alt="Profile" />
+                </div>
+                <div th:if="${patient.profilePicture == null or #strings.isEmpty(patient.profilePicture)}" style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);
+                    display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fa-solid fa-user" style="color:var(--rose-300);font-size:20px;"></i>
+                </div>
+                <div class="profile-info">
+                    <div class="name" th:text="${patient.name}">Patient Name</div>
+                    <span class="role-badge">Patient</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Main Menu</div>
+                <a th:href="@{/patient}" class="nav-link-item">
+                    <i class="fa-solid fa-house"></i> Dashboard
+                </a>
+                <a th:href="@{/Health-status/viewHealthStatusForm}" class="nav-link-item">
+                    <i class="fa-solid fa-notes-medical"></i> View Health Status
+                </a>
+                <a th:href="@{/patient/sensorDashboard}" class="nav-link-item">
+                    <i class="fa-solid fa-heart-pulse"></i> Health Condition
+                </a>
+                <div class="nav-section-label">Account</div>
+                <a th:href="@{/patient/editProfile}" class="nav-link-item">
+                    <i class="fa-solid fa-user-pen"></i> Edit Profile
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <form th:action="@{/logout}" method="post" hidden name="logoutForm">
+                    <input type="submit" value="Logout" />
+                </form>
+                <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- ════════════ MAIN ════════════ -->
+        <main class="main">
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <a th:href="@{/register}" class="back-btn" title="Back">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <h2>Sensor Data Agreement</h2>
+            </div>
+
+            <!-- Agreement Card -->
+            <div class="agreement-card">
+
+                <!-- Header -->
+                <div class="agreement-header">
+                    <div class="agreement-header-icon">
+                        <i class="fa-solid fa-file-shield"></i>
+                    </div>
+                    <div class="agreement-header-text">
+                        <div class="agreement-title">Health Sensor Data Collection & Usage Agreement</div>
+                        <div class="agreement-sub">Please read this agreement carefully before registering your sensor
+                            device.</div>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="agreement-body">
+
+                    <!-- Section 1: Introduction -->
+                    <div class="agreement-section">
+                        <div class="agreement-section-title">
+                            <i class="fa-solid fa-circle-info"></i>
+                            1. Introduction
+                        </div>
+                        <div class="agreement-section-text">
+                            This agreement governs the collection, use, and storage of health data generated
+                            by your registered sensor device within the WellCheck Smart Health Remote System (SHRS).
+                            By agreeing, you acknowledge that you have read, understood, and consent to the terms
+                            outlined below. This agreement is aligned with current health data privacy standards
+                            for citizen-generated health data collected through wearable sensor devices
+                            (Brückner et al., 2023).
+                        </div>
+                    </div>
+
+                    <hr class="agreement-divider" />
+
+                    <!-- Section 2: Data Collected -->
+                    <div class="agreement-section">
+                        <div class="agreement-section-title">
+                            <i class="fa-solid fa-database"></i>
+                            2. Data We Collect
+                        </div>
+                        <div class="agreement-section-text">
+                            Your registered health sensor device will continuously monitor and transmit
+                            the following physiological parameters to the WellCheck system:
+                        </div>
+                        <ul class="agreement-list">
+                            <li>
+                                <i class="fa-solid fa-heart-pulse"></i>
+                                <span><strong>Heart Rate</strong> — beats per minute (bpm), monitored in real-time to
+                                    detect abnormal cardiac activity.</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-temperature-half"></i>
+                                <span><strong>Body Temperature</strong> — measured in degrees Celsius (°C) to detect
+                                    fever or hypothermia.</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-lungs"></i>
+                                <span><strong>Blood Oxygen Level (SpO₂)</strong> — percentage of oxygen saturation in
+                                    the blood.</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-wave-square"></i>
+                                <span><strong>ECG Reading</strong> — electrocardiogram data to monitor electrical
+                                    activity of the heart.</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                <span><strong>Historical Readings</strong> — a timestamped log of all sensor readings
+                                    stored for trend analysis and medical review.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <hr class="agreement-divider" />
+
+                    <!-- Section 3: How Data is Used -->
+                    <div class="agreement-section">
+                        <div class="agreement-section-title">
+                            <i class="fa-solid fa-magnifying-glass-chart"></i>
+                            3. How Your Data is Used
+                        </div>
+                        <div class="agreement-section-text">
+                            Your collected health data will be used exclusively for the following purposes:
+                        </div>
+                        <ul class="agreement-list">
+                            <li>
+                                <i class="fa-solid fa-check"></i>
+                                <span>Enabling your assigned doctor to remotely monitor your health status in
+                                    real-time.</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-check"></i>
+                                <span>Supporting disease prediction and early detection through the WellCheck ML
+                                    diagnostic system.</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-check"></i>
+                                <span>Generating alerts and notifications when abnormal readings are detected.</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-check"></i>
+                                <span>Providing historical health trends for medical consultation and prescription
+                                    purposes.</span>
+                            </li>
+                        </ul>
+                        <div class="agreement-section-text">
+                            As noted by Roque &amp; Felt (2025), patients should be meaningfully informed about
+                            how their sensor-generated data is collected and used before providing consent.
+                            WellCheck is committed to this principle of transparency.
+                        </div>
+                    </div>
+
+                    <hr class="agreement-divider" />
+
+                    <!-- Section 4: Data Storage & Security -->
+                    <div class="agreement-section">
+                        <div class="agreement-section-title">
+                            <i class="fa-solid fa-lock"></i>
+                            4. Data Storage &amp; Security
+                        </div>
+                        <ul class="agreement-list">
+                            <li>
+                                <i class="fa-solid fa-check"></i>
+                                <span>All sensor data is stored securely in the WellCheck MongoDB database (Wellcheck2)
+                                    and is accessible only to authorised personnel including your assigned doctor and
+                                    system administrators.</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-check"></i>
+                                <span>Your data will not be sold, shared, or transferred to any third-party commercial
+                                    entities.</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-check"></i>
+                                <span>Access to your health data is role-restricted. Only your assigned doctor, clinic
+                                    assistant, and system admin can view relevant portions of your data.</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-check"></i>
+                                <span>Data is retained for the duration of your active patient record within the
+                                    WellCheck system.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <hr class="agreement-divider" />
+
+                    <!-- Section 5: Your Rights -->
+                    <div class="agreement-section">
+                        <div class="agreement-section-title">
+                            <i class="fa-solid fa-user-shield"></i>
+                            5. Your Rights as a Patient
+                        </div>
+                        <div class="agreement-section-text">
+                            In accordance with health data privacy principles (Brückner et al., 2023;
+                            Personalized Consent Flow, NIH 2017), you retain the following rights:
+                        </div>
+                        <ul class="agreement-list">
+                            <li>
+                                <i class="fa-solid fa-check"></i>
+                                <span><strong>Right to Access</strong> — You may view your sensor readings at any time
+                                    through your Patient Dashboard.</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-check"></i>
+                                <span><strong>Right to Withdraw</strong> — You may contact the system administrator to
+                                    deregister your sensor device and stop data collection at any time.</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-check"></i>
+                                <span><strong>Right to Transparency</strong> — You will be informed of any significant
+                                    changes to how your data is collected or used.</span>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-check"></i>
+                                <span><strong>Right to Accuracy</strong> — You may request corrections to inaccurate
+                                    health records through your assigned doctor.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <hr class="agreement-divider" />
+
+                    <!-- References -->
+                    <div class="reference-box">
+                        <div class="reference-box-title">
+                            <i class="fa-solid fa-book"></i> References
+                        </div>
+                        <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11975685/" target="_blank">
+                            [1] Brückner et al. (2023). The Social Contract for Health and Wellness Data Sharing Needs a
+                            Trusted Standardized Consent. Mayo Clinic Proceedings: Digital Health. DOI:
+                            10.1016/j.mcpdig.2023.07.008
+                        </a>
+                        <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5468581/" target="_blank">
+                            [2] Personalized Consent Flow in Contemporary Data Sharing for Medical Research. NIH/PubMed
+                            Central (2017). PMC5468581
+                        </a>
+                        <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12431785/" target="_blank">
+                            [3] Roque &amp; Felt (2025). Acceptability of Active and Passive Data Collection Methods for
+                            Mobile Health Research. JMIR. DOI: 10.2196/64082
+                        </a>
+                    </div>
+
+                    <!-- Checkbox -->
+                    <div class="checkbox-wrap" onclick="toggleCheckbox()">
+                        <input type="checkbox" id="agreeCheckbox" onclick="event.stopPropagation(); toggleAgreeBtn()">
+                        <label for="agreeCheckbox">
+                            I have read and understood the WellCheck Sensor Data Collection &amp; Usage Agreement.
+                            I voluntarily consent to the collection and use of my physiological data as described above.
+                        </label>
+                    </div>
+
+                </div>
+
+                <!-- Footer -->
+                <div class="agreement-footer">
+                    <a th:href="@{/register}" class="btn-outline-rose">
+                        <i class="fa-solid fa-xmark"></i> Decline
+                    </a>
+                    <form method="post" th:action="@{/sensor/request}">
+                        <button type="submit" class="btn-rose" id="agreeBtn" disabled>
+                            <i class="fa-solid fa-circle-check"></i> I Agree &amp; Submit Request
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        function toggleCheckbox() {
+            const checkbox = document.getElementById('agreeCheckbox');
+            checkbox.checked = !checkbox.checked;
+            toggleAgreeBtn();
+        }
+
+        function toggleAgreeBtn() {
+            const checkbox = document.getElementById('agreeCheckbox');
+            const btn = document.getElementById('agreeBtn');
+            btn.disabled = !checkbox.checked;
+        }
+    </script>
+</body>
+
+</html>

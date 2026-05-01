@@ -179,129 +179,177 @@ body {
 .back-btn:hover { background: var(--rose-50); color: var(--rose-700); }
 .page-header h2 { font-size: 24px; font-weight: 600; color: var(--text-dark); }
 
-/* ── ALERTS ── */
-.alert-success {
-    background: #eafaf3;
-    border: 1px solid #a8e6c8;
-    border-radius: var(--radius);
-    padding: 14px 18px;
-    color: #1a6b45;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.alert-error {
-    background: #fef2f2;
-    border: 1px solid #fca5a5;
-    border-radius: var(--radius);
-    padding: 14px 18px;
-    color: #b91c1c;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* ── INFO BANNER ── */
-.info-banner {
-    background: var(--rose-50);
-    border: 1px solid var(--rose-100);
-    border-radius: var(--radius);
-    padding: 16px 20px;
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-}
-.info-banner i { color: var(--rose-500); font-size: 18px; margin-top: 2px; flex-shrink: 0; }
-.info-banner-text .info-title { font-size: 14px; font-weight: 600; color: var(--text-dark); margin-bottom: 3px; }
-.info-banner-text .info-sub   { font-size: 13px; color: var(--text-mid); }
-
-/* ── ALREADY REGISTERED CARD ── */
-.registered-card {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    padding: 28px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--sand-dark);
-    display: flex;
-    align-items: center;
-    gap: 18px;
-}
-.registered-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    background: #eafaf3;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    color: var(--success);
-    flex-shrink: 0;
-}
-.registered-info .reg-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); font-weight: 500; }
-.registered-info .reg-id    { font-size: 18px; font-weight: 600; color: var(--text-dark); margin-top: 3px; font-family: monospace; }
-.registered-info .reg-sub   { font-size: 13px; color: var(--text-mid); margin-top: 3px; }
-
-/* ── FORM CARD ── */
-.form-card {
+/* ── AGREEMENT CARD ── */
+.agreement-card {
     background: var(--white);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--sand-dark);
     overflow: hidden;
-    max-width: 560px;
+    max-width: 720px;
 }
-.form-card-header {
-    padding: 20px 28px;
-    background: var(--sand);
-    border-bottom: 1px solid var(--sand-dark);
+
+.agreement-header {
+    padding: 28px 32px;
+    background: var(--rose-50);
+    border-bottom: 1px solid var(--rose-100);
     display: flex;
     align-items: center;
+    gap: 16px;
+}
+.agreement-header-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: var(--rose-500);
+    flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
+}
+.agreement-header-text .agreement-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+.agreement-header-text .agreement-sub {
+    font-size: 13px;
+    color: var(--text-mid);
+    margin-top: 3px;
+}
+
+/* ── AGREEMENT BODY ── */
+.agreement-body {
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.agreement-section {
+    display: flex;
+    flex-direction: column;
     gap: 10px;
 }
-.form-card-header i  { color: var(--rose-500); font-size: 16px; }
-.form-card-header span { font-size: 15px; font-weight: 600; color: var(--text-dark); }
 
-.form-card-body { padding: 28px; display: flex; flex-direction: column; gap: 20px; }
+.agreement-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--rose-700);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.agreement-section-title i {
+    font-size: 14px;
+    color: var(--rose-500);
+}
 
-.form-group { display: flex; flex-direction: column; gap: 7px; }
+.agreement-section-text {
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.7;
+}
 
-.form-label-custom {
+.agreement-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+}
+.agreement-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.6;
+}
+.agreement-list li i {
+    color: var(--rose-500);
+    font-size: 13px;
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+.agreement-divider {
+    border: none;
+    border-top: 1px solid var(--sand-dark);
+}
+
+/* ── REFERENCE BOX ── */
+.reference-box {
+    background: var(--rose-50);
+    border: 1px solid var(--rose-100);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.reference-box-title {
     font-size: 12px;
     font-weight: 600;
-    letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: var(--text-mid);
+    letter-spacing: 1px;
+    color: var(--text-light);
 }
-.form-control-custom {
-    width: 100%;
-    padding: 11px 14px;
-    border: 1px solid var(--sand-dark);
-    border-radius: 9px;
-    font-size: 14px;
-    font-family: 'DM Sans', sans-serif;
-    color: var(--text-dark);
-    background: var(--sand);
-    outline: none;
-    transition: border-color 0.2s, background 0.2s;
+.reference-box a {
+    font-size: 12px;
+    color: var(--rose-700);
+    text-decoration: none;
+    line-height: 1.6;
 }
-.form-control-custom:focus { border-color: var(--rose-300); background: var(--white); }
-.helper-text { font-size: 11px; color: var(--text-light); }
+.reference-box a:hover { text-decoration: underline; }
 
-.form-card-footer {
-    padding: 20px 28px;
+/* ── CHECKBOX ── */
+.checkbox-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 20px;
+    background: var(--sand);
+    border-radius: var(--radius);
+    border: 1px solid var(--sand-dark);
+    cursor: pointer;
+}
+.checkbox-wrap input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--rose-700);
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+}
+.checkbox-wrap label {
+    font-size: 14px;
+    color: var(--text-dark);
+    line-height: 1.6;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* ── AGREEMENT FOOTER ── */
+.agreement-footer {
+    padding: 24px 32px;
     background: var(--sand);
     border-top: 1px solid var(--sand-dark);
     display: flex;
-    gap: 10px;
+    gap: 12px;
     justify-content: flex-end;
+    align-items: center;
 }
 
 /* ── BUTTONS ── */
 .btn-rose {
-    padding: 10px 22px;
+    padding: 11px 24px;
     background: var(--rose-700);
     color: var(--white);
     border: none;
@@ -317,9 +365,13 @@ body {
     text-decoration: none;
 }
 .btn-rose:hover { background: var(--rose-900); color: var(--white); }
+.btn-rose:disabled {
+    background: var(--rose-300);
+    cursor: not-allowed;
+}
 
 .btn-outline-rose {
-    padding: 10px 22px;
+    padding: 11px 24px;
     background: transparent;
     color: var(--rose-700);
     border: 1px solid var(--rose-300);
@@ -335,127 +387,6 @@ body {
     text-decoration: none;
 }
 .btn-outline-rose:hover { background: var(--rose-50); color: var(--rose-700); }
-
-/* ── PENDING CARD ── */
-.pending-card {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    padding: 28px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid #fcd34d;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-}
-.pending-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    background: #fffbeb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    color: #d97706;
-    flex-shrink: 0;
-}
-.pending-info .pend-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text-light);
-    font-weight: 500;
-}
-.pending-info .pend-title {
-    font-size: 17px;
-    font-weight: 600;
-    color: #92400e;
-    margin-top: 3px;
-}
-.pending-info .pend-sub {
-    font-size: 13px;
-    color: #b45309;
-    margin-top: 3px;
-}
-
-/* ── REJECTED CARD ── */
-.rejected-card {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    padding: 28px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid #fca5a5;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-}
-.rejected-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-    background: #fef2f2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    color: var(--danger);
-    flex-shrink: 0;
-}
-.rejected-info .rej-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text-light);
-    font-weight: 500;
-}
-.rejected-info .rej-title {
-    font-size: 17px;
-    font-weight: 600;
-    color: #b91c1c;
-    margin-top: 3px;
-}
-.rejected-info .rej-sub {
-    font-size: 13px;
-    color: #ef4444;
-    margin-top: 3px;
-}
-
-/* ── REQUEST SENSOR CARD ── */
-.request-card {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    padding: 40px 28px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--sand-dark);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 16px;
-    max-width: 560px;
-}
-.request-card-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 18px;
-    background: var(--rose-50);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    color: var(--rose-500);
-}
-.request-card-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-dark);
-}
-.request-card-sub {
-    font-size: 13px;
-    color: var(--text-mid);
-    max-width: 380px;
-    line-height: 1.6;
-}
 
 /* ── RESPONSIVE ── */
 @media (max-width: 992px) {
