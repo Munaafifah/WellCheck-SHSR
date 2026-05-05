@@ -637,4 +637,85 @@ public class AppointmentHandler {
         }
         return response;
     }
+
+    // ── Create appointment for patient (booked by Clinic Assistant) ───────────
+    public Map<String, Object> createAppointmentForPatient(Map<String, Object> request) {
+        Map<String, Object> response = new HashMap<>();
+        MongoClient mongoClient = null;
+        try {
+            mongoClient = MongoClients.create(CONNECTION_STRING);
+            MongoDatabase database = mongoClient.getDatabase("Wellcheck2");
+            MongoCollection<Document> collection = database.getCollection("appointments");
+
+            String userId = (String) request.get("userId");
+            String appointmentDate = (String) request.get("appointmentDate");
+            String appointmentTime = (String) request.get("appointmentTime");
+            String duration = (String) request.get("duration");
+            String typeOfSickness = (String) request.get("typeOfSickness");
+            String appointmentCategory = (String) request.getOrDefault("appointmentCategory", "Consultation");
+            String bookedBy = (String) request.getOrDefault("bookedBy", "CLINIC_ASSISTANT");
+            String additionalNotes = (String) request.get("additionalNotes");
+            String email = (String) request.get("email");
+            String registeredHospital = (String) request.get("registeredHospital");
+            String hospitalId = (String) request.get("hospitalId");
+            String insuranceProvider = (String) request.get("insuranceProvider");
+            String insurancePolicyNumber = (String) request.get("insurancePolicyNumber");
+
+            // Check for duplicate slot for same patient
+            Document existing = collection.find(
+                    new Document("userId", userId)
+                            .append("appointmentDate", appointmentDate)
+                            .append("appointmentTime", appointmentTime)
+                            .append("statusAppointment", new Document("$in",
+                                    java.util.Arrays.asList("Approved", "Not Approved"))))
+                    .first();
+
+            if (existing != null) {
+                response.put("success", false);
+                response.put("message", "This patient already has an appointment at the selected date and time.");
+                return response;
+            }
+
+            // Generate unique appointment ID
+            String appointmentId = java.util.UUID.randomUUID().toString();
+
+            Document newAppointment = new Document()
+                    .append("appointmentId", appointmentId)
+                    .append("userId", userId)
+                    .append("doctorId", null) // ✅ no doctor pre-assigned
+                    .append("hospitalId", hospitalId)
+                    .append("appointmentDate", appointmentDate)
+                    .append("appointmentTime", appointmentTime)
+                    .append("duration", duration)
+                    .append("registeredHospital", registeredHospital)
+                    .append("typeOfSickness", typeOfSickness)
+                    .append("appointmentCategory", appointmentCategory)
+                    .append("bookedBy", bookedBy)
+                    .append("additionalNotes", additionalNotes)
+                    .append("insuranceProvider", insuranceProvider)
+                    .append("insurancePolicyNumber", insurancePolicyNumber)
+                    .append("email", email)
+                    .append("costItems", new ArrayList<>()) // ✅ CA fills later
+                    .append("drugCost", 0) // ✅ Doctor fills later
+                    .append("statusPayment", "Not Paid")
+                    .append("statusAppointment", "Approved") // ✅ auto approved
+                    .append("timestamp", new java.util.Date());
+
+            collection.insertOne(newAppointment);
+
+            logger.info("✅ CA booked appointment {} for patient {}", appointmentId, userId);
+            response.put("success", true);
+            response.put("message", "Appointment booked successfully.");
+            response.put("appointmentId", appointmentId);
+
+        } catch (Exception e) {
+            logger.error("Error creating appointment for patient: {}", e.getMessage(), e);
+            response.put("success", false);
+            response.put("message", "Failed to book appointment: " + e.getMessage());
+        } finally {
+            if (mongoClient != null)
+                mongoClient.close();
+        }
+        return response;
+    }
 }

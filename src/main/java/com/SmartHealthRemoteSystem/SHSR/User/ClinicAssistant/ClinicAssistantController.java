@@ -1,7 +1,9 @@
 package com.SmartHealthRemoteSystem.SHSR.User.ClinicAssistant;
 
 import com.SmartHealthRemoteSystem.SHSR.Service.ClinicAssistantService;
+import com.SmartHealthRemoteSystem.SHSR.Service.PatientService;
 import com.SmartHealthRemoteSystem.SHSR.User.Doctor.Doctor;
+import com.SmartHealthRemoteSystem.SHSR.User.Patient.Patient;
 import com.SmartHealthRemoteSystem.SHSR.updateStatusAppointment.Model.Appointment;
 import com.SmartHealthRemoteSystem.SHSR.updateStatusAppointment.Service.AppointmentHandler;
 import com.SmartHealthRemoteSystem.SHSR.WebConfiguration.MyUserDetails;
@@ -36,6 +38,9 @@ public class ClinicAssistantController {
     @Autowired
     private DoctorService doctorService;
 
+    @Autowired
+    private PatientService patientService;
+
     // ── Dashboard (appointment list) ──────────────────────────────────
     @GetMapping
     public String dashboard(Model model) throws ExecutionException, InterruptedException {
@@ -58,12 +63,12 @@ public class ClinicAssistantController {
         model.addAttribute("expiredCount", expiredCount);
         model.addAttribute("pendingCount", pendingCount);
 
-        // Serialize costItems to JSON strings per appointment for the view
         ObjectMapper mapper = new ObjectMapper();
         Map<String, String> costItemsJson = new HashMap<>();
         for (Appointment appt : allAppointments) {
             try {
-                costItemsJson.put(appt.getAppointmentId(), mapper.writeValueAsString(appt.getCostItems()));
+                costItemsJson.put(appt.getAppointmentId(),
+                        mapper.writeValueAsString(appt.getCostItems()));
             } catch (Exception e) {
                 costItemsJson.put(appt.getAppointmentId(), "[]");
             }
@@ -104,7 +109,6 @@ public class ClinicAssistantController {
     public Map<String, Object> updateCost(@RequestBody Map<String, Object> request) {
         String appointmentId = (String) request.get("appointmentId");
 
-        // costItems comes in as List<Map<String, Object>> from JSON body
         List<Map<String, Object>> costItems = new ArrayList<>();
         Object raw = request.get("costItems");
         if (raw instanceof List) {
@@ -154,22 +158,72 @@ public class ClinicAssistantController {
         int expiredEnd = Math.min(expiredStart + pageSize, expiredTotal);
 
         model.addAttribute("doctor", doctor);
-        model.addAttribute("activeAppointments", activeAppointments.subList(activeStart, activeEnd));
-        model.addAttribute("expiredAppointments", expiredAppointments.subList(expiredStart, expiredEnd));
+        model.addAttribute("activeAppointments",
+                activeAppointments.subList(activeStart, activeEnd));
+        model.addAttribute("expiredAppointments",
+                expiredAppointments.subList(expiredStart, expiredEnd));
         model.addAttribute("activeCount", activeTotal);
         model.addAttribute("expiredCount", expiredTotal);
         model.addAttribute("activePageNo", activePageNo);
         model.addAttribute("expiredPageNo", expiredPageNo);
-        model.addAttribute("activeTotalPages", (int) Math.ceil((double) activeTotal / pageSize));
-        model.addAttribute("expiredTotalPages", (int) Math.ceil((double) expiredTotal / pageSize));
+        model.addAttribute("activeTotalPages",
+                (int) Math.ceil((double) activeTotal / pageSize));
+        model.addAttribute("expiredTotalPages",
+                (int) Math.ceil((double) expiredTotal / pageSize));
         model.addAttribute("pageSize", pageSize);
 
         return "updateStatusAppointment";
     }
 
+    // ── Book Appointment for Patient — GET (load page) ────────────────
+    @GetMapping("/bookAppointment")
+    public String showBookAppointmentPage(Model model)
+            throws ExecutionException, InterruptedException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
+        ClinicAssistant ca = clinicAssistantService.getClinicAssistant(userDetails.getUsername());
+
+        List<Patient> allPatients = patientService.getAllPatients();
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<Map<String, Object>> patientList = new ArrayList<>();
+        for (Patient p : allPatients) {
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("userId",             p.getUserId());
+            entry.put("name",               p.getName() != null ? p.getName() : "");
+            entry.put("email",              p.getEmail() != null ? p.getEmail() : "");
+            entry.put("registeredHospital", ca.getClinic() != null ? ca.getClinic() : "");
+            entry.put("hospitalId",         "");
+            patientList.add(entry);
+        }
+
+        String patientsJson = "[]";
+        try {
+            patientsJson = mapper.writeValueAsString(patientList);
+        } catch (Exception e) {
+            // fallback to empty array
+        }
+
+        model.addAttribute("clinicAssistant", ca);
+        model.addAttribute("patientsJson", patientsJson);
+
+        return "bookAppointmentForPatient";
+    }
+
+    // ── Book Appointment for Patient — POST (direct to MongoDB) ───────
+    @ResponseBody
+    @PostMapping("/api/bookAppointment")
+    public Map<String, Object> bookAppointmentForPatient(
+            @RequestBody Map<String, Object> request) {
+        // ✅ Goes directly to MongoDB via AppointmentHandler
+        // No Node.js dependency at all
+        return appointmentHandler.createAppointmentForPatient(request);
+    }
+
     // ── Edit Profile ──────────────────────────────────────────────────
     @GetMapping("/updateProfile")
-    public String showEditProfile(Model model) throws ExecutionException, InterruptedException {
+    public String showEditProfile(Model model)
+            throws ExecutionException, InterruptedException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
         ClinicAssistant ca = clinicAssistantService.getClinicAssistant(userDetails.getUsername());
@@ -180,7 +234,8 @@ public class ClinicAssistantController {
     @PostMapping("/updateProfile/profile")
     public String saveUpdatedProfile(@ModelAttribute ClinicAssistant updated,
             @RequestParam("imageFile") MultipartFile imageFile) throws Exception {
-        ClinicAssistant existing = clinicAssistantService.getClinicAssistant(updated.getUserId());
+        ClinicAssistant existing = clinicAssistantService
+                .getClinicAssistant(updated.getUserId());
         existing.setName(updated.getName());
         existing.setContact(updated.getContact());
         existing.setClinic(updated.getClinic());

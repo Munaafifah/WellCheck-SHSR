@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Book Appointment — Clinic Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/clinicAssistantDashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/bookAppointmentForPatient.css}">
+</head>
+
+<body>
+    <div class="layout">
+
+        <!-- ════════════ SIDEBAR ════════════ -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-label">WellCheck System</div>
+                <h1>Clinic <span>Hub</span></h1>
+            </div>
+            <div class="profile-card">
+                <img class="profile-avatar" th:src="${clinicAssistant.profilePicture} != null
+                      ? 'data:' + ${clinicAssistant.profilePictureType} + ';base64,' + ${clinicAssistant.profilePicture}
+                      : '/image/img_avatar1.png'" alt="Profile Picture" />
+                <div class="profile-info">
+                    <div class="name" th:text="${clinicAssistant.name}">Clinic Assistant</div>
+                    <span class="role-badge"
+                        th:text="${clinicAssistant.position != null} ? ${clinicAssistant.position} : 'Clinic Assistant'">Assistant</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Main Menu</div>
+                <a th:href="@{/clinicassistant}" class="nav-link-item">
+                    <i class="fa-solid fa-calendar-check"></i> Active Appointments
+                </a>
+                <a th:href="@{/clinicassistant}" class="nav-link-item">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Expired Appointments
+                </a>
+                <a th:href="@{/clinicassistant/bookAppointment}" class="nav-link-item active">
+                    <i class="fa-solid fa-calendar-plus"></i> Book Appointment
+                </a>
+                <div class="nav-section-label" style="margin-top:8px;">Account</div>
+                <a th:href="@{/clinicassistant/updateProfile}" class="nav-link-item">
+                    <i class="fa-solid fa-user-pen"></i> Edit Profile
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <form th:action="@{/logout}" method="post" hidden name="logoutForm">
+                    <input type="submit" value="Logout" />
+                </form>
+                <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- ════════════ MAIN ════════════ -->
+        <main class="main">
+
+            <!-- Page header -->
+            <div class="page-header">
+                <div class="page-header-text">
+                    <div class="subtitle">Appointment Management</div>
+                    <h2>Book Appointment for Patient</h2>
+                    <p class="page-desc">Register a walk-in or phone booking on behalf of a patient.</p>
+                </div>
+                <a th:href="@{/clinicassistant}" class="btn-outline-teal"
+                    style="text-decoration:none; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+
+            <!-- ── FORM CARD ── -->
+            <div class="book-form-card">
+
+                <!-- STEP 1: Patient Selection -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-num">1</div>
+                        <div>
+                            <div class="section-title">Patient Information</div>
+                            <div class="section-desc">Search and select the patient for this appointment</div>
+                        </div>
+                    </div>
+                    <div class="section-body">
+                        <div class="field-group">
+                            <label class="field-label">Select Patient <span class="required">*</span></label>
+                            <div class="patient-search-wrap">
+                                <div class="search-icon-wrap">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </div>
+                                <input type="text" id="patientSearchInput" class="patient-search-input"
+                                    placeholder="Type patient name or ID to search..." autocomplete="off" />
+                                <div id="patientDropdown" class="patient-dropdown hidden"></div>
+                            </div>
+                            <!-- Hidden fields populated when patient is selected -->
+                            <input type="hidden" id="selectedUserId" />
+                            <input type="hidden" id="selectedPatientEmail" />
+                            <input type="hidden" id="selectedHospital" />
+
+                            <!-- Selected patient preview card -->
+                            <div id="selectedPatientCard" class="selected-patient-card hidden">
+                                <div class="selected-patient-avatar">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <div class="selected-patient-info">
+                                    <div class="selected-patient-name" id="cardPatientName"></div>
+                                    <div class="selected-patient-meta">
+                                        <span id="cardPatientId"></span>
+                                        <span class="dot-sep">•</span>
+                                        <span id="cardPatientEmail"></span>
+                                    </div>
+                                </div>
+                                <button type="button" class="clear-patient-btn" onclick="clearPatient()">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+
+                            <div class="info-banner" style="margin-top:14px;">
+                                <i class="fa-solid fa-circle-info"></i>
+                                Patient must be registered in the system first before booking. If the patient is not
+                                found, please register them via Admin → Add User.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Appointment Category -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-num">2</div>
+                        <div>
+                            <div class="section-title">Appointment Category</div>
+                            <div class="section-desc">Select the type of appointment to book</div>
+                        </div>
+                    </div>
+                    <div class="section-body">
+                        <div class="category-grid">
+                            <button type="button" class="category-btn" data-category="Consultation"
+                                onclick="selectCategory(this)">
+                                <i class="fa-solid fa-stethoscope"></i>
+                                <span>Consultation</span>
+                            </button>
+                            <button type="button" class="category-btn" data-category="Lab Test"
+                                onclick="selectCategory(this)">
+                                <i class="fa-solid fa-flask-vial"></i>
+                                <span>Lab Test</span>
+                            </button>
+                            <button type="button" class="category-btn" data-category="Imaging"
+                                onclick="selectCategory(this)">
+                                <i class="fa-solid fa-x-ray"></i>
+                                <span>Imaging</span>
+                            </button>
+                            <button type="button" class="category-btn" data-category="Procedure"
+                                onclick="selectCategory(this)">
+                                <i class="fa-solid fa-syringe"></i>
+                                <span>Procedure</span>
+                            </button>
+                            <button type="button" class="category-btn" data-category="Vaccination"
+                                onclick="selectCategory(this)">
+                                <i class="fa-solid fa-shield-virus"></i>
+                                <span>Vaccination</span>
+                            </button>
+                        </div>
+                        <input type="hidden" id="selectedCategory" />
+
+                        <!-- Subtype dropdown — shown after category is picked -->
+                        <div id="subtypeWrap" class="subtype-wrap hidden">
+                            <label class="field-label" id="subtypeLabel">Specific Type <span
+                                    class="required">*</span></label>
+                            <select id="subtypeSelect" class="field-select">
+                                <option value="">-- Select type --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3: Date & Time -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-num">3</div>
+                        <div>
+                            <div class="section-title">Date & Time</div>
+                            <div class="section-desc">Pick the appointment date and preferred time slot</div>
+                        </div>
+                    </div>
+                    <div class="section-body">
+                        <div class="two-col-grid">
+                            <div class="field-group">
+                                <label class="field-label">Appointment Date <span class="required">*</span></label>
+                                <div class="input-icon-wrap">
+                                    <i class="fa-solid fa-calendar-days input-icon"></i>
+                                    <input type="date" id="appointmentDate" class="field-input with-icon" />
+                                </div>
+                            </div>
+                            <div class="field-group">
+                                <label class="field-label">Appointment Time <span class="required">*</span></label>
+                                <div class="input-icon-wrap">
+                                    <i class="fa-solid fa-clock input-icon"></i>
+                                    <input type="time" id="appointmentTime" class="field-input with-icon" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field-group" style="margin-top:16px;">
+                            <label class="field-label">Duration <span class="required">*</span></label>
+                            <select id="appointmentDuration" class="field-select">
+                                <option value="">-- Select duration --</option>
+                                <option value="15 mins">15 mins</option>
+                                <option value="30 mins">30 mins</option>
+                                <option value="1 hour">1 hour</option>
+                                <option value="1.5 hours">1.5 hours</option>
+                                <option value="2 hours">2 hours</option>
+                            </select>
+                        </div>
+                        <div class="info-banner" style="margin-top:14px;">
+                            <i class="fa-solid fa-circle-info"></i>
+                            Doctor or staff will be assigned to this slot after booking. No pre-assignment needed.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 4: Insurance (optional) -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-num">4</div>
+                        <div>
+                            <div class="section-title">Insurance Details <span class="optional-tag">Optional</span>
+                            </div>
+                            <div class="section-desc">Fill in if the patient has insurance coverage</div>
+                        </div>
+                    </div>
+                    <div class="section-body">
+                        <div class="two-col-grid">
+                            <div class="field-group">
+                                <label class="field-label">Insurance Provider</label>
+                                <input type="text" id="insuranceProvider" class="field-input"
+                                    placeholder="e.g. Great Eastern, AIA, Prudential" />
+                            </div>
+                            <div class="field-group">
+                                <label class="field-label">Policy Number</label>
+                                <input type="text" id="insurancePolicyNumber" class="field-input"
+                                    placeholder="e.g. AIA-2024-XXXXX" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 5: Additional Notes -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-num">5</div>
+                        <div>
+                            <div class="section-title">Additional Notes <span class="optional-tag">Optional</span></div>
+                            <div class="section-desc">Any extra information for the doctor or staff</div>
+                        </div>
+                    </div>
+                    <div class="section-body">
+                        <div class="field-group">
+                            <label class="field-label">Notes</label>
+                            <textarea id="additionalNotes" class="field-textarea" rows="4"
+                                placeholder="e.g. Patient is fasting, requires wheelchair access, follow-up from previous visit..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUBMIT -->
+                <div class="form-footer">
+                    <button type="button" class="btn-outline-teal" onclick="resetForm()">
+                        <i class="fa-solid fa-rotate-left"></i> Reset Form
+                    </button>
+                    <button type="button" class="btn-teal" id="submitBtn" onclick="submitBooking()">
+                        <i class="fa-solid fa-calendar-plus"></i> Book Appointment
+                    </button>
+                </div>
+
+            </div>
+            <!-- end book-form-card -->
+
+        </main>
+    </div>
+
+    <!-- ════════════ TOAST ════════════ -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ════════════ SUCCESS MODAL ════════════ -->
+    <div class="modal fade" id="successModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center" style="padding:40px 32px;">
+                    <div class="success-icon-wrap">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <h4 class="success-modal-title">Appointment Booked!</h4>
+                    <p class="success-modal-desc">The appointment has been successfully registered and is now
+                        <strong>Approved</strong>.</p>
+                    <div class="success-appt-id" id="successApptId"></div>
+                    <div style="display:flex; gap:12px; justify-content:center; margin-top:24px;">
+                        <button class="btn-outline-teal" onclick="bookAnother()">
+                            <i class="fa-solid fa-plus"></i> Book Another
+                        </button>
+                        <a th:href="@{/clinicassistant}" class="btn-teal" style="text-decoration:none;">
+                            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient data from Thymeleaf -->
+    <!-- Patient data from Thymeleaf -->
+    <script th:inline="javascript">
+        var patientsRaw = /*[[${patientsJson}]]*/ '[]';
+        var ALL_PATIENTS = JSON.parse(patientsRaw);
+    </script>
+
+    <script>
+        // ── Subtype map ──────────────────────────────────────────────────
+        const SUBTYPES = {
+            "Consultation": [
+                "General Check-up",
+                "Follow-up Visit",
+                "Specialist Referral",
+                "Health Screening",
+                "Pre-Employment Medical",
+                "Travel Health Consultation"
+            ],
+            "Lab Test": [
+                "Full Blood Count (FBC)",
+                "Blood Glucose (Fasting)",
+                "Blood Glucose (Random)",
+                "HbA1c",
+                "Lipid Panel",
+                "Liver Function Test (LFT)",
+                "Kidney Function Test (KFT)",
+                "Thyroid Function Test (TFT)",
+                "Urine Full Examination (UFE)",
+                "Stool Examination",
+                "Blood Culture",
+                "Hepatitis B Screening",
+                "Dengue NS1 Antigen",
+                "COVID-19 PCR Test"
+            ],
+            "Imaging": [
+                "Chest X-Ray",
+                "Abdominal X-Ray",
+                "Spine X-Ray",
+                "Ultrasound - Abdomen",
+                "Ultrasound - Pelvic",
+                "Ultrasound - Thyroid",
+                "CT Scan - Brain",
+                "CT Scan - Abdomen",
+                "MRI - Brain",
+                "MRI - Spine",
+                "Mammogram",
+                "DEXA Scan (Bone Density)"
+            ],
+            "Procedure": [
+                "Endoscopy (Upper GI)",
+                "Colonoscopy",
+                "ECG (Electrocardiogram)",
+                "Echocardiogram",
+                "Spirometry (Lung Function)",
+                "IV Drip / Infusion",
+                "Wound Dressing",
+                "Suture Removal",
+                "Blood Transfusion",
+                "Nebulization",
+                "Minor Surgery"
+            ],
+            "Vaccination": [
+                "Influenza (Flu Shot)",
+                "COVID-19 Booster",
+                "Hepatitis B",
+                "Hepatitis A",
+                "Pneumococcal (PCV)",
+                "HPV Vaccine",
+                "Tetanus (Td / Tdap)",
+                "Meningococcal",
+                "Varicella (Chickenpox)",
+                "MMR (Measles, Mumps, Rubella)"
+            ]
+        };
+
+        let selectedPatient = null;
+        let selectedCategory = null;
+
+        // ── Patient search ────────────────────────────────────────────────
+        const searchInput = document.getElementById('patientSearchInput');
+        const dropdown = document.getElementById('patientDropdown');
+
+        searchInput.addEventListener('input', function () {
+            const q = this.value.trim().toLowerCase();
+            dropdown.innerHTML = '';
+
+            if (q.length < 1) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+
+            const matches = ALL_PATIENTS.filter(p =>
+                (p.name && p.name.toLowerCase().includes(q)) ||
+                (p.userId && p.userId.toLowerCase().includes(q))
+            ).slice(0, 8);
+
+            if (matches.length === 0) {
+                dropdown.innerHTML = '<div class="dropdown-empty">No patients found</div>';
+                dropdown.classList.remove('hidden');
+                return;
+            }
+
+            matches.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item';
+                item.innerHTML = `
+                <div class="dropdown-item-avatar"><i class="fa-solid fa-user"></i></div>
+                <div class="dropdown-item-info">
+                    <div class="dropdown-item-name">${p.name}</div>
+                    <div class="dropdown-item-meta">${p.userId} · ${p.email || 'No email'}</div>
+                </div>`;
+                item.addEventListener('click', () => selectPatient(p));
+                dropdown.appendChild(item);
+            });
+
+            dropdown.classList.remove('hidden');
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.patient-search-wrap')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function selectPatient(p) {
+            selectedPatient = p;
+            document.getElementById('selectedUserId').value = p.userId;
+            document.getElementById('selectedPatientEmail').value = p.email || '';
+            document.getElementById('selectedHospital').value = p.registeredHospital || '';
+            document.getElementById('cardPatientName').textContent = p.name;
+            document.getElementById('cardPatientId').textContent = p.userId;
+            document.getElementById('cardPatientEmail').textContent = p.email || 'No email';
+
+            document.getElementById('selectedPatientCard').classList.remove('hidden');
+            searchInput.value = '';
+            dropdown.classList.add('hidden');
+            searchInput.style.display = 'none';
+        }
+
+        function clearPatient() {
+            selectedPatient = null;
+            document.getElementById('selectedUserId').value = '';
+            document.getElementById('selectedPatientEmail').value = '';
+            document.getElementById('selectedHospital').value = '';
+            document.getElementById('selectedPatientCard').classList.add('hidden');
+            searchInput.style.display = '';
+            searchInput.value = '';
+            searchInput.focus();
+        }
+
+        // ── Category selection ────────────────────────────────────────────
+        function selectCategory(btn) {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            selectedCategory = btn.dataset.category;
+            document.getElementById('selectedCategory').value = selectedCategory;
+
+            const subtypes = SUBTYPES[selectedCategory] || [];
+            const select = document.getElementById('subtypeSelect');
+            const label = document.getElementById('subtypeLabel');
+            const wrap = document.getElementById('subtypeWrap');
+
+            select.innerHTML = '<option value="">-- Select type --</option>';
+            subtypes.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                select.appendChild(opt);
+            });
+
+            label.innerHTML = `Specific ${selectedCategory} Type <span class="required">*</span>`;
+            wrap.classList.remove('hidden');
+        }
+
+        // ── Set min date to today ─────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', function () {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('appointmentDate').min = today;
+        });
+
+        // ── Submit ────────────────────────────────────────────────────────
+        async function submitBooking() {
+            // Validation
+            if (!selectedPatient) {
+                showToast('Please select a patient.', 'error'); return;
+            }
+            if (!selectedCategory) {
+                showToast('Please select an appointment category.', 'error'); return;
+            }
+            const subtype = document.getElementById('subtypeSelect').value;
+            if (!subtype) {
+                showToast('Please select a specific type.', 'error'); return;
+            }
+            const date = document.getElementById('appointmentDate').value;
+            if (!date) {
+                showToast('Please select an appointment date.', 'error'); return;
+            }
+            const time = document.getElementById('appointmentTime').value;
+            if (!time) {
+                showToast('Please select an appointment time.', 'error'); return;
+            }
+            const duration = document.getElementById('appointmentDuration').value;
+            if (!duration) {
+                showToast('Please select a duration.', 'error'); return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Booking...';
+
+            const payload = {
+                userId: selectedPatient.userId,
+                appointmentDate: date,
+                appointmentTime: time,
+                duration: duration,
+                typeOfSickness: subtype,
+                appointmentCategory: selectedCategory,
+                bookedBy: 'CLINIC_ASSISTANT',
+                email: document.getElementById('selectedPatientEmail').value,
+                registeredHospital: document.getElementById('selectedHospital').value || selectedPatient.registeredHospital || '',
+                hospitalId: selectedPatient.hospitalId || '',
+                additionalNotes: document.getElementById('additionalNotes').value,
+                insuranceProvider: document.getElementById('insuranceProvider').value || null,
+                insurancePolicyNumber: document.getElementById('insurancePolicyNumber').value || null,
+                appointmentCost: 0.0,
+                statusPayment: 'Not Paid',
+                statusAppointment: 'Approved',
+                doctorId: null
+            };
+
+            try {
+                const resp = await fetch('/clinicassistant/api/bookAppointment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await resp.json();
+
+                if (data.success) {
+                    document.getElementById('successApptId').textContent = 'Appointment ID: ' + (data.appointmentId || '');
+                    new bootstrap.Modal(document.getElementById('successModal')).show();
+                } else {
+                    showToast(data.message || 'Booking failed. Please try again.', 'error');
+                }
+            } catch (err) {
+                showToast('Network error. Please try again.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-calendar-plus"></i> Book Appointment';
+            }
+        }
+
+        // ── Reset ─────────────────────────────────────────────────────────
+        function resetForm() {
+            clearPatient();
+            selectedCategory = null;
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('selectedCategory').value = '';
+            document.getElementById('subtypeWrap').classList.add('hidden');
+            document.getElementById('subtypeSelect').innerHTML = '<option value="">-- Select type --</option>';
+            document.getElementById('appointmentDate').value = '';
+            document.getElementById('appointmentTime').value = '';
+            document.getElementById('appointmentDuration').value = '';
+            document.getElementById('insuranceProvider').value = '';
+            document.getElementById('insurancePolicyNumber').value = '';
+            document.getElementById('additionalNotes').value = '';
+            showToast('Form has been reset.', 'success');
+        }
+
+        function bookAnother() {
+            bootstrap.Modal.getInstance(document.getElementById('successModal')).hide();
+            resetForm();
+        }
+
+        // ── Toast ─────────────────────────────────────────────────────────
+        function showToast(msg, type) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast-msg' + (type === 'error' ? ' error' : '');
+            toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i> ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
