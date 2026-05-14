@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Radiology Report Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --indigo-900: #1a1a4e;
+            --indigo-700: #2d2d8a;
+            --indigo-500: #4a4ac4;
+            --indigo-300: #7a7ae0;
+            --indigo-50:  #eeeeff;
+            --sand:       #f5f0e8;
+            --sand-dark:  #e8dfd0;
+            --text-dark:  #1a1a35;
+            --text-mid:   #4a4a70;
+            --text-light: #9a9ab8;
+            --white:      #ffffff;
+            --danger:     #e05c5c;
+            --success:    #3aaa7a;
+            --shadow-sm:  0 2px 8px rgba(26,26,78,0.08);
+            --radius:     12px;
+            --radius-lg:  20px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background-color: var(--sand); color: var(--text-dark); min-height: 100vh; }
+        .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+
+        /* SIDEBAR */
+        .sidebar { background: var(--indigo-900); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+        .sidebar-brand { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .sidebar-brand .brand-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--indigo-300); font-weight: 500; margin-bottom: 6px; }
+        .sidebar-brand h1 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--white); line-height: 1.2; }
+        .sidebar-brand h1 span { color: var(--indigo-300); }
+        .profile-card { margin: 20px 16px; background: rgba(255,255,255,0.06); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.08); }
+        .profile-info .name { font-size: 14px; font-weight: 600; color: var(--white); }
+        .profile-info .role-badge { font-size: 10px; background: var(--indigo-500); color: var(--white); padding: 2px 8px; border-radius: 20px; margin-top: 4px; display: inline-block; }
+        .sidebar-nav { padding: 8px 12px; flex: 1; }
+        .nav-section-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--indigo-300); padding: 12px 12px 6px; font-weight: 500; }
+        .nav-link-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; color: rgba(255,255,255,0.65); text-decoration: none; font-size: 14px; transition: all 0.2s ease; margin-bottom: 2px; }
+        .nav-link-item:hover, .nav-link-item.active { background: var(--indigo-700); color: var(--white); }
+        .nav-link-item i { width: 18px; text-align: center; font-size: 15px; }
+        .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
+        .logout-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 14px; background: rgba(224,92,92,0.15); border: 1px solid rgba(224,92,92,0.25); border-radius: 10px; color: #f4a0a0; font-size: 14px; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .logout-btn:hover { background: rgba(224,92,92,0.28); color: #ffcccc; }
+
+        /* MAIN */
+        .main { padding: 32px 36px; overflow-y: auto; }
+        .page-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+        .page-header-text .subtitle { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--indigo-500); font-weight: 500; margin-bottom: 4px; }
+        .page-header-text h2 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--indigo-900); font-weight: 600; }
+
+        /* BUTTON */
+        .btn-create { display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; background: var(--indigo-500); color: var(--white); border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; transition: background 0.2s; white-space: nowrap; }
+        .btn-create:hover { background: var(--indigo-700); color: var(--white); }
+
+        /* FILTER BAR */
+        .filter-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        .search-wrap { display: flex; align-items: center; gap: 8px; background: var(--white); border: 1px solid var(--sand-dark); border-radius: 10px; padding: 0 14px; flex: 1; min-width: 200px; }
+        .search-wrap i { color: var(--text-light); font-size: 13px; }
+        .search-wrap input { border: none; outline: none; background: transparent; font-size: 14px; color: var(--text-dark); padding: 10px 0; width: 100%; }
+        .filter-select { border: 1px solid var(--sand-dark); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--text-dark); background: var(--white); cursor: pointer; }
+        .btn-filter { padding: 10px 18px; background: var(--indigo-50); color: var(--indigo-500); border: 1px solid var(--indigo-300); border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-filter:hover { background: var(--indigo-500); color: var(--white); }
+
+        /* TABLE CARD */
+        .table-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid rgba(0,0,0,0.04); overflow: hidden; }
+        .table-card-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--sand-dark); }
+        .table-card-header h5 { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--indigo-900); margin: 0; }
+        .record-count { font-size: 12px; color: var(--text-light); background: var(--sand); padding: 4px 12px; border-radius: 20px; }
+
+        .report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .report-table thead th { background: var(--indigo-900); color: var(--white); padding: 13px 18px; text-align: left; font-weight: 500; font-size: 12px; letter-spacing: 0.4px; }
+        .report-table tbody td { padding: 14px 18px; border-bottom: 1px solid var(--sand-dark); color: var(--text-dark); vertical-align: middle; }
+        .report-table tbody tr:last-child td { border-bottom: none; }
+        .report-table tbody tr:hover td { background: var(--indigo-50); }
+
+        /* ID CELL */
+        .cell-id { font-size: 11px; color: var(--text-light); font-family: monospace; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* STATUS BADGES */
+        .badge-draft     { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+        .badge-finalized { background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+
+        /* ACTION BUTTONS */
+        .actions-cell { display: flex; align-items: center; gap: 8px; }
+        .btn-action { display: inline-flex; align-items: center; gap: 5px; padding: 6px 13px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; text-decoration: none; transition: all 0.15s; }
+        .btn-view     { background: var(--indigo-50); color: var(--indigo-500); }
+        .btn-view:hover { background: var(--indigo-500); color: var(--white); }
+        .btn-download { background: #ecfdf5; color: #059669; }
+        .btn-download:hover { background: #059669; color: var(--white); }
+        .btn-finalize { background: #fef3c7; color: #d97706; }
+        .btn-finalize:hover { background: #d97706; color: var(--white); }
+
+        /* EMPTY STATE */
+        .empty-state { text-align: center; padding: 60px 24px; color: var(--text-light); }
+        .empty-state i { font-size: 40px; margin-bottom: 14px; display: block; }
+        .empty-state p { font-size: 14px; }
+
+        /* ALERTS */
+        .alert-toast { position: fixed; top: 24px; right: 24px; z-index: 9999; padding: 14px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; display: none; align-items: center; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-width: 340px; }
+        .alert-toast.success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+        .alert-toast.error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+        /* MODAL */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26,26,78,0.45); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal-box { background: var(--white); border-radius: var(--radius-lg); padding: 32px; width: 100%; max-width: 600px; box-shadow: 0 20px 60px rgba(26,26,78,0.2); }
+        .modal-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--indigo-900); margin-bottom: 6px; }
+        .modal-subtitle { font-size: 13px; color: var(--text-light); margin-bottom: 24px; }
+        .form-label-m { font-size: 13px; font-weight: 500; color: var(--text-mid); margin-bottom: 6px; display: block; }
+        .form-control-m { width: 100%; border: 1px solid var(--sand-dark); border-radius: 10px; padding: 10px 14px; font-size: 14px; color: var(--text-dark); background: var(--sand); margin-bottom: 14px; outline: none; transition: border-color 0.2s; }
+        .form-control-m:focus { border-color: var(--indigo-300); background: var(--white); }
+        textarea.form-control-m { resize: vertical; min-height: 90px; }
+        .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; }
+        .btn-cancel  { padding: 10px 22px; background: var(--sand); color: var(--text-mid); border: 1px solid var(--sand-dark); border-radius: 10px; font-size: 14px; cursor: pointer; }
+        .btn-confirm { padding: 10px 22px; background: var(--indigo-500); color: var(--white); border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .btn-confirm:hover { background: var(--indigo-700); }
+
+        /* DETAIL MODAL ROWS */
+        .detail-row { display: flex; gap: 8px; margin-bottom: 12px; font-size: 14px; }
+        .detail-label { color: var(--text-light); min-width: 140px; flex-shrink: 0; }
+        .detail-value { color: var(--text-dark); font-weight: 500; word-break: break-all; }
+        .detail-block { margin-top: 6px; margin-bottom: 16px; }
+        .detail-block .detail-label { margin-bottom: 4px; display: block; }
+        .detail-block .detail-value { background: var(--sand); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 400; line-height: 1.6; white-space: pre-wrap; }
+
+        @media (max-width: 992px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+
+    <!-- ════════ SIDEBAR ════════ -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-label">WellCheck System</div>
+            <h1>Radiology <span>Reports</span></h1>
+        </div>
+
+        <div class="profile-card">
+            <div class="profile-info">
+                <div class="name" th:text="${userName}">User</div>
+                <span class="role-badge" th:text="${userRole}">Role</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main Menu</div>
+            <a th:href="${dashboardUrl}" class="nav-link-item">
+                <i class="fa-solid fa-house-medical"></i>
+                Dashboard
+            </a>
+            <div class="nav-section-label" style="margin-top: 8px;">Imaging</div>
+            <a th:href="@{/radiology}" class="nav-link-item">
+                <i class="fa-solid fa-x-ray"></i>
+                Medical Imaging
+            </a>
+            <a th:href="@{/reports}" class="nav-link-item active">
+                <i class="fa-solid fa-file-medical-alt"></i>
+                Report Management
+            </a>
+            <div class="nav-section-label" style="margin-top: 8px;">Collaboration</div>
+            <a th:href="@{/communication}" class="nav-link-item">
+                <i class="fa-solid fa-comments"></i>
+                Communication
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post" hidden name="logoutForm">
+                <input type="submit" value="Logout" />
+            </form>
+            <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- ════════ MAIN ════════ -->
+    <main class="main">
+
+        <div class="page-header">
+            <div class="page-header-text">
+                <div class="subtitle">Radiology Module</div>
+                <h2>Radiology Report Management</h2>
+            </div>
+            <button class="btn-create" onclick="openCreateModal()">
+                <i class="fa-solid fa-file-circle-plus"></i>
+                Create Report
+            </button>
+        </div>
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar">
+            <div class="search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" placeholder="Search by Report ID or Request ID…"
+                       oninput="filterTable()" />
+            </div>
+            <select class="filter-select" id="statusFilter" onchange="filterTable()">
+                <option value="">All Statuses</option>
+                <option value="Draft">Draft</option>
+                <option value="Finalized">Finalized</option>
+            </select>
+            <button class="btn-filter" onclick="loadReports()">
+                <i class="fa-solid fa-rotate"></i> Refresh
+            </button>
+        </div>
+
+        <!-- TABLE CARD -->
+        <div class="table-card">
+            <div class="table-card-header">
+                <h5><i class="fa-solid fa-list-ul" style="color:var(--indigo-500); margin-right:8px;"></i>All Reports</h5>
+                <span class="record-count" id="recordCount">Loading…</span>
+            </div>
+
+            <div id="tableWrapper">
+                <table class="report-table" id="reportTable">
+                    <thead>
+                        <tr>
+                            <th>Report ID</th>
+                            <th>Request ID</th>
+                            <th>Radiologist ID</th>
+                            <th>Status</th>
+                            <th>Created Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody">
+                        <!-- Populated via JS -->
+                    </tbody>
+                </table>
+                <div class="empty-state" id="emptyState" style="display:none;">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <p>No reports found. Create the first one using the button above.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ════════ TOAST ════════ -->
+<div class="alert-toast success" id="toastSuccess">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toastSuccessMsg"></span>
+</div>
+<div class="alert-toast error" id="toastError">
+    <i class="fa-solid fa-circle-exclamation"></i>
+    <span id="toastErrorMsg"></span>
+</div>
+
+<!-- ════════ CREATE REPORT MODAL ════════ -->
+<div class="modal-overlay" id="createModal">
+    <div class="modal-box">
+        <h4 class="modal-title">Create New Report</h4>
+        <p class="modal-subtitle">Enter report details below. Status will default to <strong>Draft</strong>.</p>
+        <form id="createReportForm" onsubmit="submitCreate(event)">
+            <label class="form-label-m">Request ID <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="cr-requestId" class="form-control-m" placeholder="Imaging request ID" required />
+
+            <label class="form-label-m">Radiologist ID <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="cr-radiologistId" class="form-control-m"
+                   th:value="${userId}" placeholder="Your user ID" required />
+
+            <label class="form-label-m">Findings</label>
+            <textarea id="cr-findings" class="form-control-m" placeholder="Enter clinical findings…"></textarea>
+
+            <label class="form-label-m">Impression</label>
+            <textarea id="cr-impression" class="form-control-m" placeholder="Enter impression / conclusion…"></textarea>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal('createModal')">Cancel</button>
+                <button type="submit" class="btn-confirm">
+                    <i class="fa-solid fa-floppy-disk" style="margin-right:6px;"></i>Save as Draft
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ════════ VIEW DETAIL MODAL ════════ -->
+<div class="modal-overlay" id="viewModal">
+    <div class="modal-box">
+        <h4 class="modal-title">Report Detail</h4>
+        <p class="modal-subtitle">Full information for the selected report.</p>
+
+        <div class="detail-row">
+            <span class="detail-label">Report ID</span>
+            <span class="detail-value" id="d-reportId">—</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Request ID</span>
+            <span class="detail-value" id="d-requestId">—</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Radiologist ID</span>
+            <span class="detail-value" id="d-radiologistId">—</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Status</span>
+            <span class="detail-value" id="d-status">—</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Created Date</span>
+            <span class="detail-value" id="d-createdDate">—</span>
+        </div>
+        <div class="detail-block">
+            <span class="detail-label">Findings</span>
+            <div class="detail-value" id="d-findings">—</div>
+        </div>
+        <div class="detail-block">
+            <span class="detail-label">Impression</span>
+            <div class="detail-value" id="d-impression">—</div>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn-cancel" onclick="closeModal('viewModal')">Close</button>
+            <a id="d-downloadLink" href="#" class="btn-confirm" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-download"></i> Download
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ════════ FINALIZE CONFIRM MODAL ════════ -->
+<div class="modal-overlay" id="finalizeModal">
+    <div class="modal-box" style="max-width:440px; text-align:center;">
+        <i class="fa-solid fa-circle-check" style="font-size:40px; color:var(--success); margin-bottom:14px;"></i>
+        <h4 class="modal-title">Finalize Report?</h4>
+        <p class="modal-subtitle" style="text-align:center;">
+            This will change the status to <strong>Finalized</strong> and send an email notification to the radiologist. This action cannot be reversed.
+        </p>
+        <input type="hidden" id="finalizeReportId" />
+        <div class="modal-actions" style="justify-content:center;">
+            <button type="button" class="btn-cancel" onclick="closeModal('finalizeModal')">Cancel</button>
+            <button type="button" class="btn-confirm" onclick="confirmFinalize()">
+                <i class="fa-solid fa-check" style="margin-right:6px;"></i>Yes, Finalize
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const BASE = '/api/reports';
+    let allReports = [];
+
+    /* ─── Bootstrap ─── */
+    document.addEventListener('DOMContentLoaded', loadReports);
+
+    /* ─── Load all reports ─── */
+    async function loadReports() {
+        try {
+            // Fetch by current user's radiologist ID first; fall back to all by status
+            const res = await fetch(BASE + '/status/Draft');
+            const drafts = res.ok ? await res.json() : [];
+
+            const res2 = await fetch(BASE + '/status/Finalized');
+            const finalized = res2.ok ? await res2.json() : [];
+
+            allReports = [...drafts, ...finalized]
+                .sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));
+
+            renderTable(allReports);
+        } catch (ex) {
+            showError('Failed to load reports: ' + ex.message);
+        }
+    }
+
+    /* ─── Render table ─── */
+    function renderTable(rows) {
+        const tbody = document.getElementById('reportTableBody');
+        const empty = document.getElementById('emptyState');
+        const count = document.getElementById('recordCount');
+
+        tbody.innerHTML = '';
+        count.textContent = rows.length + ' record' + (rows.length !== 1 ? 's' : '');
+
+        if (rows.length === 0) {
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+
+        rows.forEach(r => {
+            const statusBadge = r.status === 'Finalized'
+                ? '<span class="badge-finalized">Finalized</span>'
+                : '<span class="badge-draft">Draft</span>';
+
+            const finalizeBtn = r.status !== 'Finalized'
+                ? `<button class="btn-action btn-finalize" onclick="openFinalizeModal('${r.reportId}')">
+                       <i class="fa-solid fa-check-double"></i> Finalize
+                   </button>`
+                : '';
+
+            tbody.innerHTML += `
+                <tr>
+                    <td><span class="cell-id" title="${r.reportId}">${r.reportId}</span></td>
+                    <td>${r.requestId || '—'}</td>
+                    <td><span class="cell-id" title="${r.radiologistId}">${r.radiologistId || '—'}</span></td>
+                    <td>${statusBadge}</td>
+                    <td>${r.createdDate ? new Date(r.createdDate).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '—'}</td>
+                    <td>
+                        <div class="actions-cell">
+                            <button class="btn-action btn-view" onclick='openViewModal(${JSON.stringify(r)})'>
+                                <i class="fa-solid fa-eye"></i> View
+                            </button>
+                            <a class="btn-action btn-download"
+                               href="${BASE}/${encodeURIComponent(r.reportId)}/download">
+                                <i class="fa-solid fa-download"></i> Download
+                            </a>
+                            ${finalizeBtn}
+                        </div>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    /* ─── Filter table client-side ─── */
+    function filterTable() {
+        const q      = document.getElementById('searchInput').value.toLowerCase();
+        const status = document.getElementById('statusFilter').value;
+
+        const filtered = allReports.filter(r => {
+            const matchText   = !q || r.reportId.toLowerCase().includes(q) || (r.requestId || '').toLowerCase().includes(q);
+            const matchStatus = !status || r.status === status;
+            return matchText && matchStatus;
+        });
+        renderTable(filtered);
+    }
+
+    /* ─── Create report ─── */
+    function openCreateModal() {
+        document.getElementById('createReportForm').reset();
+        openModal('createModal');
+    }
+
+    async function submitCreate(e) {
+        e.preventDefault();
+        const body = {
+            requestId:     document.getElementById('cr-requestId').value.trim(),
+            radiologistId: document.getElementById('cr-radiologistId').value.trim(),
+            findings:      document.getElementById('cr-findings').value.trim(),
+            impression:    document.getElementById('cr-impression').value.trim()
+        };
+        try {
+            const res = await fetch(BASE, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) { const err = await res.json(); showError(err.error || 'Failed to create report.'); return; }
+            closeModal('createModal');
+            showSuccess('Report created successfully as Draft.');
+            await loadReports();
+        } catch (ex) { showError('Network error: ' + ex.message); }
+    }
+
+    /* ─── View detail ─── */
+    function openViewModal(r) {
+        document.getElementById('d-reportId').textContent     = r.reportId || '—';
+        document.getElementById('d-requestId').textContent    = r.requestId || '—';
+        document.getElementById('d-radiologistId').textContent = r.radiologistId || '—';
+        document.getElementById('d-status').innerHTML         = r.status === 'Finalized'
+            ? '<span class="badge-finalized">Finalized</span>'
+            : '<span class="badge-draft">Draft</span>';
+        document.getElementById('d-createdDate').textContent  = r.createdDate
+            ? new Date(r.createdDate).toLocaleString('en-GB') : '—';
+        document.getElementById('d-findings').textContent     = r.findings   || 'N/A';
+        document.getElementById('d-impression').textContent   = r.impression || 'N/A';
+        document.getElementById('d-downloadLink').href        = BASE + '/' + encodeURIComponent(r.reportId) + '/download';
+        openModal('viewModal');
+    }
+
+    /* ─── Finalize ─── */
+    function openFinalizeModal(reportId) {
+        document.getElementById('finalizeReportId').value = reportId;
+        openModal('finalizeModal');
+    }
+
+    async function confirmFinalize() {
+        const reportId = document.getElementById('finalizeReportId').value;
+        try {
+            const res = await fetch(BASE + '/' + encodeURIComponent(reportId) + '/status', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'Finalized' })
+            });
+            if (!res.ok) { const err = await res.json(); showError(err.error || 'Failed to finalize report.'); return; }
+            closeModal('finalizeModal');
+            showSuccess('Report finalized. Email notification has been sent.');
+            await loadReports();
+        } catch (ex) { showError('Network error: ' + ex.message); }
+    }
+
+    /* ─── Modal helpers ─── */
+    function openModal(id)  { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    // Close on backdrop click
+    document.querySelectorAll('.modal-overlay').forEach(el => {
+        el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+    });
+
+    /* ─── Toast helpers ─── */
+    function showSuccess(msg) { showToast('toastSuccess', 'toastSuccessMsg', msg); }
+    function showError(msg)   { showToast('toastError',   'toastErrorMsg',   msg); }
+
+    function showToast(toastId, msgId, msg) {
+        const el = document.getElementById(toastId);
+        document.getElementById(msgId).textContent = msg;
+        el.style.display = 'flex';
+        setTimeout(() => { el.style.display = 'none'; }, 4500);
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

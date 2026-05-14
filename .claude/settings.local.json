@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(claude:*)"
+      "Bash(claude:*)",
+      "Bash(Get-ChildItem -Directory \"c:\\\\Users\\\\HP\\\\OneDrive - SIRIM Bhd\\\\Desktop\\\\WellCheck-SHSR\\\\src\\\\main\\\\java\\\\com\\\\SmartHealthRemoteSystem\\\\SHSR\")",
+      "Bash(Select-Object Name)"
     ]
   }
 }

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Radiology Reports</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --indigo-900: #1a1a4e;
+            --indigo-700: #2d2d8a;
+            --indigo-500: #4a4ac4;
+            --indigo-300: #7a7ae0;
+            --indigo-100: #c2c2f4;
+            --indigo-50:  #eeeeff;
+            --sand:       #f5f0e8;
+            --sand-dark:  #e8dfd0;
+            --text-dark:  #1a1a35;
+            --text-mid:   #4a4a70;
+            --text-light: #9a9ab8;
+            --white:      #ffffff;
+            --danger:     #e05c5c;
+            --success:    #3aaa7a;
+            --shadow-sm:  0 2px 8px rgba(26,26,78,0.08);
+            --shadow-md:  0 6px 24px rgba(26,26,78,0.12);
+            --radius:     12px;
+            --radius-lg:  20px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background-color: var(--sand); color: var(--text-dark); min-height: 100vh; }
+        .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+
+        /* SIDEBAR */
+        .sidebar { background: var(--indigo-900); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+        .sidebar-brand { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .sidebar-brand .brand-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--indigo-300); font-weight: 500; margin-bottom: 6px; }
+        .sidebar-brand h1 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--white); line-height: 1.2; }
+        .sidebar-brand h1 span { color: var(--indigo-300); }
+        .profile-card { margin: 20px 16px; background: rgba(255,255,255,0.06); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.08); }
+        .profile-info .name { font-size: 14px; font-weight: 600; color: var(--white); }
+        .profile-info .role-badge { font-size: 10px; background: var(--indigo-500); color: var(--white); padding: 2px 8px; border-radius: 20px; margin-top: 4px; display: inline-block; }
+        .sidebar-nav { padding: 8px 12px; flex: 1; }
+        .nav-section-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--indigo-300); padding: 12px 12px 6px; font-weight: 500; }
+        .nav-link-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; color: rgba(255,255,255,0.65); text-decoration: none; font-size: 14px; transition: all 0.2s ease; margin-bottom: 2px; }
+        .nav-link-item:hover, .nav-link-item.active { background: var(--indigo-700); color: var(--white); }
+        .nav-link-item i { width: 18px; text-align: center; font-size: 15px; }
+        .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
+        .logout-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 14px; background: rgba(224,92,92,0.15); border: 1px solid rgba(224,92,92,0.25); border-radius: 10px; color: #f4a0a0; font-size: 14px; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .logout-btn:hover { background: rgba(224,92,92,0.28); color: #ffcccc; }
+
+        /* MAIN */
+        .main { padding: 32px 36px; overflow-y: auto; }
+        .page-header { margin-bottom: 28px; }
+        .page-header .subtitle { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--indigo-500); font-weight: 500; margin-bottom: 4px; }
+        .page-header h2 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--indigo-900); font-weight: 600; }
+
+        /* CARD */
+        .card-panel { background: var(--white); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0,0,0,0.04); margin-bottom: 24px; }
+        .card-panel h5 { font-family: 'Playfair Display', serif; font-size: 17px; color: var(--indigo-900); margin-bottom: 20px; }
+
+        /* FORM */
+        .form-label { font-size: 13px; font-weight: 500; color: var(--text-mid); margin-bottom: 6px; }
+        .form-control, .form-select { border: 1px solid var(--sand-dark); border-radius: 10px; font-size: 14px; padding: 10px 14px; color: var(--text-dark); background: var(--sand); transition: border-color 0.2s; }
+        .form-control:focus, .form-select:focus { border-color: var(--indigo-300); background: var(--white); box-shadow: 0 0 0 3px rgba(74,74,196,0.10); outline: none; }
+        textarea.form-control { resize: vertical; min-height: 100px; }
+        .btn-primary-custom { background: var(--indigo-500); color: var(--white); border: none; border-radius: 10px; padding: 11px 24px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-primary-custom:hover { background: var(--indigo-700); }
+        .btn-outline-custom { background: transparent; color: var(--indigo-500); border: 1.5px solid var(--indigo-300); border-radius: 10px; padding: 9px 20px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-outline-custom:hover { background: var(--indigo-50); color: var(--indigo-700); }
+
+        /* TABLE */
+        .report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .report-table th { background: var(--indigo-900); color: var(--white); padding: 12px 16px; text-align: left; font-weight: 500; font-size: 12px; letter-spacing: 0.5px; }
+        .report-table th:first-child { border-radius: 10px 0 0 0; }
+        .report-table th:last-child  { border-radius: 0 10px 0 0; }
+        .report-table td { padding: 13px 16px; border-bottom: 1px solid var(--sand-dark); color: var(--text-dark); vertical-align: middle; }
+        .report-table tr:last-child td { border-bottom: none; }
+        .report-table tr:hover td { background: var(--indigo-50); }
+        .badge-draft     { background: #fff3cd; color: #856404; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-finalized { background: #d1fae5; color: #065f46; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+
+        /* ALERTS */
+        .alert-success { background: #d1fae5; border: 1px solid #6ee7b7; color: #065f46; border-radius: 10px; padding: 12px 18px; font-size: 13px; margin-bottom: 20px; display: none; }
+        .alert-error   { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; border-radius: 10px; padding: 12px 18px; font-size: 13px; margin-bottom: 20px; display: none; }
+
+        @media (max-width: 992px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-label">WellCheck System</div>
+            <h1>Radiology <span>Reports</span></h1>
+        </div>
+
+        <div class="profile-card">
+            <div class="profile-info">
+                <div class="name" th:text="${userName}">User</div>
+                <span class="role-badge" th:text="${userRole}">Role</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main Menu</div>
+            <a th:href="${dashboardUrl}" class="nav-link-item">
+                <i class="fa-solid fa-house-medical"></i> Dashboard
+            </a>
+            <div class="nav-section-label" style="margin-top: 8px;">Imaging</div>
+            <a th:href="@{/radiology}" class="nav-link-item">
+                <i class="fa-solid fa-x-ray"></i> Medical Imaging
+            </a>
+            <a th:href="@{/radiology-report}" class="nav-link-item active">
+                <i class="fa-solid fa-file-medical"></i> Reports
+            </a>
+            <div class="nav-section-label" style="margin-top: 8px;">Collaboration</div>
+            <a th:href="@{/communication}" class="nav-link-item">
+                <i class="fa-solid fa-comments"></i> Communication
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post" hidden name="logoutForm">
+                <input type="submit" value="Logout" />
+            </form>
+            <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <div class="page-header">
+            <div class="subtitle">Radiology Module</div>
+            <h2>Report Management</h2>
+        </div>
+
+        <div id="alertSuccess" class="alert-success"></div>
+        <div id="alertError"   class="alert-error"></div>
+
+        <!-- CREATE REPORT FORM -->
+        <div class="card-panel">
+            <h5><i class="fa-solid fa-file-circle-plus" style="color:var(--indigo-500); margin-right:8px;"></i>Upload New Report (UCR016)</h5>
+            <form id="createReportForm">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Request ID</label>
+                        <input type="text" id="cr-requestId" class="form-control" placeholder="Imaging request ID" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Radiologist ID</label>
+                        <input type="text" id="cr-radiologistId" class="form-control"
+                               th:value="${userId}" placeholder="Radiologist user ID" required />
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Findings</label>
+                        <textarea id="cr-findings" class="form-control" placeholder="Enter clinical findings..."></textarea>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Impression</label>
+                        <textarea id="cr-impression" class="form-control" placeholder="Enter impression / conclusion..."></textarea>
+                    </div>
+                    <div class="col-md-12">
+                        <button type="submit" class="btn-primary-custom">
+                            <i class="fa-solid fa-floppy-disk" style="margin-right:6px;"></i>Save as Draft
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- VIEW REPORT BY ID -->
+        <div class="card-panel">
+            <h5><i class="fa-solid fa-magnifying-glass" style="color:var(--indigo-500); margin-right:8px;"></i>View Report (UCR017)</h5>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label">Report ID</label>
+                    <input type="text" id="search-reportId" class="form-control" placeholder="Enter report ID" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Request ID</label>
+                    <input type="text" id="search-requestId" class="form-control" placeholder="Filter by request ID" />
+                </div>
+                <div class="col-md-3">
+                    <button onclick="fetchReport()" class="btn-primary-custom" style="width:100%;">
+                        <i class="fa-solid fa-search" style="margin-right:6px;"></i>Search
+                    </button>
+                </div>
+            </div>
+            <div id="reportResultArea" style="margin-top:20px; display:none;">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Report ID</th>
+                            <th>Request ID</th>
+                            <th>Radiologist ID</th>
+                            <th>Status</th>
+                            <th>Created Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- UPDATE STATUS -->
+        <div class="card-panel">
+            <h5><i class="fa-solid fa-rotate" style="color:var(--indigo-500); margin-right:8px;"></i>Track Report Status (UCR018)</h5>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label">Report ID</label>
+                    <input type="text" id="status-reportId" class="form-control" placeholder="Enter report ID" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">New Status</label>
+                    <select id="status-value" class="form-select">
+                        <option value="Draft">Draft</option>
+                        <option value="Finalized">Finalized</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button onclick="updateStatus()" class="btn-primary-custom" style="width:100%;">
+                        <i class="fa-solid fa-check" style="margin-right:6px;"></i>Update
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+    const BASE = '/api/reports';
+
+    function showSuccess(msg) {
+        const el = document.getElementById('alertSuccess');
+        el.textContent = msg;
+        el.style.display = 'block';
+        setTimeout(() => { el.style.display = 'none'; }, 4000);
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('alertError');
+        el.textContent = msg;
+        el.style.display = 'block';
+        setTimeout(() => { el.style.display = 'none'; }, 5000);
+    }
+
+    // UCR016 — Create report
+    document.getElementById('createReportForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const body = {
+            requestId:     document.getElementById('cr-requestId').value.trim(),
+            radiologistId: document.getElementById('cr-radiologistId').value.trim(),
+            findings:      document.getElementById('cr-findings').value.trim(),
+            impression:    document.getElementById('cr-impression').value.trim()
+        };
+        try {
+            const res = await fetch(BASE, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) { const err = await res.json(); showError(err.error || 'Failed to create report.'); return; }
+            const data = await res.json();
+            showSuccess('Report created successfully. ID: ' + data.reportId);
+            this.reset();
+        } catch (ex) { showError('Network error: ' + ex.message); }
+    });
+
+    // UCR017 — Fetch report(s)
+    async function fetchReport() {
+        const reportId  = document.getElementById('search-reportId').value.trim();
+        const requestId = document.getElementById('search-requestId').value.trim();
+        let url;
+
+        if (reportId)       url = BASE + '/' + encodeURIComponent(reportId);
+        else if (requestId) url = BASE + '/request/' + encodeURIComponent(requestId);
+        else { showError('Enter a Report ID or Request ID to search.'); return; }
+
+        try {
+            const res = await fetch(url);
+            if (!res.ok) { const err = await res.json(); showError(err.error || 'Report not found.'); return; }
+            const data = await res.json();
+            const rows = Array.isArray(data) ? data : [data];
+            renderTable(rows);
+        } catch (ex) { showError('Network error: ' + ex.message); }
+    }
+
+    function renderTable(rows) {
+        const tbody = document.getElementById('reportTableBody');
+        tbody.innerHTML = '';
+        rows.forEach(r => {
+            const statusBadge = r.status === 'Finalized'
+                ? '<span class="badge-finalized">Finalized</span>'
+                : '<span class="badge-draft">Draft</span>';
+            tbody.innerHTML += `
+                <tr>
+                    <td style="font-size:11px; color:var(--text-light);">${r.reportId}</td>
+                    <td>${r.requestId}</td>
+                    <td style="font-size:12px;">${r.radiologistId}</td>
+                    <td>${statusBadge}</td>
+                    <td style="font-size:12px;">${r.createdDate ? new Date(r.createdDate).toLocaleDateString() : '—'}</td>
+                    <td>
+                        <a href="${BASE}/${encodeURIComponent(r.reportId)}/download"
+                           class="btn-outline-custom" style="font-size:11px; padding:6px 12px;">
+                           <i class="fa-solid fa-download"></i> Download
+                        </a>
+                    </td>
+                </tr>`;
+        });
+        document.getElementById('reportResultArea').style.display = 'block';
+    }
+
+    // UCR018 — Update status
+    async function updateStatus() {
+        const reportId = document.getElementById('status-reportId').value.trim();
+        const status   = document.getElementById('status-value').value;
+        if (!reportId) { showError('Enter a Report ID to update status.'); return; }
+        try {
+            const res = await fetch(BASE + '/' + encodeURIComponent(reportId) + '/status', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            });
+            if (!res.ok) { const err = await res.json(); showError(err.error || 'Failed to update status.'); return; }
+            showSuccess('Status updated to ' + status + '. ' + (status === 'Finalized' ? 'Notification sent.' : ''));
+        } catch (ex) { showError('Network error: ' + ex.message); }
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

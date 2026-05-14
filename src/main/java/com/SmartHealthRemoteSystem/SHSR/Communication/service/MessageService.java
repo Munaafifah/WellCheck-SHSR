@@ -18,16 +18,16 @@ import java.util.UUID;
 public class MessageService {
 
     private final MessageRepository messageRepository;
-    private final ChatRepository chatRepository;
+    private final ChatRepository    chatRepository;
 
     @Autowired
     public MessageService(MessageRepository messageRepository,
                           ChatRepository chatRepository) {
         this.messageRepository = messageRepository;
-        this.chatRepository = chatRepository;
+        this.chatRepository    = chatRepository;
     }
 
-    // UCR022 + UCR023 — Send message
+    // UCR022 + UCR023 — Send message from a participant
     public Message sendMessage(SendMessageRequest request) {
         ChatSession session = chatRepository.findByChatId(request.getChatId())
                 .orElseThrow(() -> new IllegalArgumentException(
@@ -49,6 +49,8 @@ public class MessageService {
                 .senderId(request.getSenderId())
                 .content(request.getContent())
                 .imagingReferenceId(request.getImagingReferenceId())
+                .reportId(request.getReportId())
+                .reportLink(request.getReportLink())
                 .status(MessageStatus.SENT)
                 .timestamp(LocalDateTime.now())
                 .build();
@@ -67,5 +69,26 @@ public class MessageService {
                         "Chat session not found: " + chatId));
 
         return messageRepository.findByChatIdOrderByTimestampAsc(chatId);
+    }
+
+    // System-generated message — bypasses participant check; used for automated report alerts
+    public Message sendSystemMessage(String chatId, String content,
+                                     String reportId, String reportLink) {
+        chatRepository.findByChatId(chatId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Chat session not found: " + chatId));
+
+        Message message = Message.builder()
+                .messageId(UUID.randomUUID().toString())
+                .chatId(chatId)
+                .senderId("SYSTEM")
+                .content(content)
+                .reportId(reportId)
+                .reportLink(reportLink)
+                .status(MessageStatus.SENT)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return messageRepository.save(message);
     }
 }

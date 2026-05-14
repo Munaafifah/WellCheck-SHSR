@@ -15,15 +15,25 @@ public class SendMessageRequest {
 
     private String imagingReferenceId;
 
-    public String getChatId()               { return chatId; }
-    public void setChatId(String chatId)    { this.chatId = chatId; }
+    // Optional — set when the message is a report share/notification
+    private String reportId;
+    private String reportLink;
 
-    public String getSenderId()                  { return senderId; }
-    public void setSenderId(String senderId)     { this.senderId = senderId; }
+    public String getChatId()                                        { return chatId; }
+    public void   setChatId(String chatId)                          { this.chatId = chatId; }
 
-    public String getContent()                   { return content; }
-    public void setContent(String content)       { this.content = content; }
+    public String getSenderId()                                      { return senderId; }
+    public void   setSenderId(String senderId)                      { this.senderId = senderId; }
 
-    public String getImagingReferenceId()                         { return imagingReferenceId; }
-    public void setImagingReferenceId(String imagingReferenceId)  { this.imagingReferenceId = imagingReferenceId; }
+    public String getContent()                                       { return content; }
+    public void   setContent(String content)                        { this.content = content; }
+
+    public String getImagingReferenceId()                            { return imagingReferenceId; }
+    public void   setImagingReferenceId(String imagingReferenceId)  { this.imagingReferenceId = imagingReferenceId; }
+
+    public String getReportId()                                      { return reportId; }
+    public void   setReportId(String reportId)                      { this.reportId = reportId; }
+
+    public String getReportLink()                                    { return reportLink; }
+    public void   setReportLink(String reportLink)                  { this.reportLink = reportLink; }
 }

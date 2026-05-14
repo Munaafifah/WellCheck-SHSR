@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -24,7 +26,7 @@ public class ChatService {
         this.chatRepository = chatRepository;
     }
 
-    // UCR021 — Initiate Chat
+    // UCR021 — Initiate Chat (throws if an identical active session already exists)
     public ChatSession createChat(CreateChatRequest request) {
         List<String> participants = request.getParticipants();
         String createdBy = request.getCreatedBy();
@@ -32,7 +34,6 @@ public class ChatService {
         if (participants == null || participants.size() < 2) {
             throw new IllegalArgumentException("A chat session requires at least 2 participants.");
         }
-
         if (createdBy == null || createdBy.isBlank()) {
             throw new IllegalArgumentException("createdBy must not be blank.");
         }
@@ -47,7 +48,6 @@ public class ChatService {
         if (normalizedParticipants.size() < 2) {
             throw new IllegalArgumentException("A chat session requires at least 2 unique participants.");
         }
-
         if (normalizedParticipants.stream().noneMatch(p -> p.equals(createdBy.trim()))) {
             throw new IllegalArgumentException("createdBy must be one of the participants.");
         }
@@ -56,11 +56,8 @@ public class ChatService {
         boolean duplicateExists = chatRepository.findByStatus(ChatStatus.ACTIVE)
                 .stream()
                 .anyMatch(existing -> {
-                    List<String> existingParticipants = existing.getParticipants();
-                    if (existingParticipants == null) {
-                        return false;
-                    }
-                    return new HashSet<>(existingParticipants).equals(requestedSet);
+                    List<String> ep = existing.getParticipants();
+                    return ep != null && new HashSet<>(ep).equals(requestedSet);
                 });
 
         if (duplicateExists) {
@@ -93,7 +90,6 @@ public class ChatService {
         if (chatId == null || chatId.isBlank()) {
             throw new IllegalArgumentException("chatId must not be blank.");
         }
-
         ChatSession session = chatRepository.findByChatId(chatId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Chat session not found: " + chatId));
@@ -104,6 +100,46 @@ public class ChatService {
 
         session.setStatus(ChatStatus.CLOSED);
         session.setClosedAt(LocalDateTime.now());
+        return chatRepository.save(session);
+    }
+
+    // Report Integration — returns existing active session for the participant set,
+    // or creates a new one. Never throws on duplicate (unlike createChat).
+    public ChatSession createOrGetChatSessionForReport(List<String> participants,
+                                                       String createdBy,
+                                                       String subject) {
+        List<String> normalized = participants.stream()
+                .filter(p -> p != null && !p.isBlank())
+                .map(String::trim)
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (normalized.size() < 2) {
+            throw new IllegalArgumentException(
+                    "createOrGetChatSessionForReport requires at least 2 unique participants.");
+        }
+
+        Set<String> requestedSet = new HashSet<>(normalized);
+
+        Optional<ChatSession> existing = chatRepository.findByStatus(ChatStatus.ACTIVE)
+                .stream()
+                .filter(s -> s.getParticipants() != null
+                        && new HashSet<>(s.getParticipants()).equals(requestedSet))
+                .findFirst();
+
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+
+        ChatSession session = ChatSession.builder()
+                .chatId(UUID.randomUUID().toString())
+                .participants(new ArrayList<>(normalized))
+                .createdBy(createdBy != null ? createdBy.trim() : normalized.get(0))
+                .subject(subject)
+                .status(ChatStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .build();
+
         return chatRepository.save(session);
     }
 }
