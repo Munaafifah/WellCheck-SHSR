@@ -1,4 +1,3 @@
-
 //MongoDB//
 package com.SmartHealthRemoteSystem.SHSR.Service;
 
@@ -12,14 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.Comparator;
 
 @Service
-public class PrescriptionService {
+public class PrescriptionService implements IPrescriptionService {
 
     @Autowired
     private MongoPatientRepository patientRepository;
@@ -27,7 +25,7 @@ public class PrescriptionService {
     @Autowired
     private MedicineService medicineService;
 
-    // ✅ Create and save a prescription
+    @Override
     public String createPrescription(String patientId, Prescription prescription) {
         Optional<Patient> patientOptional = patientRepository.findById(patientId);
         if (!patientOptional.isPresent()) {
@@ -36,12 +34,10 @@ public class PrescriptionService {
 
         Patient patient = patientOptional.get();
 
-        // Generate ID and set timestamp
         String prescriptionId = UUID.randomUUID().toString();
         prescription.setPrescriptionId(prescriptionId);
         prescription.setTimestamp(Instant.now());
 
-        // Save into embedded map
         Map<String, Prescription> currentPrescriptions = patient.getPrescription();
         currentPrescriptions.put(prescriptionId, prescription);
         patient.setPrescription(currentPrescriptions);
@@ -51,7 +47,7 @@ public class PrescriptionService {
         return prescriptionId;
     }
 
-    // ✅ Retrieve all prescriptions for a patient
+    @Override
     public List<Prescription> getAllPrescriptions(String patientId) {
         Optional<Patient> patientOptional = patientRepository.findById(patientId);
         if (!patientOptional.isPresent())
@@ -61,7 +57,7 @@ public class PrescriptionService {
         return new ArrayList<>(patient.getPrescription().values());
     }
 
-    // ✅ Get single prescription
+    @Override
     public Prescription getPrescription(String patientId, String prescriptionId) {
         Optional<Patient> patientOptional = patientRepository.findById(patientId);
         if (!patientOptional.isPresent())
@@ -70,7 +66,7 @@ public class PrescriptionService {
         return patientOptional.get().getPrescription().get(prescriptionId);
     }
 
-    // ✅ Update prescription
+    @Override
     public String updatePrescription(String patientId, Prescription updatedPrescription) {
         Optional<Patient> patientOptional = patientRepository.findById(patientId);
         if (!patientOptional.isPresent())
@@ -91,7 +87,7 @@ public class PrescriptionService {
         return "Prescription updated successfully.";
     }
 
-    // ✅ Delete prescription
+    @Override
     public String deletePrescription(String patientId, String prescriptionId) {
         Optional<Patient> patientOptional = patientRepository.findById(patientId);
         if (!patientOptional.isPresent())
@@ -108,7 +104,7 @@ public class PrescriptionService {
         return "Prescription not found.";
     }
 
-    // ✅ Convenience method for prescribing medicines
+    @Override
     public Map<String, Object> prescribeMedicines(String patientId,
             Map<String, Integer> selectedMedicines,
             String prescriptionDescription,
@@ -119,30 +115,30 @@ public class PrescriptionService {
         String doctorId = userDetails.getUsername();
 
         List<String> medicineDetailsList = new ArrayList<>();
-        double totalDrugCost = 0.0; // ✅ calculate drug cost
+        double totalDrugCost = 0.0;
 
         for (Map.Entry<String, Integer> entry : selectedMedicines.entrySet()) {
             Medicine medicine = medicineService.getMedicine(entry.getKey());
             if (medicine != null) {
                 medicineService.prescribeMedicine(patientId, medicine.getMedId(), entry.getValue());
                 medicineDetailsList.add(medicine.getMedName() + " - Quantity: " + entry.getValue());
-                totalDrugCost += medicine.getPrice() * entry.getValue(); // ✅ accumulate cost
+                totalDrugCost += medicine.getPrice() * entry.getValue();
             }
         }
 
         Prescription prescription = new Prescription(doctorId, medicineDetailsList,
                 prescriptionDescription, diagnosisAilmentDescription);
-        prescription.setDrugCost(totalDrugCost); // ✅ set drug cost on prescription
+        prescription.setDrugCost(totalDrugCost);
 
         String prescriptionId = createPrescription(patientId, prescription);
 
-        // ✅ return both prescriptionId and drugCost
         Map<String, Object> result = new HashMap<>();
         result.put("prescriptionId", prescriptionId);
         result.put("drugCost", totalDrugCost);
         return result;
     }
 
+    @Override
     public void linkAppointmentToPrescription(String patientId, String prescriptionId, String appointmentId) {
         Optional<Patient> patientOptional = patientRepository.findById(patientId);
         if (!patientOptional.isPresent())
@@ -158,6 +154,7 @@ public class PrescriptionService {
         }
     }
 
+    @Override
     public List<Prescription> getRecentPrescriptionsByDoctor(String doctorId, int limit) {
         List<Patient> allPatients = patientRepository.findAll();
         List<Prescription> doctorPrescriptions = new ArrayList<>();
@@ -167,7 +164,7 @@ public class PrescriptionService {
                 continue;
             for (Prescription prescription : patient.getPrescription().values()) {
                 if (doctorId.equals(prescription.getDoctorId())) {
-                    prescription.setPatientName(patient.getName()); // to display in dashboard
+                    prescription.setPatientName(patient.getName());
                     doctorPrescriptions.add(prescription);
                 }
             }
