@@ -40,7 +40,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .requiresChannel()
-                .requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null)
+                .requestMatchers(r -> "http".equals(r.getHeader("X-Forwarded-Proto")))
                 .requiresSecure()
                 .and()
                 .authorizeRequests()
@@ -58,9 +58,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                 // ── Admin specific routes (MUST be before /admin/**) ──
                 .antMatchers("/admin/assign-sensor",
-                             "/admin/assign-sensor/**",
-                             "/admin/sensor-status",
-                             "/admin/doctor-schedule/**").hasRole("ADMIN")
+                        "/admin/assign-sensor/**",
+                        "/admin/sensor-status",
+                        "/admin/doctor-schedule/**")
+                .hasRole("ADMIN")
 
                 // ── Admin catch-all ──
                 .antMatchers("/admin/**").hasRole("ADMIN")
@@ -78,7 +79,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                 // ── Clinic Assistant routes ──
                 .antMatchers("/clinicassistant/**")
-                    .hasAnyRole("ADMIN", "CLINIC_ASSISTANT", "DOCTOR")
+                .hasAnyRole("ADMIN", "CLINIC_ASSISTANT", "DOCTOR")
 
                 // ── Radiographer routes ──
                 .antMatchers("/radiographer/**").hasAnyRole("ADMIN", "RADIOGRAPHER")
@@ -88,29 +89,29 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                 // ── Communication routes ──
                 .antMatchers("/communication/**")
-                    .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "CLINIC_ASSISTANT")
+                .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "CLINIC_ASSISTANT")
                 .antMatchers("/api/chats/**")
-                    .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "CLINIC_ASSISTANT")
+                .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "CLINIC_ASSISTANT")
                 .antMatchers("/api/messages/**")
-                    .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "CLINIC_ASSISTANT")
+                .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "CLINIC_ASSISTANT")
 
                 // ── Radiology routes ──
                 .antMatchers("/radiology", "/radiology/**")
-                    .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST")
+                .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST")
                 .antMatchers("/api/images/**")
-                    .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "PATIENT")
+                .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "PATIENT")
 
                 // ── Shared patient/doctor/admin routes ──
                 .antMatchers("/DiagnosisResult")
-                    .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
+                .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
                 .antMatchers("/predictionHistory")
-                    .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
+                .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
                 .antMatchers("/Health-status/**")
-                    .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
+                .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
                 .antMatchers("/ViewDailyHealthSymptom/**")
-                    .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
+                .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
                 .antMatchers("/viewPatientHealthStatus/**")
-                    .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
+                .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
 
                 // ── Any other request must be authenticated ──
                 .anyRequest().authenticated()
