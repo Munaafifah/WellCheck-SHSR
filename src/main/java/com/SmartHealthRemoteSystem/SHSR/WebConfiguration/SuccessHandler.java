@@ -1,17 +1,17 @@
 package com.SmartHealthRemoteSystem.SHSR.WebConfiguration;
 
+import java.io.IOException;
+import java.util.Collection;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Collection;
 
 @Component
 public class SuccessHandler implements AuthenticationSuccessHandler {
@@ -23,25 +23,26 @@ public class SuccessHandler implements AuthenticationSuccessHandler {
         String redirectUrl = null;
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         for (GrantedAuthority grantedAuthority : authorities) {
-            if (grantedAuthority.getAuthority().equals("ROLE_DOCTOR")) {
+            String authority = grantedAuthority.getAuthority();
+            if (authority.equals("ROLE_DOCTOR")) {
                 redirectUrl = "/doctor";
                 break;
-            } else if (grantedAuthority.getAuthority().equals("ROLE_PATIENT")) {
+            } else if (authority.equals("ROLE_PATIENT")) {
                 redirectUrl = "/patient";
                 break;
-            } else if (grantedAuthority.getAuthority().equals("ROLE_PHARMACIST")) {
+            } else if (authority.equals("ROLE_PHARMACIST")) {
                 redirectUrl = "/pharmacist";
                 break;
-            } else if (grantedAuthority.getAuthority().equals("ROLE_CLINIC_ASSISTANT")) {
+            } else if (authority.equals("ROLE_CLINIC_ASSISTANT")) {
                 redirectUrl = "/clinicassistant";
                 break;
-            } else if (grantedAuthority.getAuthority().equals("ROLE_RADIOGRAPHER")) {
+            } else if (authority.equals("ROLE_RADIOGRAPHER")) {
                 redirectUrl = "/radiographer";
                 break;
-            } else if (grantedAuthority.getAuthority().equals("ROLE_RADIOLOGIST")) {
+            } else if (authority.equals("ROLE_RADIOLOGIST")) {
                 redirectUrl = "/radiologist";
                 break;
-            } else {
+            } else if (authority.equals("ROLE_ADMIN")) {
                 redirectUrl = "/admin";
                 break;
             }
