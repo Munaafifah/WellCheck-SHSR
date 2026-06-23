@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard — WellCheck Radiance</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Shared admin design system -->
+    <link rel="stylesheet" th:href="@{/css/adminDashboard.css}">
+    <!-- Analytics-specific components (uses adminDashboard.css variables) -->
+    <link rel="stylesheet" th:href="@{/css/adminAnalytics.css}">
+</head>
+
+<body>
+<div class="layout">
+
+    <!-- ════════════ SIDEBAR — shared admin fragment ════════════ -->
+    <aside th:replace="~{fragments/admin/admin-sidebar :: sidebar('analytics')}"></aside>
+
+    <!-- ════════════ MAIN CONTENT ════════════ -->
+    <main class="main">
+
+        <!-- ── Page Header ─────────────────────────────────────────────── -->
+        <div class="page-header">
+            <div>
+                <div class="page-subtitle">Analytics</div>
+                <h2 class="page-title">Analytics Dashboard</h2>
+                <p class="update-timestamp">System performance and operational insights</p>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                <a th:href="@{/admin/analytics/export/pdf}" class="btn-outline-purple">
+                    <i class="fa-solid fa-download"></i> Export PDF
+                </a>
+                <a th:href="@{/admin/analytics/export/excel}" class="btn-purple">
+                    <i class="fa-regular fa-file-excel"></i> Generate Report
+                </a>
+            </div>
+        </div>
+
+        <!-- ── Period Filter ───────────────────────────────────────────── -->
+        <div class="period-pills">
+            <a th:href="@{/admin/analytics(period='daily')}"
+               th:classappend="${selectedPeriod == 'daily'} ? ' active'" class="period-pill">Daily</a>
+            <a th:href="@{/admin/analytics(period='weekly')}"
+               th:classappend="${selectedPeriod == 'weekly'} ? ' active'" class="period-pill">Weekly</a>
+            <a th:href="@{/admin/analytics(period='monthly')}"
+               th:classappend="${selectedPeriod == 'monthly' or selectedPeriod == null} ? ' active'" class="period-pill">Monthly</a>
+            <a th:href="@{/admin/analytics(period='yearly')}"
+               th:classappend="${selectedPeriod == 'yearly'} ? ' active'" class="period-pill">Yearly</a>
+        </div>
+
+        <!-- ── KPI Cards ───────────────────────────────────────────────── -->
+        <div class="kpi-grid">
+
+            <div class="kpi-card blue">
+                <div class="kpi-top">
+                    <span class="kpi-label">Total Volume</span>
+                    <div class="kpi-icon blue"><i class="fa-solid fa-images"></i></div>
+                </div>
+                <div class="kpi-value" th:text="${stats.totalImagingRequests}">0</div>
+                <div th:class="${stats.requestGrowthPercent >= 0} ? 'kpi-change positive' : 'kpi-change negative'">
+                    <i th:class="${stats.requestGrowthPercent >= 0} ? 'fa-solid fa-arrow-up' : 'fa-solid fa-arrow-down'"></i>
+                    <span th:text="${#numbers.formatDecimal(stats.requestGrowthPercent, 1, 1) + '% from last month'}"></span>
+                </div>
+            </div>
+
+            <div class="kpi-card orange">
+                <div class="kpi-top">
+                    <span class="kpi-label">Avg Turnaround</span>
+                    <div class="kpi-icon orange"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                </div>
+                <div class="kpi-value">
+                    <span th:text="${#numbers.formatDecimal(stats.avgTurnaroundDays, 1, 1)}">0</span>
+                    <small style="font-size:14px;font-weight:500;color:var(--text-light);"> days</small>
+                </div>
+                <div class="kpi-change neutral">
+                    <i class="fa-solid fa-minus"></i> Appointment to scheduling
+                </div>
+            </div>
+
+            <div class="kpi-card red">
+                <div class="kpi-top">
+                    <span class="kpi-label">Emergency Cases</span>
+                    <div class="kpi-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                </div>
+                <div class="kpi-value" th:text="${stats.totalEmergencyCases}">0</div>
+                <div class="kpi-change neutral">
+                    <i class="fa-solid fa-calendar-day"></i>
+                    <span th:text="${stats.emergencyThisMonth + ' this month'}"></span>
+                </div>
+            </div>
+
+            <div class="kpi-card teal">
+                <div class="kpi-top">
+                    <span class="kpi-label">Response Time</span>
+                    <div class="kpi-icon teal"><i class="fa-solid fa-bolt"></i></div>
+                </div>
+                <div class="kpi-value">
+                    <span th:text="${#numbers.formatDecimal(stats.avgEmergencyResponseMinutes, 1, 0)}">0</span>
+                    <small style="font-size:14px;font-weight:500;color:var(--text-light);"> min</small>
+                </div>
+                <div class="kpi-change neutral">
+                    <i class="fa-solid fa-stopwatch"></i> Avg emergency response
+                </div>
+            </div>
+
+            <div class="kpi-card purple">
+                <div class="kpi-top">
+                    <span class="kpi-label">Active Radiologists</span>
+                    <div class="kpi-icon purple"><i class="fa-solid fa-user-doctor"></i></div>
+                </div>
+                <div class="kpi-value" th:text="${stats.activeRadiologists}">0</div>
+                <div class="kpi-change neutral">
+                    <i class="fa-solid fa-stethoscope"></i> Registered in system
+                </div>
+            </div>
+
+            <div class="kpi-card green">
+                <div class="kpi-top">
+                    <span class="kpi-label">Pending Reports</span>
+                    <div class="kpi-icon green"><i class="fa-solid fa-hourglass-half"></i></div>
+                </div>
+                <div class="kpi-value" th:text="${stats.pendingReports}">0</div>
+                <div th:class="${stats.pendingReports > 20} ? 'kpi-change negative' : 'kpi-change positive'">
+                    <i th:class="${stats.pendingReports > 20} ? 'fa-solid fa-circle-exclamation' : 'fa-solid fa-circle-check'"></i>
+                    <span th:text="${stats.pendingReports > 20} ? 'Action required' : 'Within target'"></span>
+                </div>
+            </div>
+
+        </div><!-- /kpi-grid -->
+
+        <!-- ── Charts Row 1 ────────────────────────────────────────────── -->
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <div class="chart-title">Imaging Volume by Modality</div>
+                    <div class="chart-subtitle">Monthly breakdown of imaging procedures by type</div>
+                </div>
+            </div>
+            <div class="chart-container" style="height:280px;">
+                <canvas id="imagingVolumeChart"></canvas>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <div class="chart-card h-100">
+                    <div class="chart-card-header">
+                        <div>
+                            <div class="chart-title">Turnaround Time Trends</div>
+                            <div class="chart-subtitle">Average appointment and report completion times (in days)</div>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height:240px;">
+                        <canvas id="turnaroundChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="chart-card h-100">
+                    <div class="chart-card-header">
+                        <div>
+                            <div class="chart-title">Emergency Case Analysis</div>
+                            <div class="chart-subtitle">Emergency cases handled and average response time (hours)</div>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height:240px;">
+                        <canvas id="emergencyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Charts Row 2 ────────────────────────────────────────────── -->
+        <div class="section-header">Utilization &amp; Demographics</div>
+        <div class="row g-3">
+            <div class="col-lg-4">
+                <div class="chart-card h-100">
+                    <div class="chart-card-header">
+                        <div>
+                            <div class="chart-title">Modality Utilization</div>
+                            <div class="chart-subtitle">Share of procedures per modality</div>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height:220px;">
+                        <canvas id="modalityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-card h-100">
+                    <div class="chart-card-header">
+                        <div>
+                            <div class="chart-title">Patient Demographics</div>
+                            <div class="chart-subtitle">Age group distribution of imaging patients</div>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height:220px;">
+                        <canvas id="demographicsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="chart-card h-100">
+                    <div class="chart-card-header">
+                        <div>
+                            <div class="chart-title">Monthly Workload Forecast</div>
+                            <div class="chart-subtitle">3-month moving average projection</div>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height:220px;">
+                        <canvas id="forecastChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Forecast Summary ───────────────────────────────────────── -->
+        <div class="section-header">AI Workload Forecast</div>
+        <div class="forecast-summary">
+            <div class="forecast-box">
+                <div class="f-label">Forecasted Imaging Volume</div>
+                <div class="f-value" th:text="${forecast.forecastedNextMonthVolume}">0</div>
+                <div class="f-sub" th:text="${forecast.nextMonthLabel}">Next Month</div>
+            </div>
+            <div class="forecast-box">
+                <div class="f-label">Forecasted Emergency Cases</div>
+                <div class="f-value" th:text="${forecast.forecastedNextMonthEmergency}">0</div>
+                <div class="f-sub" th:text="${forecast.nextMonthLabel}">Next Month</div>
+            </div>
+            <div class="forecast-box">
+                <div class="f-label">Forecasted Report Workload</div>
+                <div class="f-value" th:text="${forecast.forecastedNextMonthReports}">0</div>
+                <div class="f-sub" th:text="${forecast.nextMonthLabel}">Next Month</div>
+            </div>
+        </div>
+        <p class="forecast-note">
+            <i class="fa-solid fa-circle-info"></i>
+            Method: <span th:text="${forecast.forecastMethod}">3-Month Moving Average</span>
+            &nbsp;|&nbsp;
+            Confidence Interval: ±<span th:text="${forecast.confidenceInterval}">0</span>
+        </p>
+
+        <!-- ── Turnaround Detail Tables ───────────────────────────────── -->
+        <div class="section-header">Turnaround Statistics</div>
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <div class="chart-card">
+                    <div class="chart-title" style="margin-bottom:14px;">Appointment Turnaround</div>
+                    <table class="perf-table">
+                        <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+                        <tbody>
+                            <tr><td>Average</td><td th:text="${#numbers.formatDecimal(turnaround.avgAppointmentTurnaroundDays,1,1) + ' days'}"></td></tr>
+                            <tr><td>Median</td><td th:text="${#numbers.formatDecimal(turnaround.medianAppointmentTurnaroundDays,1,1) + ' days'}"></td></tr>
+                            <tr><td>Fastest</td><td th:text="${#numbers.formatDecimal(turnaround.fastestAppointmentTurnaroundDays,1,1) + ' days'}"></td></tr>
+                            <tr><td>Slowest</td><td th:text="${#numbers.formatDecimal(turnaround.slowestAppointmentTurnaroundDays,1,1) + ' days'}"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="chart-card">
+                    <div class="chart-title" style="margin-bottom:14px;">Report Turnaround</div>
+                    <table class="perf-table">
+                        <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+                        <tbody>
+                            <tr><td>Average</td><td th:text="${#numbers.formatDecimal(turnaround.avgReportTurnaroundDays,1,1) + ' days'}"></td></tr>
+                            <tr><td>Median</td><td th:text="${#numbers.formatDecimal(turnaround.medianReportTurnaroundDays,1,1) + ' days'}"></td></tr>
+                            <tr><td>Fastest</td><td th:text="${#numbers.formatDecimal(turnaround.fastestReportTurnaroundDays,1,1) + ' days'}"></td></tr>
+                            <tr><td>Slowest</td><td th:text="${#numbers.formatDecimal(turnaround.slowestReportTurnaroundDays,1,1) + ' days'}"></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Radiologist Performance ────────────────────────────────── -->
+        <div class="section-header">Radiologist Performance</div>
+        <div class="chart-card">
+            <table class="perf-table">
+                <thead>
+                    <tr>
+                        <th>Radiologist ID</th>
+                        <th>Reports Completed</th>
+                        <th>Completion Rate</th>
+                        <th>Productivity Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${radiologistPerf['rows'] != null}"
+                        th:each="row : ${radiologistPerf['rows']}">
+                        <td th:text="${row['radiologistId']}">—</td>
+                        <td th:text="${row['reportsCompleted']}">0</td>
+                        <td th:text="${#numbers.formatDecimal(row['completionRate'],1,1) + '%'}">0%</td>
+                        <td>
+                            <span class="score-bar">
+                                <span class="score-fill"
+                                      th:classappend="${row['productivityScore'] >= 70} ? ' high' : (${row['productivityScore']} >= 40 ? ' medium' : ' low')"
+                                      th:style="'width:' + ${row['productivityScore']} + '%'"></span>
+                            </span>
+                            <span th:text="${#numbers.formatDecimal(row['productivityScore'],1,0) + '%'}">0%</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${radiologistPerf['rows'] == null or #lists.isEmpty(radiologistPerf['rows'])}">
+                        <td colspan="4" style="text-align:center;color:var(--text-light);padding:20px;">
+                            No radiologist data available
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ── Radiographer Performance ───────────────────────────────── -->
+        <div class="section-header">Radiographer Performance</div>
+        <div class="chart-card">
+            <table class="perf-table">
+                <thead>
+                    <tr>
+                        <th>Radiographer ID</th>
+                        <th>Images Uploaded</th>
+                        <th>Appointments Scheduled</th>
+                        <th>Productivity Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${radiographerPerf['rows'] != null}"
+                        th:each="row : ${radiographerPerf['rows']}">
+                        <td th:text="${row['radiographerId']}">—</td>
+                        <td th:text="${row['imagesUploaded']}">0</td>
+                        <td th:text="${row['appointmentsScheduled']}">0</td>
+                        <td>
+                            <span class="score-bar">
+                                <span class="score-fill"
+                                      th:classappend="${row['productivityScore'] >= 70} ? ' high' : (${row['productivityScore']} >= 40 ? ' medium' : ' low')"
+                                      th:style="'width:' + ${row['productivityScore']} + '%'"></span>
+                            </span>
+                            <span th:text="${#numbers.formatDecimal(row['productivityScore'],1,0) + '%'}">0%</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${radiographerPerf['rows'] == null or #lists.isEmpty(radiographerPerf['rows'])}">
+                        <td colspan="4" style="text-align:center;color:var(--text-light);padding:20px;">
+                            No radiographer data available
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ── Performance Insights ───────────────────────────────────── -->
+        <div class="section-header">Performance Insights</div>
+        <div class="insight-grid">
+            <div th:each="insight : ${insights}"
+                 th:class="'insight-card ' + ${insight.alertClass}">
+                <div class="insight-icon">
+                    <i th:class="'fa-solid fa-' + ${insight.icon}"></i>
+                </div>
+                <div class="insight-body">
+                    <div class="insight-title">
+                        <span th:text="${insight.title}">Title</span>
+                        <span th:if="${insight.metric}" class="insight-metric" th:text="${insight.metric}"></span>
+                    </div>
+                    <div class="insight-msg" th:text="${insight.message}">Message</div>
+                    <div th:if="${insight.recommendation}" class="insight-rec">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span th:text="${insight.recommendation}"></span>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${insights == null or #lists.isEmpty(insights)}"
+                 class="insight-card alert-info" style="grid-column:span 2;">
+                <div class="insight-icon"><i class="fa-solid fa-circle-info"></i></div>
+                <div class="insight-body">
+                    <div class="insight-title">Insufficient Data</div>
+                    <div class="insight-msg">Add imaging requests and reports to generate performance insights.</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div><!-- /layout -->
+
+<!-- ════════ SCRIPTS ════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+const ivRaw  = /*[[${imagingVolumeJson}]]*/ '{}';
+const tatRaw = /*[[${turnaroundJson}]]*/ '{}';
+const emgRaw = /*[[${emergencyJson}]]*/ '{}';
+const fcRaw  = /*[[${forecastJson}]]*/ '{}';
+const modRaw = /*[[${modalityUtilJson}]]*/ '{}';
+const demRaw = /*[[${demographicsJson}]]*/ '{}';
+
+const iv  = JSON.parse(ivRaw);
+const tat = JSON.parse(tatRaw);
+const emg = JSON.parse(emgRaw);
+const fc  = JSON.parse(fcRaw);
+const mod = JSON.parse(modRaw);
+const dem = JSON.parse(demRaw);
+
+// ── Chart palette (chart data colours — not UI brand colours) ─────────────
+const BLUE   = 'rgba(15,52,96,0.85)';
+const RED    = 'rgba(220,53,69,0.85)';
+const GREEN  = 'rgba(25,135,84,0.85)';
+const ORANGE = 'rgba(253,126,20,0.85)';
+const PURPLE = 'rgba(91,63,160,0.85)';
+const TEAL   = 'rgba(13,202,240,0.85)';
+
+const BLUE_L   = 'rgba(15,52,96,0.12)';
+const RED_L    = 'rgba(220,53,69,0.12)';
+const GREEN_L  = 'rgba(25,135,84,0.12)';
+const ORANGE_L = 'rgba(253,126,20,0.12)';
+const PURPLE_L = 'rgba(91,63,160,0.12)';
+const TEAL_L   = 'rgba(13,202,240,0.12)';
+
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.font.size   = 12;
+Chart.defaults.color       = '#9b8cc0';  // --text-light from adminDashboard.css
+
+// ── 1. Imaging Volume by Modality (Bar) ──────────────────────────────────
+new Chart(document.getElementById('imagingVolumeChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+        labels: iv.labels || [],
+        datasets: [
+            { label: 'X-Ray',      data: iv.xrayData       || [], backgroundColor: BLUE,   borderRadius: 5 },
+            { label: 'CT',         data: iv.ctData         || [], backgroundColor: GREEN,  borderRadius: 5 },
+            { label: 'MRI',        data: iv.mriData        || [], backgroundColor: PURPLE, borderRadius: 5 },
+            { label: 'Ultrasound', data: iv.ultrasoundData || [], backgroundColor: ORANGE, borderRadius: 5 },
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } },
+        scales: {
+            x: { grid: { display: false }, border: { display: false } },
+            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, border: { display: false }, ticks: { stepSize: 1 } }
+        }
+    }
+});
+
+// ── 2. Turnaround Time Trends (Line) ─────────────────────────────────────
+new Chart(document.getElementById('turnaroundChart').getContext('2d'), {
+    type: 'line',
+    data: {
+        labels: tat.monthLabels || [],
+        datasets: [
+            { label: 'Appointment Time', data: tat.appointmentTurnaroundByMonth || [],
+              borderColor: TEAL, backgroundColor: TEAL_L, borderWidth: 2.5, tension: 0.4, fill: true, pointRadius: 4, pointHoverRadius: 6 },
+            { label: 'Report Time',      data: tat.reportTurnaroundByMonth      || [],
+              borderColor: GREEN, backgroundColor: GREEN_L, borderWidth: 2.5, tension: 0.4, fill: true, pointRadius: 4, pointHoverRadius: 6 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: {
+            x: { grid: { display: false }, border: { display: false } },
+            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, border: { display: false } }
+        }
+    }
+});
+
+// ── 3. Emergency Case Analysis (Line, dual axis) ──────────────────────────
+new Chart(document.getElementById('emergencyChart').getContext('2d'), {
+    type: 'line',
+    data: {
+        labels: emg.weekLabels || ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+        datasets: [
+            { label: 'Cases',               data: emg.weeklyEmergencyCounts || [],
+              borderColor: RED,    backgroundColor: RED_L,    borderWidth: 2.5, tension: 0.4, fill: true,  pointRadius: 4, pointHoverRadius: 6, yAxisID: 'y' },
+            { label: 'Response Time (hrs)', data: emg.weeklyResponseTimes    || [],
+              borderColor: ORANGE, backgroundColor: ORANGE_L, borderWidth: 2.5, tension: 0.4, fill: false, pointRadius: 4, pointHoverRadius: 6, yAxisID: 'y1' }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: {
+            x:  { grid: { display: false }, border: { display: false } },
+            y:  { beginAtZero: true, position: 'left',  grid: { color: 'rgba(0,0,0,.04)' }, border: { display: false } },
+            y1: { beginAtZero: true, position: 'right', grid: { display: false }, border: { display: false } }
+        }
+    }
+});
+
+// ── 4. Modality Utilization (Doughnut) ────────────────────────────────────
+new Chart(document.getElementById('modalityChart').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+        labels: mod.labels || ['X-Ray', 'CT', 'MRI', 'Ultrasound'],
+        datasets: [{ data: mod.counts || [0,0,0,0],
+                     backgroundColor: [BLUE, GREEN, PURPLE, ORANGE],
+                     borderWidth: 2, borderColor: '#fff', hoverOffset: 8 }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false, cutout: '68%',
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 14 } } }
+    }
+});
+
+// ── 5. Patient Demographics (Pie) ─────────────────────────────────────────
+new Chart(document.getElementById('demographicsChart').getContext('2d'), {
+    type: 'pie',
+    data: {
+        labels: dem.ageGroupLabels || ['Under 18', '18-30', '31-45', '46-60', 'Above 60'],
+        datasets: [{ data: dem.ageGroupCounts || [0,0,0,0,0],
+                     backgroundColor: [BLUE, TEAL, GREEN, ORANGE, RED],
+                     borderWidth: 2, borderColor: '#fff', hoverOffset: 8 }]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 10, font: { size: 11 } } } }
+    }
+});
+
+// ── 6. Monthly Workload Forecast (Line) ───────────────────────────────────
+const fcLabels    = fc.chartLabels        || [];
+const fcHist      = fc.historicalVolumes  || [];
+const fcForecast  = fc.forecastedVolume   || 0;
+const forecastLine = fcLabels.map((_, i) => i === fcLabels.length - 1 ? fcForecast : null);
+const histData    = [...fcHist, null];
+
+new Chart(document.getElementById('forecastChart').getContext('2d'), {
+    type: 'line',
+    data: {
+        labels: fcLabels,
+        datasets: [
+            { label: 'Actual',   data: histData,
+              borderColor: BLUE, backgroundColor: BLUE_L, borderWidth: 2.5, tension: 0.4, fill: true,  pointRadius: 4 },
+            { label: 'Forecast', data: forecastLine,
+              borderColor: PURPLE, borderDash: [6, 4], borderWidth: 2.5, tension: 0.4, fill: false,
+              pointRadius: 6, pointBackgroundColor: PURPLE, pointBorderColor: '#fff', pointBorderWidth: 2 }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
+        scales: {
+            x: { grid: { display: false }, border: { display: false } },
+            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, border: { display: false } }
+        },
+        spanGaps: false
+    }
+});
+
+/*]]>*/
+</script>
+
+</body>
+</html>

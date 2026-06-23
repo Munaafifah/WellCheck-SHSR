@@ -9,7 +9,9 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
+    <!-- Tom Select — searchable dropdowns -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/tom-select-theme.css}">
     <style>
         .f:hover{background-color: #e6e6e6;}
         a{
@@ -136,18 +138,17 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Select2 on existing dropdown elements
-        $('.form-select').select2();
+        // Initialize Tom Select on existing dropdown elements
+        document.querySelectorAll('.form-select').forEach(function(el) {
+            new TomSelect(el, { allowEmptyOption: true, onInitialize: function() { this.wrapper.style.width = '100%'; } });
+        });
 
-        // Add event listener to the "Add Symptom" button to initialize Select2 on the new row
+        // Add event listener to the "Add Symptom" button to initialize Tom Select on the new row
         document.getElementById("addSymptomBtn").addEventListener("click", function() {
             addSymptomRow();
-            $('.form-select').select2(); // Initialize Select2 on the new dropdown element
             clickCount++; // Increment the click count
             if (clickCount >= 17) {
                 this.disabled = true; // Disable the button after reaching the limit
@@ -229,8 +230,8 @@
         // Append the new row to the table body
         document.getElementById("symptomTable").getElementsByTagName("tbody")[0].appendChild(newRow);
     
-        // Initialize Select2 on the new dropdown element
-        $(newRow.querySelector("select")).select2();
+        // Initialize Tom Select on the new dropdown element
+        new TomSelect(newRow.querySelector("select"), { allowEmptyOption: true, onInitialize: function() { this.wrapper.style.width = '100%'; } });
     }
 </script>
 <script>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Schedule Appointment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/themes/theme-base.css}">
+    <link rel="stylesheet" th:if="${userRole == 'RADIOLOGIST'}"  th:href="@{/css/themes/radiologist-theme.css}">
+    <link rel="stylesheet" th:if="${userRole == 'RADIOGRAPHER'}" th:href="@{/css/themes/radiographer-theme.css}">
+    <style>
+        .content-grid { display: grid; grid-template-columns: 1fr 380px; gap: 28px; align-items: start; }
+        .form-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 32px; }
+        .form-section-title { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--primary-900); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--sand-dark); }
+        .sched-form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+        .sched-form-group label { font-size: 13px; font-weight: 500; color: var(--text-mid); }
+        .sched-form-group select, .sched-form-group input { border: 1px solid var(--sand-dark); border-radius: 10px; padding: 10px 14px; font-size: 14px; color: var(--text-dark); background: var(--sand); outline: none; transition: border-color 0.2s; font-family: inherit; width: 100%; }
+        .sched-form-group select:focus, .sched-form-group input:focus { border-color: var(--primary-300); background: var(--white); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; }
+        .btn-submit { padding: 12px 28px; background: var(--primary-500); color: var(--white); border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-submit:hover { background: var(--primary-700); }
+        .request-list-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+        .request-list-header { padding: 18px 20px; border-bottom: 1px solid var(--sand-dark); }
+        .request-list-header h5 { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--primary-900); margin: 0; }
+        .request-item { padding: 14px 20px; border-bottom: 1px solid var(--sand-dark); cursor: pointer; transition: background 0.15s; }
+        .request-item:last-child { border-bottom: none; }
+        .request-item:hover, .request-item.selected { background: var(--primary-50); }
+        .request-item .req-id { font-size: 11px; font-family: monospace; color: var(--text-light); margin-bottom: 4px; }
+        .request-item .req-meta { font-size: 13px; color: var(--text-dark); font-weight: 500; }
+        .request-item .req-sub { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-light); font-size: 13px; }
+        .alert-toast { position: fixed; top: 24px; right: 24px; z-index: 9999; padding: 14px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; display: none; align-items: center; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-width: 340px; }
+        .alert-toast.success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; display: flex; }
+        .alert-toast.error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; display: flex; }
+        /* Appointment status badges */
+        .appt-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+        .appt-badge-scheduled   { background: #dbeafe; color: #1e40af; }
+        .appt-badge-confirmed   { background: #d1fae5; color: #065f46; }
+        .appt-badge-in_progress { background: #e0f2fe; color: #0369a1; }
+        .appt-badge-completed   { background: #ede9fe; color: #6d28d9; }
+        .appt-badge-cancelled   { background: #f3f4f6; color: #6b7280; }
+        .appt-badge-no_show     { background: #fef3c7; color: #92400e; }
+        @media (max-width: 992px) { .content-grid { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } }
+    </style>
+    <!-- Tom Select — searchable dropdowns -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/tom-select-theme.css}">
+</head>
+
+<body>
+<div class="layout">
+
+    <!-- ════════════ SIDEBAR ════════════ -->
+    <aside th:replace="~{fragments/sidebar/shared-sidebar :: sidebar('appointmentScheduling', ${userRole}, ${userName}, ${dashboardUrl})}"></aside>
+
+    <!-- ════════════ MAIN ════════════ -->
+    <main class="main">
+        <div class="page-header">
+            <div class="subtitle">UCR010</div>
+            <h2>Schedule Appointment</h2>
+        </div>
+
+        <div id="toast" class="alert-toast"></div>
+
+        <div class="content-grid">
+            <div class="form-card">
+                <div class="form-section-title">Appointment Details</div>
+                <div class="sched-form-group">
+                    <label>Imaging Request *</label>
+                    <select id="requestId" required>
+                        <option value="">— Select Approved Request —</option>
+                        <option th:each="r : ${approvedRequests}"
+                                th:value="${r.requestId}"
+                                th:attr="data-modality=${r.modality}"
+                                th:text="${r.requestId + ' | ' + r.modality + ' | Patient: ' + r.patientId}"></option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="sched-form-group">
+                        <label>Appointment Date *</label>
+                        <input type="date" id="appointmentDate" required/>
+                    </div>
+                    <div class="sched-form-group">
+                        <label>Time Slot *</label>
+                        <select id="timeSlot" required>
+                            <option value="">— Select Slot —</option>
+                            <option th:each="s : ${timeSlots}" th:value="${s}" th:text="${s}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="sched-form-group">
+                    <label>Available Room *</label>
+                    <select id="equipment">
+                        <option value="">— Select request, date &amp; time slot first —</option>
+                    </select>
+                </div>
+                <div class="sched-form-group">
+                    <label>Radiographer ID *</label>
+                    <input type="text" id="radiographerId" th:value="${userId}" readonly style="color:var(--text-light)"/>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-submit" onclick="scheduleAppointment()">
+                        <i class="fa-solid fa-calendar-check"></i> Schedule
+                    </button>
+                </div>
+            </div>
+
+            <!-- Approved request quick-list -->
+            <div class="request-list-card">
+                <div class="request-list-header">
+                    <h5><i class="fa-solid fa-circle-check" style="color:#059669;margin-right:6px"></i>Approved Requests</h5>
+                </div>
+                <div th:if="${#lists.isEmpty(approvedRequests)}" class="empty-state">
+                    <i class="fa-solid fa-inbox"></i><p>No approved requests.</p>
+                </div>
+                <div th:each="r : ${approvedRequests}" class="request-item"
+                     th:id="|req-${r.requestId}|"
+                     th:attr="data-modality=${r.modality},data-request-id=${r.requestId}"
+                     onclick="selectRequest(this.getAttribute('data-request-id'))">
+                    <div class="req-id" th:text="${r.requestId}"></div>
+                    <div class="req-meta" th:text="${r.modality + ' — ' + r.urgencyLevel}"></div>
+                    <div class="req-sub" th:text="'Patient: ' + ${r.patientId}"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scheduled Appointments — Mark Complete -->
+        <div class="request-list-card" style="margin-top:28px;" th:if="${not #lists.isEmpty(scheduledAppointments)}">
+            <div class="request-list-header" style="display:flex;align-items:center;justify-content:space-between;">
+                <h5><i class="fa-solid fa-calendar-check" style="color:var(--primary-500);margin-right:6px;"></i>Scheduled Appointments</h5>
+                <span style="font-size:12px;color:var(--text-light);background:var(--sand);padding:3px 12px;border-radius:20px;"
+                      th:text="${#lists.size(scheduledAppointments)} + ' scheduled'"></span>
+            </div>
+                <div th:each="appt : ${scheduledAppointments}"
+                     th:attr="data-appointment-id=${appt.appointmentId}"
+                     style="padding:14px 20px;border-bottom:1px solid var(--sand-dark);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                <div>
+                    <div style="font-size:11px;font-family:monospace;color:var(--text-light);margin-bottom:3px;" th:text="${appt.appointmentId}"></div>
+                    <div style="font-size:13px;font-weight:600;color:var(--text-dark);"
+                         th:text="${appt.appointmentDate != null} ? ${#dates.format(appt.appointmentDate,'dd MMM yyyy')} + ' · ' + ${appt.timeSlot} : appt.timeSlot"></div>
+                    <div style="font-size:12px;color:var(--text-light);margin-top:2px;"
+                         th:text="'Equipment: ' + ${appt.equipment} + ' · Request: ' + ${appt.requestId}"></div>
+                </div>
+                <div style="display:flex;gap:8px;flex-shrink:0;">
+                    <button style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:#ede9fe;color:#6d28d9;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;"
+                            onmouseover="this.style.background='#7c3aed';this.style.color='#fff';"
+                            onmouseout="this.style.background='#ede9fe';this.style.color='#6d28d9';"
+                            onclick="completeAppt(this.closest('[data-appointment-id]').getAttribute('data-appointment-id'))">
+                        <i class="fa-solid fa-circle-check"></i> Mark Complete
+                    </button>
+                    <button style="display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:#fee2e2;color:#991b1b;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;"
+                            onmouseover="this.style.background='#dc2626';this.style.color='#fff';"
+                            onmouseout="this.style.background='#fee2e2';this.style.color='#991b1b';"
+                            onclick="openCancelAppt(this.closest('[data-appointment-id]').getAttribute('data-appointment-id'))">
+                        <i class="fa-solid fa-ban"></i> Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+    function completeAppt(id) {
+        if (!confirm('Mark appointment as COMPLETED? The imaging request will move to REPORT_PENDING.')) return;
+        fetch('/api/appointments/' + id + '/complete', {
+            method: 'PATCH',
+            headers: { [csrfHeader()]: csrfToken() }
+        })
+        .then(r => r.json().then(d => ({ ok: r.ok, data: d })))
+        .then(({ ok, data }) => {
+            if (ok) { showToast('Appointment completed. Request moved to REPORT_PENDING.', 'success'); setTimeout(() => location.reload(), 1600); }
+            else showToast(data.error || 'Could not complete appointment.', 'error');
+        })
+        .catch(() => showToast('Network error.', 'error'));
+    }
+
+    let pendingCancelApptId = null;
+
+    function openCancelAppt(id) {
+        pendingCancelApptId = id;
+        document.getElementById('cancelApptReason').value = '';
+        document.getElementById('cancelApptModal').style.display = 'flex';
+    }
+
+    function closeCancelApptModal() {
+        document.getElementById('cancelApptModal').style.display = 'none';
+        pendingCancelApptId = null;
+    }
+
+    function confirmCancelAppt() {
+        if (!pendingCancelApptId) return;
+        const id     = pendingCancelApptId;
+        const reason = document.getElementById('cancelApptReason').value.trim();
+        if (!reason) { showToast('Cancellation reason is required (BRQ043).', 'error'); return; }
+        fetch('/api/appointments/' + id + '/cancel', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', [csrfHeader()]: csrfToken() },
+            body: JSON.stringify({ cancellationReason: reason })
+        })
+        .then(r => r.json().then(d => ({ ok: r.ok, data: d })))
+        .then(({ ok, data }) => {
+            closeCancelApptModal();
+            if (ok) { showToast('Appointment cancelled. Request returned to APPROVED.', 'success'); setTimeout(() => location.reload(), 1600); }
+            else showToast(data.error || data.message || 'Cancellation failed.', 'error');
+        })
+        .catch(() => { closeCancelApptModal(); showToast('Network error.', 'error'); });
+    }
+
+    let _selectedModality = null;
+    let _requestTs  = null; // Tom Select instance for #requestId
+    let _timeSlotTs = null; // Tom Select instance for #timeSlot
+    let _equipTs    = null; // Tom Select instance for #equipment
+
+    function selectRequest(id) {
+        document.querySelectorAll('.request-item').forEach(el => el.classList.remove('selected'));
+        const item = document.getElementById('req-' + id);
+        if (item) {
+            item.classList.add('selected');
+            _selectedModality = item.getAttribute('data-modality');
+        }
+        if (_requestTs) {
+            _requestTs.setValue(id, true); // silent=true avoids re-triggering this same handler
+        } else {
+            document.getElementById('requestId').value = id;
+        }
+        loadAvailableRooms();
+    }
+
+    function handleRequestChange(value) {
+        document.querySelectorAll('.request-item').forEach(el => el.classList.remove('selected'));
+        _selectedModality = null;
+        if (value) {
+            const item = document.getElementById('req-' + value);
+            if (item) item.classList.add('selected');
+            const select = document.getElementById('requestId');
+            const opt = Array.from(select.options).find(o => o.value === value);
+            _selectedModality = opt ? opt.getAttribute('data-modality') : null;
+        }
+        loadAvailableRooms();
+    }
+
+    async function loadAvailableRooms() {
+        const date     = document.getElementById('appointmentDate').value;
+        const timeSlot = document.getElementById('timeSlot').value;
+        const equipSel = document.getElementById('equipment');
+        const ts       = _equipTs || equipSel.tomselect;
+
+        function setOptions(optionList) {
+            if (ts) {
+                ts.clear(true);
+                ts.clearOptions();
+                ts.clearCache();
+                optionList.forEach(opt => ts.addOption({ value: opt.value, text: opt.text }));
+                ts.sync();
+                ts.refreshOptions(false);
+                ts.setValue('', true);
+            } else {
+                equipSel.innerHTML = optionList.map(o => `<option value="${o.value}">${o.text}</option>`).join('');
+            }
+        }
+
+        if (!date || !timeSlot || !_selectedModality) {
+            setOptions([{ value: '', text: '— Select request, date & time slot first —' }]);
+            return;
+        }
+
+        setOptions([{ value: '', text: 'Loading rooms...' }]);
+        try {
+            const res = await fetch(
+                `/api/rooms/available?modality=${encodeURIComponent(_selectedModality)}&date=${date}&timeSlot=${encodeURIComponent(timeSlot)}`
+            );
+            if (!res.ok) {
+                setOptions([{ value: '', text: 'Error loading rooms' }]);
+                return;
+            }
+            const rooms = await res.json();
+            if (rooms.length === 0) {
+                setOptions([{ value: '', text: 'No rooms available for this slot' }]);
+            } else {
+                setOptions([
+                    { value: '', text: '— Select a room —' },
+                    ...rooms.map(r => ({ value: r, text: r }))
+                ]);
+            }
+        } catch (e) {
+            setOptions([{ value: '', text: 'Error loading rooms' }]);
+        }
+    }
+
+    function showToast(msg, type) {
+        const t = document.getElementById('toast');
+        t.className = 'alert-toast ' + type;
+        t.innerHTML = '<i class="fa-solid fa-' + (type === 'success' ? 'check-circle' : 'circle-exclamation') + '"></i> ' + msg;
+        setTimeout(() => t.className = 'alert-toast', 4500);
+    }
+
+    function scheduleAppointment() {
+        const requestId      = document.getElementById('requestId').value;
+        const appointmentDate = document.getElementById('appointmentDate').value;
+        const timeSlot       = document.getElementById('timeSlot').value;
+        const equipment      = document.getElementById('equipment').value.trim();
+        const radiographerId = document.getElementById('radiographerId').value.trim();
+
+        if (!requestId || !appointmentDate || !timeSlot || !equipment || !radiographerId) {
+            showToast('Please fill in all required fields.', 'error'); return;
+        }
+
+        fetch('/api/appointments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', [csrfHeader()]: csrfToken() },
+            body: JSON.stringify({ requestId, appointmentDate, timeSlot, equipment, radiographerId })
+        })
+        .then(r => r.json().then(d => ({ ok: r.ok, data: d })))
+        .then(({ ok, data }) => {
+            if (ok) {
+                showToast('Appointment scheduled (ID: ' + data.appointmentId + ')', 'success');
+                setTimeout(() => location.reload(), 1800);
+            } else {
+                showToast(data.error || 'Scheduling failed.', 'error');
+            }
+        })
+        .catch(() => showToast('Network error. Please try again.', 'error'));
+    }
+
+    function csrfToken()  { const m = document.cookie.match(/XSRF-TOKEN=([^;]+)/); return m ? m[1] : ''; }
+    function csrfHeader() { return 'X-XSRF-TOKEN'; }
+</script>
+
+<!-- ════ Cancel Appointment Modal (UCR015 — reason required BRQ043) ════ -->
+<div id="cancelApptModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center;">
+    <div style="background:var(--white);border-radius:16px;padding:28px;max-width:480px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,0.2);">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+            <div style="width:36px;height:36px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="fa-solid fa-ban" style="color:#dc2626;font-size:15px;"></i>
+            </div>
+            <h5 style="margin:0;font-family:'Playfair Display',serif;color:var(--primary-900);">Cancel Appointment</h5>
+        </div>
+        <p style="font-size:13px;color:var(--text-mid);margin-bottom:16px;">
+            Cancelling this appointment will return the imaging request to <strong>APPROVED</strong> status so it can be rescheduled.
+        </p>
+        <div style="margin-bottom:20px;">
+            <label style="font-size:13px;font-weight:500;color:var(--text-mid);display:block;margin-bottom:6px;">
+                Cancellation Reason <span style="color:#dc2626;">*</span>
+                <span style="font-size:11px;font-weight:400;color:var(--text-light);"> (required per BRQ043)</span>
+            </label>
+            <textarea id="cancelApptReason" rows="3"
+                      placeholder="e.g. Equipment malfunction. Patient rescheduled to next week."
+                      style="width:100%;border:1px solid var(--sand-dark);border-radius:10px;padding:10px 14px;font-size:13px;font-family:inherit;resize:vertical;outline:none;box-sizing:border-box;"></textarea>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;">
+            <button onclick="closeCancelApptModal()"
+                    style="padding:9px 20px;border-radius:8px;border:1px solid var(--sand-dark);background:var(--white);color:var(--text-mid);font-size:13px;font-weight:500;cursor:pointer;">
+                Back
+            </button>
+            <button onclick="confirmCancelAppt()"
+                    style="padding:9px 20px;border-radius:8px;border:none;background:#dc2626;color:#fff;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+                <i class="fa-solid fa-ban"></i> Confirm Cancellation
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Tom Select for requestId and bind its change event directly
+    const requestEl = document.getElementById('requestId');
+    if (requestEl) {
+        _requestTs = new TomSelect(requestEl, {
+            allowEmptyOption: true,
+            onInitialize: function() { this.wrapper.style.width = '100%'; },
+            onChange: function(value) { handleRequestChange(value); }
+        });
+    }
+
+    // Initialize Tom Select for timeSlot and bind its change event directly
+    const timeSlotEl = document.getElementById('timeSlot');
+    if (timeSlotEl) {
+        _timeSlotTs = new TomSelect(timeSlotEl, {
+            allowEmptyOption: true,
+            onInitialize: function() { this.wrapper.style.width = '100%'; },
+            onChange: function() { loadAvailableRooms(); }
+        });
+    }
+
+    // Initialize Tom Select for equipment (room dropdown), store reference
+    const equipEl = document.getElementById('equipment');
+    if (equipEl) {
+        _equipTs = new TomSelect(equipEl, {
+            allowEmptyOption: true,
+            onInitialize: function() { this.wrapper.style.width = '100%'; }
+        });
+    }
+
+    // Initialize any remaining (non-special-cased) selects normally
+    document.querySelectorAll('select').forEach(function(el) {
+        if (el.id === 'requestId' || el.id === 'timeSlot' || el.id === 'equipment') return;
+        new TomSelect(el, { allowEmptyOption: true, onInitialize: function() { this.wrapper.style.width = '100%'; } });
+    });
+
+    // Plain native date input — wire its change event directly (no Tom Select involved)
+    const dateEl = document.getElementById('appointmentDate');
+    if (dateEl) {
+        dateEl.addEventListener('change', loadAvailableRooms);
+    }
+});
+</script>
+</body>
+</html>

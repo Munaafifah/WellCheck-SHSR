@@ -5,16 +5,21 @@ import com.SmartHealthRemoteSystem.SHSR.RadiologyReport.dto.ReportResponseDTO;
 import com.SmartHealthRemoteSystem.SHSR.RadiologyReport.dto.UpdateReportStatusRequest;
 import com.SmartHealthRemoteSystem.SHSR.RadiologyReport.model.Report;
 import com.SmartHealthRemoteSystem.SHSR.RadiologyReport.service.ReportService;
+import com.SmartHealthRemoteSystem.SHSR.WebConfiguration.MyUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/reports")
@@ -27,8 +32,8 @@ public class ReportController {
         this.reportService = reportService;
     }
 
-    // UCR016 — POST /api/reports
-    // Create a new radiology report; default status is Draft
+    // UCR016 — POST /api/reports  (RADIOLOGIST only)
+    @PreAuthorize("hasRole('RADIOLOGIST')")
     @PostMapping
     public ResponseEntity<ReportResponseDTO> createReport(
             @Valid @RequestBody CreateReportRequest request) {
@@ -37,16 +42,29 @@ public class ReportController {
     }
 
     // UCR017 — GET /api/reports/{id}
+    // Doctors may only view FINALIZED reports (UCR017 / US017); Draft reports
+    // are radiologist-internal until finalized.
     @GetMapping("/{id}")
     public ResponseEntity<ReportResponseDTO> getById(@PathVariable String id) {
-        return ResponseEntity.ok(reportService.getReportById(id));
+        ReportResponseDTO report = reportService.getReportById(id);
+        if ("DOCTOR".equals(currentRole()) && !"Finalized".equals(report.getStatus())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(report);
     }
 
     // UCR017 — GET /api/reports/request/{requestId}
+    // Doctors only see FINALIZED reports for a request; radiologists/admins see all.
     @GetMapping("/request/{requestId}")
     public ResponseEntity<List<ReportResponseDTO>> getByRequestId(
             @PathVariable String requestId) {
-        return ResponseEntity.ok(reportService.getReportsByRequestId(requestId));
+        List<ReportResponseDTO> reports = reportService.getReportsByRequestId(requestId);
+        if ("DOCTOR".equals(currentRole())) {
+            reports = reports.stream()
+                    .filter(r -> "Finalized".equals(r.getStatus()))
+                    .collect(Collectors.toList());
+        }
+        return ResponseEntity.ok(reports);
     }
 
     // UCR018 — GET /api/reports/radiologist/{radiologistId}
@@ -62,8 +80,8 @@ public class ReportController {
         return ResponseEntity.ok(reportService.getReportsByStatus(status));
     }
 
-    // UCR018 — PUT /api/reports/{id}/status
-    // Triggers finalization alert (UCR019) when status becomes Finalized
+    // UCR018 — PUT /api/reports/{id}/status  (RADIOLOGIST only)
+    @PreAuthorize("hasRole('RADIOLOGIST')")
     @PutMapping("/{id}/status")
     public ResponseEntity<ReportResponseDTO> updateStatus(
             @PathVariable String id,
@@ -72,10 +90,15 @@ public class ReportController {
     }
 
     // UCR020 — GET /api/reports/{id}/download
-    // Returns the report as a plain-text attachment
+    // Returns the report as a plain-text attachment.
+    // Doctors may only download FINALIZED reports (UCR020 / TC020_02).
     @GetMapping("/{id}/download")
     public ResponseEntity<byte[]> downloadReport(@PathVariable String id) {
         Report report = reportService.resolveReportForDownload(id);
+
+        if ("DOCTOR".equals(currentRole()) && !"Finalized".equals(report.getStatus())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         String content = buildReportText(report);
         byte[] bytes   = content.getBytes(StandardCharsets.UTF_8);
@@ -88,6 +111,12 @@ public class ReportController {
     }
 
     // --- Private helpers ---
+
+    private String currentRole() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
+        return userDetails.getUser().getRole();
+    }
 
     private String buildReportText(Report report) {
         return String.format(

@@ -1,0 +1,12 @@
+/* ═══════════════════════════════════════
+   Doctor Theme — Blue Palette
+   Overrides --primary-* from theme-base.css
+═══════════════════════════════════════ */
+:root {
+    --primary-900: #0a1f44;
+    --primary-700: #1a4a8a;
+    --primary-500: #2e7dd1;
+    --primary-300: #7ab3e8;
+    --primary-100: #c8dff7;
+    --primary-50:  #eef5fd;
+}

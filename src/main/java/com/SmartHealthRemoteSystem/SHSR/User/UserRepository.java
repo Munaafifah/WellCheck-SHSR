@@ -1,5 +1,3 @@
-
-
 package com.SmartHealthRemoteSystem.SHSR.User;
 
 import java.util.List;
@@ -82,5 +80,12 @@ public String update(User user) {
 
     public Optional<User> findByEmail(String email) {
         return mongoUserRepository.findByEmail(email);
+    }
+
+    // Used by SchedulingNotificationService to broadcast to all active staff
+    // of a given role (e.g. all RADIOLOGIST / RADIOGRAPHER users) — see UCR012.
+    public List<User> getAllByRole(String role) {
+        System.out.println("Getting all users with role: " + role);
+        return mongoUserRepository.findByRole(role);
     }
 }

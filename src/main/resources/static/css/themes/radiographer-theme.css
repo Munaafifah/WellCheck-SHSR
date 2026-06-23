@@ -1,0 +1,12 @@
+/* ═══════════════════════════════════════
+   Radiographer Theme — Pink Palette
+   Overrides --primary-* from theme-base.css
+═══════════════════════════════════════ */
+:root {
+    --primary-900: #5b1a3a;
+    --primary-700: #922b5c;
+    --primary-500: #c94585;
+    --primary-300: #f094c2;
+    --primary-100: #fad5e8;
+    --primary-50:  #fdf0f7;
+}

@@ -1,0 +1,396 @@
+[
+  {
+    "_id": "patient-001",
+    "name": "Ahmad Fariz bin Abdullah",
+    "email": "ahmad.fariz@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "012-3456789",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-002",
+    "name": "Siti Nurhaliza binti Azman",
+    "email": "siti.nurhaliza@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "013-2345678",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-003",
+    "name": "Muhammad Haziq bin Rahman",
+    "email": "haziq.rahman@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "014-3456789",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-004",
+    "name": "Nur Aisyah binti Hassan",
+    "email": "nur.aisyah@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "016-4567890",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-005",
+    "name": "Khairul Anuar bin Mohd Noor",
+    "email": "khairul.anuar@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "017-5678901",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-006",
+    "name": "Zuraida binti Kamaruddin",
+    "email": "zuraida.kamaruddin@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "011-6789012",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-007",
+    "name": "Mohammad Azri bin Ismail",
+    "email": "mohd.azri@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "012-7890123",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-008",
+    "name": "Farah Wahida binti Zainal",
+    "email": "farah.wahida@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "013-8901234",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-009",
+    "name": "Shahril Nizam bin Othman",
+    "email": "shahril.nizam@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "014-9012345",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-010",
+    "name": "Norliza binti Ibrahim",
+    "email": "norliza.ibrahim@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "016-0123456",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-011",
+    "name": "Afiq Danial bin Roslan",
+    "email": "afiq.danial@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "017-1234567",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-012",
+    "name": "Roszaini binti Mahmud",
+    "email": "roszaini.mahmud@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "011-2345678",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-013",
+    "name": "Hazwan Firdaus bin Sulaiman",
+    "email": "hazwan.firdaus@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "012-3456780",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-014",
+    "name": "Nora Hayati binti Saad",
+    "email": "nora.hayati@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "013-4567891",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-015",
+    "name": "Amirul Hakim bin Yusof",
+    "email": "amirul.hakim@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "014-5678902",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-016",
+    "name": "Nur Fadzilah binti Razak",
+    "email": "nur.fadzilah@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "016-6789013",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-017",
+    "name": "Syafiq Rizuan bin Alias",
+    "email": "syafiq.rizuan@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "017-7890124",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-018",
+    "name": "Halimah binti Mohd Salleh",
+    "email": "halimah.salleh@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "011-8901235",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-019",
+    "name": "Irwan Shah bin Mansor",
+    "email": "irwan.shah@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "012-9012346",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "patient-020",
+    "name": "Nabilah binti Ramli",
+    "email": "nabilah.ramli@mail.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "PATIENT",
+    "contact": "013-0123457",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "doctor-001",
+    "name": "Dr. Mohd Faizal bin Ahmad",
+    "email": "dr.faizal@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "DOCTOR",
+    "contact": "03-12345678",
+    "department": "Internal Medicine",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "doctor-002",
+    "name": "Dr. Suraini binti Abd Hamid",
+    "email": "dr.suraini@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "DOCTOR",
+    "contact": "03-23456789",
+    "department": "Cardiology",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "doctor-003",
+    "name": "Dr. Kamaluddin bin Zulkifli",
+    "email": "dr.kamaluddin@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "DOCTOR",
+    "contact": "03-34567890",
+    "department": "Neurology",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "doctor-004",
+    "name": "Dr. Norhaniza binti Mustafa",
+    "email": "dr.norhaniza@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "DOCTOR",
+    "contact": "03-45678901",
+    "department": "Orthopaedics",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "doctor-005",
+    "name": "Dr. Azri Syahmi bin Ghazali",
+    "email": "dr.azrisyahmi@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "DOCTOR",
+    "contact": "03-56789012",
+    "department": "Oncology",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "doctor-006",
+    "name": "Dr. Rodziah binti Kassim",
+    "email": "dr.rodziah@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "DOCTOR",
+    "contact": "03-67890123",
+    "department": "Emergency Medicine",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "doctor-007",
+    "name": "Dr. Hafiz Zulkarnain bin Bakar",
+    "email": "dr.hafizzulkarnain@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "DOCTOR",
+    "contact": "03-78901234",
+    "department": "Pulmonology",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "doctor-008",
+    "name": "Dr. Nurfatin binti Zakariya",
+    "email": "dr.nurfatin@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "DOCTOR",
+    "contact": "03-89012345",
+    "department": "Gastroenterology",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "doctor-009",
+    "name": "Dr. Amirrul Ihsan bin Mohd Ali",
+    "email": "dr.amirrul@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "DOCTOR",
+    "contact": "03-90123456",
+    "department": "Nephrology",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "doctor-010",
+    "name": "Dr. Zuriati binti Rahim",
+    "email": "dr.zuriati@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "DOCTOR",
+    "contact": "03-01234567",
+    "department": "Endocrinology",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "radiologist-001",
+    "name": "Dr. Nasrin binti Harun",
+    "email": "dr.nasrin@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "RADIOLOGIST",
+    "contact": "03-11223344",
+    "department": "Radiology",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "radiologist-002",
+    "name": "Dr. Mohamad Farhan bin Jafar",
+    "email": "dr.farhan@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "RADIOLOGIST",
+    "contact": "03-22334455",
+    "department": "Radiology",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "radiologist-003",
+    "name": "Dr. Suzana binti Talib",
+    "email": "dr.suzana@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "RADIOLOGIST",
+    "contact": "03-33445566",
+    "department": "Radiology",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "radiologist-004",
+    "name": "Dr. Hishamuddin bin Mohd Said",
+    "email": "dr.hishamuddin@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "RADIOLOGIST",
+    "contact": "03-44556677",
+    "department": "Radiology",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "radiologist-005",
+    "name": "Dr. Aishah binti Nor Azman",
+    "email": "dr.aishah@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "RADIOLOGIST",
+    "contact": "03-55667788",
+    "department": "Radiology",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "radiographer-001",
+    "name": "Amirul Syafiq bin Hamzan",
+    "email": "amirul.syafiq@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "RADIOGRAPHER",
+    "contact": "03-66778899",
+    "department": "Radiology",
+    "position": "Senior Radiographer",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "radiographer-002",
+    "name": "Norzairin binti Osman",
+    "email": "norzairin.osman@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "RADIOGRAPHER",
+    "contact": "03-77889900",
+    "department": "Radiology",
+    "position": "Radiographer",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "radiographer-003",
+    "name": "Fadzli Adnan bin Mohd Fauzi",
+    "email": "fadzli.adnan@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "RADIOGRAPHER",
+    "contact": "03-88990011",
+    "department": "Radiology",
+    "position": "Radiographer",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "radiographer-004",
+    "name": "Suriani binti Daud",
+    "email": "suriani.daud@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "RADIOGRAPHER",
+    "contact": "03-99001122",
+    "department": "Radiology",
+    "position": "Junior Radiographer",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "radiographer-005",
+    "name": "Mohd Zarif bin Azhar",
+    "email": "mohd.zarif@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "RADIOGRAPHER",
+    "contact": "03-00112233",
+    "department": "Radiology",
+    "position": "Radiographer",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  },
+  {
+    "_id": "admin-001",
+    "name": "System Administrator",
+    "email": "admin@wellcheck.com",
+    "password": "$2a$10$8K1p/a0dL1LXMIgoEDFrwOfQ1HRf0Z8Z5rF2Kz.UiZSMHJ5BaGbOe",
+    "role": "ADMIN",
+    "contact": "03-11111111",
+    "_class": "com.SmartHealthRemoteSystem.SHSR.User.User"
+  }
+]

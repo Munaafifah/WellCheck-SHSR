@@ -17,66 +17,7 @@
     <div class="layout">
 
         <!-- ════════════ SIDEBAR ════════════ -->
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <div class="brand-label">WellCheck System</div>
-                <h1>Doctor <span>Hub</span></h1>
-            </div>
-
-            <div class="profile-card">
-                <img class="profile-avatar" th:src="${doctor != null and doctor.profilePicture != null}
-                         ? 'data:' + ${doctor.profilePictureType} + ';base64,' + ${doctor.profilePicture}
-                         : '/image/img_avatar1.png'" alt="Profile Picture" />
-                <div class="profile-info">
-                    <div class="name" th:text="${doctor != null} ? ${doctor.name} : 'Doctor'">Doctor</div>
-                    <span class="role-badge"
-                        th:text="${doctor != null and doctor.position != null} ? ${doctor.position} : 'Doctor'">Doctor</span>
-                </div>
-            </div>
-
-            <nav class="sidebar-nav">
-                <div class="nav-section-label">Main Menu</div>
-                <a th:href="@{/doctor}" class="nav-link-item">
-                    <i class="fa-solid fa-house-medical"></i>
-                    Dashboard
-                </a>
-                <a th:href="@{/doctor/myPatient}" class="nav-link-item active">
-                    <i class="fa-solid fa-user-injured"></i>
-                    My Patient
-                </a>
-                <a th:href="@{/assignpatient}" class="nav-link-item">
-                    <i class="fa-solid fa-user-plus"></i>
-                    Assign Patient
-                </a>
-                <a th:href="@{/patient/list}" class="nav-link-item">
-                    <i class="fa-solid fa-list"></i>
-                    List of Assigned Patient
-                </a>
-                <a th:href="@{/doctor/predictionReview}" class="nav-link-item">
-                    <i class="fa-solid fa-microscope"></i>
-                    Prediction Review
-                </a>
-                <a th:href="@{/clinicassistant/appointments}" class="nav-link-item">
-                    <i class="fa-solid fa-calendar-check"></i>
-                    Appointments
-                </a>
-                <div class="nav-section-label" style="margin-top: 8px;">Account</div>
-                <a th:href="@{/doctor/updateProfile}" class="nav-link-item">
-                    <i class="fa-solid fa-user-pen"></i>
-                    Edit Profile
-                </a>
-            </nav>
-
-            <div class="sidebar-footer">
-                <form th:action="@{/logout}" method="post" hidden name="logoutForm">
-                    <input type="submit" value="Logout" />
-                </form>
-                <a href="javascript: document.logoutForm.submit()" class="logout-btn">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    Logout
-                </a>
-            </div>
-        </aside>
+        <aside th:replace="~{fragments/sidebar/doctor-sidebar :: sidebar('patients', ${doctor})}"></aside>
 
         <!-- ════════════ MAIN ════════════ -->
         <main class="main">

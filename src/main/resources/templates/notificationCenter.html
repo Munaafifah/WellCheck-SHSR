@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Notification Center</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/themes/theme-base.css}">
+    <link rel="stylesheet" th:if="${userRole == 'DOCTOR'}"       th:href="@{/css/themes/doctor-theme.css}">
+    <link rel="stylesheet" th:if="${userRole == 'RADIOLOGIST'}"  th:href="@{/css/themes/radiologist-theme.css}">
+    <link rel="stylesheet" th:if="${userRole == 'RADIOGRAPHER'}" th:href="@{/css/themes/radiographer-theme.css}">
+    <style>
+        .notif-panel { max-width: 780px; }
+        .notif-header-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+        .unread-badge { background: var(--danger); color: var(--white); border-radius: 20px; padding: 5px 16px; font-size: 13px; font-weight: 700; }
+        .mark-all-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; background: var(--primary-50); color: var(--primary-500); border: 1.5px solid var(--primary-300); border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .mark-all-btn:hover { background: var(--primary-500); color: var(--white); border-color: var(--primary-500); }
+        .notif-list { display: flex; flex-direction: column; gap: 10px; }
+        .notif-item { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid rgba(0,0,0,0.04); padding: 16px 20px; display: flex; gap: 14px; align-items: flex-start; transition: background 0.15s; }
+        .notif-item.unread { border-left: 4px solid var(--primary-500); background: var(--primary-50); }
+        .notif-item.read   { border-left: 4px solid var(--sand-dark); opacity: 0.82; }
+        .notif-icon { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; }
+        .notif-icon.unread-icon { background: var(--primary-500); color: var(--white); }
+        .notif-icon.read-icon   { background: var(--sand-dark); color: var(--text-light); }
+        .notif-body { flex: 1; }
+        .notif-msg { font-size: 14px; color: var(--text-dark); line-height: 1.55; margin-bottom: 6px; }
+        .notif-meta { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-light); flex-wrap: wrap; }
+        .notif-channel { padding: 2px 8px; border-radius: 10px; background: var(--sand); font-size: 11px; color: var(--text-mid); font-weight: 500; }
+        .mark-read-btn { background: none; border: none; color: var(--primary-500); font-size: 12px; cursor: pointer; padding: 2px 8px; border-radius: 6px; transition: background 0.15s; white-space: nowrap; font-weight: 500; }
+        .mark-read-btn:hover { background: var(--primary-50); }
+        .empty-state { text-align: center; padding: 80px 24px; color: var(--text-light); }
+        .empty-state i { font-size: 48px; margin-bottom: 16px; display: block; opacity: 0.5; }
+        .empty-state p { font-size: 14px; margin-top: 8px; }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+
+    <!-- ════════════ SIDEBAR ════════════ -->
+    <aside th:replace="~{fragments/sidebar/shared-sidebar :: sidebar('notifications', ${userRole}, ${userName}, ${dashboardUrl})}"></aside>
+
+    <!-- ════════════ MAIN ════════════ -->
+    <main class="main">
+
+        <div class="page-header">
+            <div class="subtitle">UCR012</div>
+            <h2>Notifications</h2>
+        </div>
+
+        <div class="notif-panel">
+            <div class="notif-header-row">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <span th:if="${unreadCount > 0}" class="unread-badge"
+                          th:text="${unreadCount} + ' unread'"></span>
+                    <span th:if="${unreadCount == 0}" style="font-size:13px;color:var(--text-light);">All caught up!</span>
+                </div>
+                <button th:if="${unreadCount > 0}" class="mark-all-btn" onclick="markAllRead()">
+                    <i class="fa-solid fa-check-double"></i> Mark all read
+                </button>
+            </div>
+
+            <div th:if="${#lists.isEmpty(notifications)}" class="empty-state">
+                <i class="fa-solid fa-bell-slash"></i>
+                <p>No notifications yet. You'll see updates here when imaging requests are submitted, approved, or appointments are scheduled.</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(notifications)}" class="notif-list">
+                <div th:each="n : ${notifications}"
+                     th:class="${n.isRead} ? 'notif-item read' : 'notif-item unread'"
+                     th:id="'notif-' + ${n.notificationId}">
+                    <div th:class="${n.isRead} ? 'notif-icon read-icon' : 'notif-icon unread-icon'">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <div class="notif-body">
+                        <div class="notif-msg" th:text="${n.message}"></div>
+                        <div class="notif-meta">
+                            <i class="fa-regular fa-clock" style="font-size:11px;"></i>
+                            <span th:text="${#dates.format(n.timestamp, 'dd MMM yyyy, HH:mm')}"></span>
+                            <span class="notif-channel" th:text="${n.channel}"></span>
+                            <button th:unless="${n.isRead}" class="mark-read-btn"
+                                    th:onclick="'markRead(\'' + n.notificationId + '\')'">
+                                <i class="fa-solid fa-check"></i> Mark read
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+    function markRead(id) {
+        fetch('/api/notifications/' + id + '/read', {
+            method: 'PATCH',
+            headers: { [csrfHeader()]: csrfToken() }
+        })
+        .then(r => {
+            if (r.ok) {
+                const el = document.getElementById('notif-' + id);
+                if (el) {
+                    el.className = 'notif-item read';
+                    el.querySelector('.notif-icon').className = 'notif-icon read-icon';
+                    const btn = el.querySelector('.mark-read-btn');
+                    if (btn) btn.remove();
+                }
+            }
+        });
+    }
+
+    function markAllRead() {
+        fetch('/api/notifications/read-all', {
+            method: 'PATCH',
+            headers: { [csrfHeader()]: csrfToken() }
+        })
+        .then(r => { if (r.ok) location.reload(); });
+    }
+
+    function csrfToken()  { const m = document.cookie.match(/XSRF-TOKEN=([^;]+)/); return m ? m[1] : ''; }
+    function csrfHeader() { return 'X-XSRF-TOKEN'; }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

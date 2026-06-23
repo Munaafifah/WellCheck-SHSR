@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<body>
+
+<!--
+  Radiologist Sidebar Fragment
+  Usage: <aside th:replace="~{fragments/sidebar/radiologist-sidebar :: sidebar('dashboard', ${radiologist})}"></aside>
+  activePage values: dashboard | imaging | reports | manageRequests | notifications | communication | editProfile
+-->
+<aside th:fragment="sidebar(activePage, radiologist)" class="sidebar">
+
+    <div class="sidebar-brand">
+        <div class="brand-label">WellCheck System</div>
+        <h1>Radiology <span>Portal</span></h1>
+    </div>
+
+    <div class="profile-card">
+        <img class="profile-avatar"
+             th:src="${radiologist != null and radiologist.profilePicture != null}
+                     ? 'data:' + ${radiologist.profilePictureType} + ';base64,' + ${radiologist.profilePicture}
+                     : '/image/img_avatar1.png'"
+             alt="Profile Picture" />
+        <div class="profile-info">
+            <div class="name" th:text="${radiologist != null} ? ${radiologist.name} : 'Radiologist'">Radiologist</div>
+            <span class="role-badge"
+                  th:text="${radiologist != null and radiologist.specialization != null} ? ${radiologist.specialization} : 'Radiologist'">Radiologist</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+
+        <div class="nav-section-label">Main Menu</div>
+
+        <a th:href="@{/radiologist}"
+           class="nav-link-item"
+           th:classappend="${activePage == 'dashboard'} ? ' active'">
+            <i class="fa-solid fa-house-medical"></i>
+            Dashboard
+        </a>
+
+        <div class="nav-section-label">Imaging</div>
+
+        <a th:href="@{/radiology}"
+           class="nav-link-item"
+           th:classappend="${activePage == 'imaging'} ? ' active'">
+            <i class="fa-solid fa-x-ray"></i>
+            Medical Imaging
+        </a>
+
+        <a th:href="@{/reports}"
+           class="nav-link-item"
+           th:classappend="${activePage == 'reports'} ? ' active'">
+            <i class="fa-solid fa-file-medical"></i>
+            Report Management
+        </a>
+
+        <a th:href="@{/manage-requests}"
+           class="nav-link-item"
+           th:classappend="${activePage == 'manageRequests'} ? ' active'">
+            <i class="fa-solid fa-clipboard-list"></i>
+            Manage Requests
+        </a>
+
+        <a th:href="@{/notifications}"
+           class="nav-link-item"
+           th:classappend="${activePage == 'notifications'} ? ' active'">
+            <i class="fa-solid fa-bell"></i>
+            Notifications
+            <span th:if="${unreadCount != null and unreadCount > 0}"
+                  th:text="${unreadCount}"
+                  style="margin-left:auto;background:var(--danger);color:#fff;border-radius:50%;padding:1px 7px;font-size:11px;"></span>
+        </a>
+
+        <div class="nav-section-label">Collaboration</div>
+
+        <a th:href="@{/communication}"
+           class="nav-link-item"
+           th:classappend="${activePage == 'communication'} ? ' active'">
+            <i class="fa-solid fa-comments"></i>
+            Communication
+        </a>
+
+        <div class="nav-section-label">Account</div>
+
+        <a th:href="@{/radiologist/updateProfile}"
+           class="nav-link-item"
+           th:classappend="${activePage == 'editProfile'} ? ' active'">
+            <i class="fa-solid fa-user-pen"></i>
+            Edit Account
+        </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+        <form th:action="@{/logout}" method="post" hidden name="logoutForm">
+            <input type="submit" value="Logout" />
+        </form>
+        <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
+        </a>
+    </div>
+
+</aside>
+
+</body>
+</html>

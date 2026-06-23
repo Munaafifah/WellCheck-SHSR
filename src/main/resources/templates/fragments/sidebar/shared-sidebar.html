@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<body>
+
+<!--
+  Shared Multi-Role Sidebar Fragment
+  Used by: radiology.html, radiologyReport.html, reportManagement.html,
+           communication.html, manageRequests.html, requestStatus.html, etc.
+
+  Usage:
+    <aside th:replace="~{fragments/sidebar/shared-sidebar
+        :: sidebar('imaging', ${userRole}, ${userName}, ${dashboardUrl})}"></aside>
+
+  activePage values:
+    imaging | reports | manageRequests | requestScheduling | requestStatus |
+    communication | notifications | appointmentScheduling | imagingRequest |
+    analytics | (any string for no active state)
+-->
+<aside th:fragment="sidebar(activePage, userRole, userName, dashboardUrl)" class="sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+        <div class="brand-label">WellCheck System</div>
+        <h1 th:if="${userRole == 'ADMIN'}">Admin <span>Control</span></h1>
+        <h1 th:if="${userRole == 'DOCTOR'}">Doctor <span>Hub</span></h1>
+        <h1 th:if="${userRole == 'RADIOLOGIST'}">Radiology <span>Portal</span></h1>
+        <h1 th:if="${userRole == 'RADIOGRAPHER'}">Radiology <span>Hub</span></h1>
+        <h1 th:if="${userRole != 'ADMIN' and userRole != 'DOCTOR' and userRole != 'RADIOLOGIST' and userRole != 'RADIOGRAPHER'}">
+            WellCheck <span>System</span>
+        </h1>
+    </div>
+
+    <!-- Profile card -->
+    <div class="profile-card">
+        <div class="profile-avatar-icon">
+            <i th:if="${userRole == 'ADMIN'}"       class="fa-solid fa-user-shield"></i>
+            <i th:if="${userRole == 'DOCTOR'}"      class="fa-solid fa-user-doctor"></i>
+            <i th:if="${userRole == 'RADIOLOGIST'}" class="fa-solid fa-microscope"></i>
+            <i th:if="${userRole == 'RADIOGRAPHER'}" class="fa-solid fa-x-ray"></i>
+            <i th:if="${userRole != 'ADMIN' and userRole != 'DOCTOR' and userRole != 'RADIOLOGIST' and userRole != 'RADIOGRAPHER'}"
+               class="fa-solid fa-user"></i>
+        </div>
+        <div class="profile-info">
+            <div class="name" th:text="${userName}">User</div>
+            <span class="role-badge" th:text="${userRole}">Role</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+
+        <!-- ══════════════════════════════════════════
+             ADMIN navigation
+        ══════════════════════════════════════════ -->
+        <th:block th:if="${userRole == 'ADMIN'}">
+
+            <div class="nav-section-label">Management</div>
+            <a th:href="@{/admin}" class="nav-link-item">
+                <i class="fa-solid fa-users"></i> User List
+            </a>
+            <a th:href="@{/admin/adduser}" class="nav-link-item">
+                <i class="fa-solid fa-user-plus"></i> Add User
+            </a>
+
+            <div class="nav-section-label">Sensor</div>
+            <a th:href="@{/admin/assign-sensor}" class="nav-link-item">
+                <i class="fa-solid fa-microchip"></i> Assign Sensor
+            </a>
+            <a th:href="@{/admin/sensor-status}" class="nav-link-item">
+                <i class="fa-solid fa-satellite-dish"></i> Sensor Status
+            </a>
+
+            <div class="nav-section-label">Doctor Schedule</div>
+            <a th:href="@{/admin/doctor-schedule}" class="nav-link-item">
+                <i class="fa-solid fa-calendar-days"></i> Manage Schedule
+            </a>
+
+            <div class="nav-section-label">Radiology</div>
+            <a th:href="@{/reports}" class="nav-link-item"
+               th:classappend="${activePage == 'reports'} ? ' active'">
+                <i class="fa-solid fa-file-medical"></i> Report Management
+            </a>
+
+            <div class="nav-section-label">Analytics</div>
+            <a th:href="@{/admin/analytics}" class="nav-link-item"
+               th:classappend="${activePage == 'analytics'} ? ' active'">
+                <i class="fa-solid fa-chart-line"></i> Analytics Dashboard
+            </a>
+
+        </th:block>
+
+        <!-- ══════════════════════════════════════════
+             DOCTOR navigation
+        ══════════════════════════════════════════ -->
+        <th:block th:if="${userRole == 'DOCTOR'}">
+
+            <div class="nav-section-label">Main Menu</div>
+            <a th:href="@{/doctor}" class="nav-link-item">
+                <i class="fa-solid fa-house-medical"></i> Dashboard
+            </a>
+            <a th:href="@{/doctor/myPatient}" class="nav-link-item">
+                <i class="fa-solid fa-user-injured"></i> My Patients
+            </a>
+            <a th:href="@{/assignpatient}" class="nav-link-item">
+                <i class="fa-solid fa-user-plus"></i> Assign Patient
+            </a>
+            <a th:href="@{/patient/list}" class="nav-link-item">
+                <i class="fa-solid fa-list"></i> List of Assigned Patients
+            </a>
+            <a th:href="@{/doctor/predictionReview}" class="nav-link-item">
+                <i class="fa-solid fa-microscope"></i> Prediction Review
+            </a>
+            <a th:href="@{/clinicassistant/appointments}" class="nav-link-item">
+                <i class="fa-solid fa-calendar-check"></i> Appointments
+            </a>
+
+            <div class="nav-section-label">Imaging</div>
+            <a th:href="@{/radiology}" class="nav-link-item"
+               th:classappend="${activePage == 'imaging'} ? ' active'">
+                <i class="fa-solid fa-x-ray"></i> Medical Imaging
+            </a>
+            <a th:href="@{/reports}" class="nav-link-item"
+               th:classappend="${activePage == 'reports'} ? ' active'">
+                <i class="fa-solid fa-file-medical"></i> Report Management
+            </a>
+            <a th:href="@{/request-scheduling}" class="nav-link-item"
+               th:classappend="${activePage == 'requestScheduling'} ? ' active'">
+                <i class="fa-solid fa-calendar-plus"></i> Request &amp; Scheduling
+            </a>
+
+            <div class="nav-section-label">Collaboration</div>
+            <a th:href="@{/communication}" class="nav-link-item"
+               th:classappend="${activePage == 'communication'} ? ' active'">
+                <i class="fa-solid fa-comments"></i> Communication
+            </a>
+
+            <div class="nav-section-label">Account</div>
+            <a th:href="@{/doctor/updateProfile}" class="nav-link-item">
+                <i class="fa-solid fa-user-pen"></i> Edit Account
+            </a>
+
+        </th:block>
+
+        <!-- ══════════════════════════════════════════
+             RADIOLOGIST navigation
+             • "Manage Requests" is under Imaging (NOT a separate Requests section)
+             • "Request Status" removed from sidebar
+        ══════════════════════════════════════════ -->
+        <th:block th:if="${userRole == 'RADIOLOGIST'}">
+
+            <div class="nav-section-label">Main Menu</div>
+            <a th:href="@{/radiologist}" class="nav-link-item">
+                <i class="fa-solid fa-house-medical"></i> Dashboard
+            </a>
+
+            <div class="nav-section-label">Imaging</div>
+            <a th:href="@{/radiology}" class="nav-link-item"
+               th:classappend="${activePage == 'imaging'} ? ' active'">
+                <i class="fa-solid fa-x-ray"></i> Medical Imaging
+            </a>
+            <a th:href="@{/reports}" class="nav-link-item"
+               th:classappend="${activePage == 'reports'} ? ' active'">
+                <i class="fa-solid fa-file-medical"></i> Report Management
+            </a>
+            <a th:href="@{/manage-requests}" class="nav-link-item"
+               th:classappend="${activePage == 'manageRequests'} ? ' active'">
+                <i class="fa-solid fa-clipboard-list"></i> Manage Requests
+            </a>
+            <a th:href="@{/notifications}" class="nav-link-item"
+               th:classappend="${activePage == 'notifications'} ? ' active'">
+                <i class="fa-solid fa-bell"></i> Notifications
+                <span th:if="${unreadCount != null and unreadCount > 0}"
+                      th:text="${unreadCount}"
+                      style="margin-left:auto;background:var(--danger);color:#fff;border-radius:50%;padding:1px 7px;font-size:11px;"></span>
+            </a>
+
+            <div class="nav-section-label">Collaboration</div>
+            <a th:href="@{/communication}" class="nav-link-item"
+               th:classappend="${activePage == 'communication'} ? ' active'">
+                <i class="fa-solid fa-comments"></i> Communication
+            </a>
+
+            <div class="nav-section-label">Account</div>
+            <a th:href="@{/radiologist/updateProfile}" class="nav-link-item">
+                <i class="fa-solid fa-user-pen"></i> Edit Account
+            </a>
+
+        </th:block>
+
+        <!-- ══════════════════════════════════════════
+             RADIOGRAPHER navigation
+        ══════════════════════════════════════════ -->
+        <th:block th:if="${userRole == 'RADIOGRAPHER'}">
+
+            <div class="nav-section-label">Main Menu</div>
+            <a th:href="@{/radiographer}" class="nav-link-item">
+                <i class="fa-solid fa-house-medical"></i> Dashboard
+            </a>
+
+            <div class="nav-section-label">Imaging</div>
+            <a th:href="@{/radiology}" class="nav-link-item"
+               th:classappend="${activePage == 'imaging'} ? ' active'">
+                <i class="fa-solid fa-x-ray"></i> Medical Imaging
+            </a>
+            <a th:href="@{/reports}" class="nav-link-item"
+               th:classappend="${activePage == 'reports'} ? ' active'">
+                <i class="fa-solid fa-file-medical"></i> Report Management
+            </a>
+
+            <div class="nav-section-label">Scheduling</div>
+            <a th:href="@{/manage-requests}" class="nav-link-item"
+               th:classappend="${activePage == 'manageRequests'} ? ' active'">
+                <i class="fa-solid fa-clipboard-list"></i> Manage Requests
+            </a>
+            <a th:href="@{/appointment-scheduling}" class="nav-link-item"
+               th:classappend="${activePage == 'appointmentScheduling'} ? ' active'">
+                <i class="fa-solid fa-calendar-plus"></i> Schedule Appointment
+            </a>
+            <a th:href="@{/notifications}" class="nav-link-item"
+               th:classappend="${activePage == 'notifications'} ? ' active'">
+                <i class="fa-solid fa-bell"></i> Notifications
+                <span th:if="${unreadCount != null and unreadCount > 0}"
+                      th:text="${unreadCount}"
+                      style="margin-left:auto;background:var(--danger);color:#fff;border-radius:50%;padding:1px 7px;font-size:11px;"></span>
+            </a>
+
+            <div class="nav-section-label">Collaboration</div>
+            <a th:href="@{/communication}" class="nav-link-item"
+               th:classappend="${activePage == 'communication'} ? ' active'">
+                <i class="fa-solid fa-comments"></i> Communication
+            </a>
+
+            <div class="nav-section-label">Account</div>
+            <a th:href="@{/radiographer/updateProfile}" class="nav-link-item">
+                <i class="fa-solid fa-user-pen"></i> Edit Account
+            </a>
+
+        </th:block>
+
+        <!-- ══════════════════════════════════════════
+             Fallback — any other role not listed above
+        ══════════════════════════════════════════ -->
+        <th:block th:if="${userRole != 'ADMIN' and userRole != 'DOCTOR' and userRole != 'RADIOLOGIST' and userRole != 'RADIOGRAPHER'}">
+            <div class="nav-section-label">Navigation</div>
+            <a th:href="${dashboardUrl}" class="nav-link-item">
+                <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <a th:href="@{/communication}" class="nav-link-item"
+               th:classappend="${activePage == 'communication'} ? ' active'">
+                <i class="fa-solid fa-comments"></i> Communication
+            </a>
+        </th:block>
+
+    </nav>
+
+    <div class="sidebar-footer">
+        <form th:action="@{/logout}" method="post" hidden name="logoutForm">
+            <input type="submit" value="Logout" />
+        </form>
+        <a href="javascript: document.logoutForm.submit()" class="logout-btn">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
+        </a>
+    </div>
+
+</aside>
+
+</body>
+</html>

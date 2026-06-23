@@ -1,0 +1,28 @@
+/* ═══════════════════════════════════════════════════════
+   WellCheck Radiance — Admin Theme
+   Overrides --primary-* and neutral vars from theme-base.css
+   so that shared pages (reportManagement, radiology, etc.)
+   render with the same purple palette as adminDashboard.css
+   when an ADMIN user is logged in.
+═══════════════════════════════════════════════════════ */
+:root {
+    /* Primary palette — matches adminDashboard.css --purple-* */
+    --primary-900: #2d1b69;
+    --primary-700: #5b3fa0;
+    --primary-500: #8b6cc8;
+    --primary-300: #b8a0e0;
+    --primary-100: #e0d5f5;
+    --primary-50:  #f4f0fc;
+
+    /* Neutral overrides — purple-tinted to match admin aesthetic */
+    --sand:        #f8f5ff;
+    --sand-dark:   #ede8f8;
+    --text-dark:   #1e1245;
+    --text-mid:    #4a3880;
+    --text-light:  #9b8cc0;
+
+    /* Shadow — purple-tinted */
+    --shadow-sm:   0 2px 8px  rgba(45, 27, 105, 0.08);
+    --shadow-md:   0 6px 24px rgba(45, 27, 105, 0.12);
+    --shadow-lg:   0 16px 48px rgba(45, 27, 105, 0.16);
+}

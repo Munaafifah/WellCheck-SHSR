@@ -1,0 +1,154 @@
+/* ══════════════════════════════════════════════════════
+   WellCheck Radiance — Tom Select theme overrides
+   Works with both --primary-* (shared pages) and
+   --purple-* (admin pages) via CSS-variable fallbacks.
+   The colour values are intentionally identical so the
+   same fallback hex works on every page.
+══════════════════════════════════════════════════════ */
+
+/* Wrapper */
+.ts-wrapper {
+    font-family: 'DM Sans', sans-serif;
+}
+
+/* Input control (visible "box") */
+.ts-control {
+    border: 1px solid var(--primary-300, var(--purple-300, #b8a0e0)) !important;
+    border-radius: 10px !important;
+    background: var(--sand, #f8f5ff) !important;
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+    color: var(--text-dark, #1e1245) !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
+    min-height: 40px !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+    gap: 4px !important;
+}
+
+.ts-wrapper.focus .ts-control,
+.ts-control:focus-within {
+    border-color: var(--primary-500, var(--purple-500, #8b6cc8)) !important;
+    background: var(--white, #ffffff) !important;
+    box-shadow: 0 0 0 3px rgba(139, 108, 200, 0.12) !important;
+    outline: none !important;
+}
+
+/* Input inside the control */
+.ts-control input {
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 13px !important;
+    color: var(--text-dark, #1e1245) !important;
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.5 !important;
+}
+.ts-control input::placeholder {
+    color: var(--text-light, #9b8cc0) !important;
+}
+
+/* Tag chips (multi-select mode) */
+.ts-control .item {
+    background: var(--primary-100, var(--purple-100, #e0d5f5)) !important;
+    color: var(--primary-900, var(--purple-900, #2d1b69)) !important;
+    border-radius: 20px !important;
+    padding: 2px 10px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    border: none !important;
+    margin: 1px 2px !important;
+}
+
+/* Remove-button on tags */
+.ts-wrapper.plugin-remove_button .item .remove {
+    border-left: 1px solid rgba(45, 27, 105, 0.2) !important;
+    color: var(--primary-700, var(--purple-700, #5b3fa0)) !important;
+    padding-left: 6px !important;
+    margin-left: 4px !important;
+}
+.ts-wrapper.plugin-remove_button .item .remove:hover {
+    color: var(--primary-900, #2d1b69) !important;
+    background: transparent !important;
+}
+
+/* Dropdown panel */
+.ts-dropdown {
+    border: 1px solid var(--primary-300, var(--purple-300, #b8a0e0)) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 8px 24px rgba(45, 27, 105, 0.14) !important;
+    background: var(--white, #ffffff) !important;
+    overflow: hidden !important;
+    margin-top: 4px !important;
+    z-index: 9999 !important;
+}
+
+/* Scrollable content area */
+.ts-dropdown-content {
+    max-height: 220px !important;
+    overflow-y: auto !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: var(--primary-300, #b8a0e0) transparent !important;
+}
+.ts-dropdown-content::-webkit-scrollbar         { width: 4px; }
+.ts-dropdown-content::-webkit-scrollbar-track   { background: transparent; }
+.ts-dropdown-content::-webkit-scrollbar-thumb   {
+    background: var(--primary-300, #b8a0e0);
+    border-radius: 2px;
+}
+
+/* Individual option */
+.ts-dropdown .option {
+    padding: 9px 14px !important;
+    font-size: 13px !important;
+    color: var(--text-dark, #1e1245) !important;
+    cursor: pointer !important;
+    transition: background 0.12s !important;
+}
+.ts-dropdown .option:hover,
+.ts-dropdown .option.active {
+    background: var(--primary-50, var(--purple-50, #f4f0fc)) !important;
+    color: var(--primary-700, var(--purple-700, #5b3fa0)) !important;
+}
+.ts-dropdown .option.selected {
+    background: var(--primary-100, var(--purple-100, #e0d5f5)) !important;
+    color: var(--primary-900, var(--purple-900, #2d1b69)) !important;
+    font-weight: 600 !important;
+}
+
+/* Dividers between options */
+.ts-dropdown .option + .option {
+    border-top: 1px solid var(--sand-dark, #ede8f8) !important;
+}
+
+/* No-results message */
+.ts-dropdown .no-results {
+    padding: 10px 14px;
+    color: var(--text-light, #9b8cc0);
+    font-size: 13px;
+    font-style: italic;
+}
+
+/* Caret / arrow icon */
+.ts-wrapper.single .ts-control:after {
+    border-color: var(--primary-500, var(--purple-500, #8b6cc8)) transparent transparent !important;
+    right: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin-top: 2px !important;
+}
+.ts-wrapper.single.dropdown-active .ts-control:after {
+    border-color: transparent transparent var(--primary-500, var(--purple-500, #8b6cc8)) !important;
+    margin-top: -6px !important;
+}
+
+/* Clear button */
+.ts-wrapper .clear-button {
+    color: var(--text-light, #9b8cc0) !important;
+    font-size: 16px !important;
+    opacity: 0.7;
+}
+.ts-wrapper .clear-button:hover {
+    opacity: 1;
+    color: var(--primary-700, #5b3fa0) !important;
+}

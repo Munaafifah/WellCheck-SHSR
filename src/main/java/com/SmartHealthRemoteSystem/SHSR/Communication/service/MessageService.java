@@ -7,6 +7,7 @@ import com.SmartHealthRemoteSystem.SHSR.Communication.model.Message;
 import com.SmartHealthRemoteSystem.SHSR.Communication.model.MessageStatus;
 import com.SmartHealthRemoteSystem.SHSR.Communication.repository.ChatRepository;
 import com.SmartHealthRemoteSystem.SHSR.Communication.repository.MessageRepository;
+import com.SmartHealthRemoteSystem.SHSR.RadiologyRequestScheduling.service.SchedulingNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,12 +20,15 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
     private final ChatRepository    chatRepository;
+    private final SchedulingNotificationService notificationService;
 
     @Autowired
     public MessageService(MessageRepository messageRepository,
-                          ChatRepository chatRepository) {
+                          ChatRepository chatRepository,
+                          SchedulingNotificationService notificationService) {
         this.messageRepository = messageRepository;
         this.chatRepository    = chatRepository;
+        this.notificationService = notificationService;
     }
 
     // UCR022 + UCR023 — Send message from a participant
@@ -55,7 +59,12 @@ public class MessageService {
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        return messageRepository.save(message);
+        Message saved = messageRepository.save(message);
+
+        // UCR012 — notify every other participant in the chat
+        notifyOtherParticipants(session, request.getSenderId(), request.getContent());
+
+        return saved;
     }
 
     // UCR024 — Get message history (chronological)
@@ -74,7 +83,7 @@ public class MessageService {
     // System-generated message — bypasses participant check; used for automated report alerts
     public Message sendSystemMessage(String chatId, String content,
                                      String reportId, String reportLink) {
-        chatRepository.findByChatId(chatId)
+        ChatSession session = chatRepository.findByChatId(chatId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Chat session not found: " + chatId));
 
@@ -89,6 +98,19 @@ public class MessageService {
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        return messageRepository.save(message);
+        Message saved = messageRepository.save(message);
+
+        notifyOtherParticipants(session, "SYSTEM", content);
+
+        return saved;
+    }
+
+    private void notifyOtherParticipants(ChatSession session, String senderId, String content) {
+        if (session.getParticipants() == null) return;
+        for (String participantId : session.getParticipants()) {
+            if (!participantId.equals(senderId)) {
+                notificationService.notifyMessageReceived(participantId, senderId, content);
+            }
+        }
     }
 }

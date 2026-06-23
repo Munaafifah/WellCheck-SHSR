@@ -13,52 +13,7 @@
 <div class="layout">
 
     <!-- ════════════ SIDEBAR ════════════ -->
-    <aside class="sidebar">
-        <div class="sidebar-brand">
-            <div class="brand-label">WellCheck System</div>
-            <h1>Admin <span>Control</span></h1>
-        </div>
-
-        <div class="profile-card">
-            <div class="profile-avatar-icon">
-                <i class="fa-solid fa-user-shield"></i>
-            </div>
-            <div class="profile-info">
-                <div class="name">Administrator</div>
-                <span class="role-badge">Admin</span>
-            </div>
-        </div>
-
-        <nav class="sidebar-nav">
-            <div class="nav-section-label">Management</div>
-            <a th:href="@{/admin}" class="nav-link-item">
-                <i class="fa-solid fa-users"></i> User List
-            </a>
-            <a th:href="@{/admin/adduser}" class="nav-link-item">
-                <i class="fa-solid fa-user-plus"></i> Add User
-            </a>
-            <div class="nav-section-label">Sensor</div>
-            <a th:href="@{/admin/assign-sensor}" class="nav-link-item">
-                <i class="fa-solid fa-microchip"></i> Assign Sensor
-            </a>
-            <a th:href="@{/admin/sensor-status}" class="nav-link-item active">
-                <i class="fa-solid fa-satellite-dish"></i> Sensor Status
-            </a>
-            <div class="nav-section-label">Doctor Schedule</div>
-            <a th:href="@{/admin/doctor-schedule}" class="nav-link-item">
-                <i class="fa-solid fa-calendar-days"></i> Manage Schedule
-            </a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <form th:action="@{/logout}" method="post" hidden name="logoutForm">
-                <input type="submit" value="Logout"/>
-            </form>
-            <a href="javascript: document.logoutForm.submit()" class="logout-btn">
-                <i class="fa-solid fa-right-from-bracket"></i> Logout
-            </a>
-        </div>
-    </aside>
+    <aside th:replace="~{fragments/admin/admin-sidebar :: sidebar('sensorStatus')}"></aside>
 
     <!-- ════════════ MAIN ════════════ -->
     <main class="main">

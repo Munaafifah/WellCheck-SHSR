@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn compile *)",
+      "Bash(xargs grep -l \"clinicassistant/appointments\\\\|/clinicassistant\")",
+      "Bash(xargs grep -l \"appointments\")",
+      "Bash(xargs grep -l \"\\\\\"\\\\/reports\\\\\"\\\\|GetMapping.*reports\\\\|RequestMapping.*reports\")",
+      "Bash(xargs -I {} sh -c 'echo \"=== {} ===\" && find {} -maxdepth 1 -type f -name \"*.java\" | wc -l')",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\HP\\\\OneDrive - SIRIM Bhd\\\\Desktop\\\\WellCheck-SHSR\\\\src\\\\main\\\\java\\\\com\\\\SmartHealthRemoteSystem\\\\SHSR\\\\RadiologyRequestScheduling\\\\\" -Recurse -File | Select-Object FullName | Sort-Object)",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\HP\\\\OneDrive - SIRIM Bhd\\\\Desktop\\\\WellCheck-SHSR\\\\src\" -Recurse -Force | Select-Object -First 150 | Format-Table -Property FullName, @{Name=\"Type\";Expression={if \\($_.PSIsContainer\\) {\"DIR\"} else {\"FILE\"}}} -AutoSize)"
+    ]
+  }
+}

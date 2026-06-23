@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Request &amp; Scheduling</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/themes/theme-base.css}">
+    <link rel="stylesheet" th:if="${userRole == 'DOCTOR'}" th:href="@{/css/themes/doctor-theme.css}">
+    <style>
+        /* ── Stats ── */
+        .stats-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 28px; }
+        .stat-chip { flex: 1; min-width: 100px; background: var(--white); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; }
+        .stat-chip .stat-val { font-size: 26px; font-weight: 700; line-height: 1; }
+        .stat-chip .stat-lbl { font-size: 11px; font-weight: 500; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+        .chip-pending   .stat-val { color: #b45309; }
+        .chip-approved  .stat-val { color: #1d4ed8; }
+        .chip-scheduled .stat-val { color: #6d28d9; }
+        .chip-completed .stat-val { color: #059669; }
+        .chip-rejected  .stat-val { color: #dc2626; }
+        .chip-cancelled .stat-val { color: #6b7280; }
+
+        /* ── Layout ── */
+        .top-grid { display: grid; grid-template-columns: 1fr 360px; gap: 24px; margin-bottom: 28px; align-items: start; }
+        .section-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 28px; }
+        .section-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--sand-dark); }
+        .section-title { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--primary-900); margin: 0; display: flex; align-items: center; gap: 8px; }
+        .section-body { padding: 24px; }
+
+        /* ── Submit form ── */
+        .rs-form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+        .rs-form-group label { font-size: 13px; font-weight: 500; color: var(--text-mid); }
+        .rs-form-group select, .rs-form-group textarea { border: 1px solid var(--sand-dark); border-radius: 10px; padding: 10px 14px; font-size: 14px; color: var(--text-dark); background: var(--sand); outline: none; transition: border-color 0.2s; font-family: inherit; width: 100%; }
+        .rs-form-group select:focus, .rs-form-group textarea:focus { border-color: var(--primary-300); background: var(--white); }
+        .rs-form-group textarea { resize: vertical; min-height: 90px; }
+        .rs-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .priority-preview { background: var(--primary-50); border: 1px solid var(--primary-200); border-radius: 10px; padding: 12px 16px; font-size: 13px; color: var(--primary-700); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; transition: border-color 0.3s; }
+        .btn-submit { padding: 11px 26px; background: var(--primary-500); color: var(--white); border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-submit:hover { background: var(--primary-700); }
+        .form-actions { display: flex; justify-content: flex-end; }
+
+        /* ── Table ── */
+        .table-wrapper { overflow-x: auto; }
+        .rs-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 880px; }
+        .rs-table th { background: var(--sand); color: var(--text-mid); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; padding: 10px 14px; border-bottom: 1px solid var(--sand-dark); text-align: left; white-space: nowrap; }
+        .rs-table td { padding: 12px 14px; border-bottom: 1px solid var(--sand-dark); color: var(--text-dark); vertical-align: middle; }
+        .rs-table tbody tr:last-child td { border-bottom: none; }
+        .rs-table tbody tr:hover td { background: var(--primary-50); }
+        .req-id-mono { font-family: monospace; font-size: 11px; color: var(--text-light); }
+        .modality-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: var(--sand-dark); color: var(--text-mid); }
+
+        /* ── Status badges (all 9 request states) ── */
+        .badge-status { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-status.badge-pending        { background: #fef3c7; color: #92400e; }
+        .badge-status.badge-approved       { background: #dbeafe; color: #1e40af; }
+        .badge-status.badge-scheduled      { background: #ede9fe; color: #5b21b6; }
+        .badge-status.badge-in_progress    { background: #e0f2fe; color: #0369a1; }
+        .badge-status.badge-report_pending { background: #fef9c3; color: #854d0e; }
+        .badge-status.badge-report_ready   { background: #f3e8ff; color: #7e22ce; }
+        .badge-status.badge-completed      { background: #d1fae5; color: #065f46; }
+        .badge-status.badge-rejected       { background: #fee2e2; color: #991b1b; }
+        .badge-status.badge-cancelled      { background: #f3f4f6; color: #6b7280; }
+
+        /* ── Priority badge ── */
+        .priority-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .priority-badge.p-critical { background: #fee2e2; color: #dc2626; }
+        .priority-badge.p-high     { background: #fef3c7; color: #d97706; }
+        .priority-badge.p-standard { background: #d1fae5; color: #059669; }
+
+        /* ── Urgency colors ── */
+        .urgency-emergency { color: #dc2626; font-weight: 600; }
+        .urgency-urgent    { color: #d97706; font-weight: 600; }
+        .urgency-routine   { color: var(--text-mid); }
+
+        /* ── Cancel button in table ── */
+        .btn-cancel-sm { padding: 4px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; background: #fee2e2; color: #991b1b; transition: all 0.15s; }
+        .btn-cancel-sm:hover { background: #dc2626; color: #fff; }
+
+        /* ── Notifications ── */
+        .notif-list { max-height: 440px; overflow-y: auto; }
+        .notif-item { display: flex; gap: 12px; padding: 12px 20px; border-bottom: 1px solid var(--sand-dark); align-items: flex-start; }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sand-dark); flex-shrink: 0; margin-top: 5px; }
+        .notif-dot.unread { background: var(--primary-500); }
+        .notif-unread .notif-msg { font-weight: 500; }
+        .notif-msg { font-size: 13px; color: var(--text-dark); line-height: 1.5; }
+        .notif-time { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+        .notif-empty { text-align: center; padding: 36px 20px; color: var(--text-light); font-size: 13px; }
+
+        /* ── Timeline section ── */
+        .timeline-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 16px; padding: 20px 24px; }
+        .timeline-card { border: 1px solid var(--sand-dark); border-radius: 12px; padding: 16px 18px; background: var(--sand); }
+        .tl-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; gap: 8px; }
+        .tl-id { font-family: monospace; font-size: 11px; color: var(--text-light); }
+        .tl-patient { font-size: 12px; color: var(--text-mid); margin-top: 2px; font-weight: 500; }
+
+        /* ── Step track ── */
+        .step-track { display: flex; align-items: flex-start; }
+        .step-item { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+        .step-item:not(:last-child)::after { content: ''; position: absolute; top: 10px; left: 50%; width: 100%; height: 2px; background: var(--sand-dark); z-index: 0; }
+        .step-item.step-done:not(:last-child)::after { background: var(--primary-400); }
+        .step-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--sand-dark); background: var(--white); z-index: 1; position: relative; display: flex; align-items: center; justify-content: center; font-size: 8px; color: var(--text-light); flex-shrink: 0; }
+        .step-item.step-done .step-dot { background: var(--primary-500); border-color: var(--primary-500); color: var(--white); }
+        .step-item.step-active .step-dot { background: var(--white); border-color: var(--primary-500); border-width: 3px; box-shadow: 0 0 0 3px var(--primary-100); }
+        .step-item.step-rejected .step-dot { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+        .step-item.step-cancelled .step-dot { background: #f3f4f6; border-color: #9ca3af; color: #9ca3af; }
+        .step-label { font-size: 9px; color: var(--text-light); margin-top: 5px; text-align: center; line-height: 1.3; }
+        .step-item.step-done .step-label { color: var(--primary-600); font-weight: 600; }
+        .step-item.step-active .step-label { color: var(--primary-700); font-weight: 700; }
+        .step-item.step-rejected .step-label { color: #dc2626; font-weight: 600; }
+        .tl-appt-info { margin-top: 12px; padding: 7px 10px; background: var(--white); border: 1px solid var(--primary-200); border-radius: 8px; font-size: 11px; color: var(--primary-700); }
+        .tl-reject-info { margin-top: 10px; padding: 7px 10px; background: #fff5f5; border: 1px solid #fca5a5; border-radius: 8px; font-size: 11px; color: #991b1b; }
+
+        /* ── Empty state ── */
+        .empty-state { text-align: center; padding: 48px 24px; color: var(--text-light); }
+        .empty-state i { font-size: 36px; display: block; margin-bottom: 12px; opacity: 0.35; }
+        .empty-state p { font-size: 14px; margin: 4px 0; }
+
+        /* ── Toast ── */
+        .alert-toast { position: fixed; top: 24px; right: 24px; z-index: 9999; padding: 14px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; display: none; align-items: center; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-width: 360px; }
+        .alert-toast.success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; display: flex; }
+        .alert-toast.error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; display: flex; }
+
+        /* ── Cancel Modal ── */
+        .cancel-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 9998; align-items: center; justify-content: center; }
+        .cancel-modal-box { background: #fff; border-radius: 14px; padding: 28px 32px; max-width: 420px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
+        .cancel-modal-box h5 { margin: 0 0 6px; font-size: 16px; color: #111827; font-weight: 600; }
+        .cancel-modal-box p  { font-size: 13px; color: #6b7280; margin-bottom: 16px; }
+        .cancel-modal-box textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; font-family: inherit; resize: vertical; outline: none; box-sizing: border-box; }
+        .cancel-modal-box textarea:focus { border-color: #6366f1; }
+        .cancel-modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+        .btn-modal-keep    { padding: 8px 18px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; font-size: 13px; cursor: pointer; color: #374151; font-family: inherit; }
+        .btn-modal-keep:hover { background: #f9fafb; }
+        .btn-modal-confirm { padding: 8px 18px; border: none; border-radius: 8px; background: #dc2626; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-modal-confirm:hover { background: #b91c1c; }
+
+        @media (max-width: 1100px) { .top-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px)  { .rs-form-row { grid-template-columns: 1fr; } }
+    </style>
+    <!-- Tom Select — searchable dropdowns -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/tom-select-theme.css}">
+</head>
+
+<body>
+<div class="layout">
+
+    <!-- ════════════ SIDEBAR ════════════ -->
+    <aside th:replace="~{fragments/sidebar/shared-sidebar :: sidebar('requestScheduling', ${userRole}, ${userName}, ${dashboardUrl})}"></aside>
+
+    <!-- ════════════ MAIN ════════════ -->
+    <main class="main">
+
+        <div class="page-header">
+            <div class="subtitle">UCR008 / UCR013</div>
+            <h2>Request &amp; Scheduling</h2>
+        </div>
+
+        <div id="toast" class="alert-toast"></div>
+
+        <!-- ── Status Overview ── -->
+        <div class="stats-row">
+            <div class="stat-chip chip-pending">
+                <div class="stat-val" th:text="${pendingCount}">0</div>
+                <div class="stat-lbl">Pending</div>
+            </div>
+            <div class="stat-chip chip-approved">
+                <div class="stat-val" th:text="${approvedCount}">0</div>
+                <div class="stat-lbl">Approved</div>
+            </div>
+            <div class="stat-chip chip-scheduled">
+                <div class="stat-val" th:text="${scheduledCount}">0</div>
+                <div class="stat-lbl">Scheduled</div>
+            </div>
+            <div class="stat-chip chip-completed">
+                <div class="stat-val" th:text="${completedCount}">0</div>
+                <div class="stat-lbl">Completed</div>
+            </div>
+            <div class="stat-chip chip-rejected">
+                <div class="stat-val" th:text="${rejectedCount}">0</div>
+                <div class="stat-lbl">Rejected</div>
+            </div>
+            <div class="stat-chip chip-cancelled">
+                <div class="stat-val" th:text="${cancelledCount}">0</div>
+                <div class="stat-lbl">Cancelled</div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════
+             TOP GRID  |  Section 1 (left)  +  Section 4 (right)
+             ══════════════════════════════════════════════════════ -->
+        <div class="top-grid">
+
+            <!-- ════ Section 1: Submit New Imaging Request ════ -->
+            <div class="section-card" style="margin-bottom:0;">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-file-medical" style="color:var(--primary-500);"></i>
+                        Submit New Imaging Request
+                    </h3>
+                </div>
+                <div class="section-body">
+
+                    <div class="rs-form-row">
+                        <div class="rs-form-group">
+                            <label for="patientId">Patient <span style="color:var(--danger);">*</span></label>
+                            <select id="patientId" required>
+                                <option value="">— Select Patient —</option>
+                                <option th:each="p : ${patients}"
+                                        th:value="${p.userId}"
+                                        th:text="${p.name + ' (' + p.userId + ')'}"></option>
+                            </select>
+                        </div>
+                        <div class="rs-form-group">
+                            <label for="modality">Modality <span style="color:var(--danger);">*</span></label>
+                            <select id="modality" required onchange="updatePriorityPreview()">
+                                <option value="">— Select Modality —</option>
+                                <option value="XRAY">X-Ray</option>
+                                <option value="CT">CT Scan</option>
+                                <option value="MRI">MRI</option>
+                                <option value="ULTRASOUND">Ultrasound</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="rs-form-row">
+                        <div class="rs-form-group">
+<label for="bodyPart">Body Part</label>
+<input type="text" id="bodyPart" placeholder="e.g. Chest, Brain, Abdomen"                                   style="border:1px solid var(--sand-dark);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text-dark);background:var(--sand);outline:none;font-family:inherit;width:100%;transition:border-color 0.2s;"
+                                   onfocus="this.style.borderColor='var(--primary-300)';this.style.background='var(--white)'"
+                                   onblur="this.style.borderColor='var(--sand-dark)';this.style.background='var(--sand)'">
+                        </div>
+                        <div class="rs-form-group">
+<label for="referringPhysician">Referring Physician</label>
+<input type="text" id="referringPhysician" placeholder="Full name of referring physician"                                   style="border:1px solid var(--sand-dark);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text-dark);background:var(--sand);outline:none;font-family:inherit;width:100%;transition:border-color 0.2s;"
+                                   onfocus="this.style.borderColor='var(--primary-300)';this.style.background='var(--white)'"
+                                   onblur="this.style.borderColor='var(--sand-dark)';this.style.background='var(--sand)'">
+                        </div>
+                    </div>
+
+                    <div class="rs-form-group">
+                        <label for="urgencyLevel">Urgency Level <span style="color:var(--danger);">*</span></label>
+                        <select id="urgencyLevel" required onchange="updatePriorityPreview()">
+                            <option value="">— Select Urgency —</option>
+                            <option value="ROUTINE">ROUTINE — Standard scheduling</option>
+                            <option value="URGENT">URGENT — Within 24 hours</option>
+                            <option value="EMERGENCY">EMERGENCY — Immediate attention required</option>
+                        </select>
+                    </div>
+
+                    <div class="rs-form-group">
+                        <label for="clinicalNotes">Clinical Indication</label>
+                        <textarea id="clinicalNotes"
+                                  placeholder="Describe symptoms, findings, or clinical context. High-risk keywords (stroke, bleeding, trauma) boost the AI priority score..."
+                                  oninput="updatePriorityPreview()"></textarea>
+                    </div>
+
+                    <div class="priority-preview" id="priorityPreview">
+                        <i class="fa-solid fa-brain" style="font-size:17px;flex-shrink:0;color:var(--primary-500);"></i>
+                        <span>Select urgency level to see AI priority score.</span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button class="btn-submit" onclick="submitRequest()">
+                            <i class="fa-solid fa-paper-plane"></i> Submit Request
+                        </button>
+                    </div>
+                </div>
+            </div><!-- end Section 1 -->
+
+            <!-- ════ Section 4: Recent Notifications ════ -->
+            <div class="section-card" style="margin-bottom:0;">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-bell" style="color:var(--primary-500);"></i>
+                        Recent Notifications
+                    </h3>
+                    <a th:href="@{/notifications}"
+                       style="font-size:12px;color:var(--primary-600);text-decoration:none;font-weight:500;display:flex;align-items:center;gap:4px;">
+                        View All <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
+                    </a>
+                </div>
+                <div class="notif-list">
+                    <div th:if="${#lists.isEmpty(recentNotifications)}" class="notif-empty">
+                        <i class="fa-solid fa-bell-slash" style="font-size:28px;display:block;margin-bottom:8px;opacity:0.35;"></i>
+                        No notifications yet.
+                    </div>
+                    <div th:each="notif : ${recentNotifications}"
+                         th:class="${notif.isRead} ? 'notif-item' : 'notif-item notif-unread'">
+                        <div th:class="${notif.isRead} ? 'notif-dot' : 'notif-dot unread'"></div>
+                        <div style="flex:1;min-width:0;">
+                            <div class="notif-msg" th:text="${notif.message}"></div>
+                            <div class="notif-time"
+                                 th:text="${notif.timestamp != null} ? ${#dates.format(notif.timestamp,'dd MMM yyyy, HH:mm')} : ''"></div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- end Section 4 -->
+
+        </div><!-- end top-grid -->
+
+        <!-- ════ Section 2: My Imaging Requests ════ -->
+        <div class="section-card">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fa-solid fa-table-list" style="color:var(--primary-500);"></i>
+                    My Imaging Requests
+                </h3>
+                <span style="font-size:12px;color:var(--text-light);background:var(--sand);padding:3px 12px;border-radius:20px;"
+                      th:text="${#lists.size(myRequests)} + ' total'">0 total</span>
+            </div>
+
+            <div th:if="${#lists.isEmpty(myRequests)}" class="empty-state">
+                <i class="fa-solid fa-inbox"></i>
+                <p>No imaging requests submitted yet.</p>
+                <p style="font-size:12px;">Use the form above to submit your first request.</p>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(myRequests)}" class="table-wrapper">
+                <table class="rs-table">
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Patient</th>
+                            <th>Modality</th>
+                            <th>Urgency</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Appointment Date</th>
+                            <th>Last Updated</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="req : ${myRequests}">
+                            <td class="req-id-mono" th:text="${req.requestId}"></td>
+                            <td>
+                                <div style="font-weight:500;font-size:13px;"
+                                     th:text="${patientNameMap[req.patientId] ?: req.patientId}"></div>
+                                <div class="req-id-mono" style="margin-top:2px;" th:text="${req.patientId}"></div>
+                            </td>
+                            <td>
+                                <span class="modality-badge" th:text="${req.modality}"></span>
+                            </td>
+                            <td>
+                                <span th:class="${req.urgencyLevel.name() == 'EMERGENCY'} ? 'urgency-emergency' :
+                                               (${req.urgencyLevel.name() == 'URGENT'}    ? 'urgency-urgent'    : 'urgency-routine')"
+                                      th:text="${req.urgencyLevel}"></span>
+                            </td>
+                            <td>
+                                <span class="priority-badge"
+                                      th:classappend="${req.priorityScore >= 90} ? ' p-critical' :
+                                                     (${req.priorityScore >= 60} ? ' p-high' : ' p-standard')"
+                                      th:text="${req.priorityScore} + '/100'"></span>
+                            </td>
+                            <td>
+                                <span class="badge-status"
+                                      th:classappend="' badge-' + ${#strings.toLowerCase(req.status)}"
+                                      th:text="${req.status}"></span>
+                            </td>
+                            <td>
+                                <th:block th:with="appt=${appointmentMap[req.requestId]}">
+                                    <span th:if="${appt != null}" style="font-size:12px;"
+                                          th:text="${appt.appointmentDate != null} ?
+                                                   ${#dates.format(appt.appointmentDate,'dd MMM yyyy')} + ' · ' + ${appt.timeSlot}
+                                                   : appt.timeSlot"></span>
+                                    <span th:if="${appt == null}" style="color:var(--text-light);">—</span>
+                                </th:block>
+                            </td>
+                            <td style="font-size:12px;color:var(--text-mid);"
+                                th:text="${req.updatedDate != null} ? ${#dates.format(req.updatedDate,'dd MMM yyyy')} : '—'"></td>
+                            <!-- ── Cancel action: use th:data-id to safely pass requestId ── -->
+                            <td>
+                                <button th:if="${req.status.name() == 'PENDING'}"
+                                        type="button"
+                                        class="btn-cancel-sm"
+                                        th:data-id="${req.requestId}"
+                                        onclick="openCancelModal(this.dataset.id)">
+                                    <i class="fa-solid fa-xmark"></i> Cancel
+                                </button>
+                                <span th:unless="${req.status.name() == 'PENDING'}"
+                                      style="color:var(--text-light);font-size:11px;">—</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div><!-- end Section 2 -->
+
+        <!-- ════ Section 3: Request Timeline ════ -->
+        <div class="section-card" th:unless="${#lists.isEmpty(myRequests)}">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fa-solid fa-route" style="color:var(--primary-500);"></i>
+                    Request Timeline
+                </h3>
+                <span style="font-size:12px;color:var(--text-light);">
+                    Showing
+                    <span th:text="${#lists.size(myRequests) > 12 ? 12 : #lists.size(myRequests)}">0</span>
+                    of
+                    <span th:text="${#lists.size(myRequests)}">0</span>
+                </span>
+            </div>
+
+            <div class="timeline-cards">
+                <th:block th:each="req, rStat : ${myRequests}" th:if="${rStat.index < 12}">
+                    <th:block th:with="
+                        s=${req.status.name()},
+                        isPending=${s == 'PENDING'},
+                        isApproved=${s == 'APPROVED'},
+                        isScheduled=${s == 'SCHEDULED'},
+                        isInProgress=${s == 'IN_PROGRESS'},
+                        isReportPending=${s == 'REPORT_PENDING'},
+                        isReportReady=${s == 'REPORT_READY'},
+                        isCompletedLegacy=${s == 'COMPLETED'},
+                        isRejected=${s == 'REJECTED'},
+                        isCancelled=${s == 'CANCELLED'},
+                        pastApproval=${s == 'APPROVED' or s == 'SCHEDULED' or s == 'IN_PROGRESS' or s == 'COMPLETED' or s == 'REPORT_PENDING' or s == 'REPORT_READY'},
+                        pastSchedule=${s == 'SCHEDULED' or s == 'IN_PROGRESS' or s == 'COMPLETED' or s == 'REPORT_PENDING' or s == 'REPORT_READY'},
+                        pastImagingDone=${s == 'COMPLETED' or s == 'REPORT_PENDING' or s == 'REPORT_READY'}">
+
+                        <div class="timeline-card">
+                            <div class="tl-header">
+                                <div>
+                                    <div class="tl-id" th:text="${req.requestId}"></div>
+                                    <div class="tl-patient"
+                                         th:text="${patientNameMap[req.patientId] ?: req.patientId}"></div>
+                                </div>
+                                <span class="badge-status"
+                                      th:classappend="' badge-' + ${#strings.toLowerCase(req.status)}"
+                                      th:text="${req.status}"></span>
+                            </div>
+
+                            <div class="step-track">
+
+                                <!-- Step 1: Submitted — always done -->
+                                <div class="step-item step-done">
+                                    <div class="step-dot"><i class="fa-solid fa-check"></i></div>
+                                    <div class="step-label">Submitted</div>
+                                </div>
+
+                                <!-- Step 2: Approved / Rejected -->
+                                <div th:class="'step-item' +
+                                    (${isRejected}   ? ' step-rejected'  :
+                                    (${isCancelled}  ? ' step-cancelled' :
+                                    (${pastApproval} ? ' step-done'      :
+                                    (${isPending}    ? ' step-active'    : ''))))">
+                                    <div class="step-dot">
+                                        <i th:if="${isRejected}"   class="fa-solid fa-xmark"></i>
+                                        <i th:if="${pastApproval}" class="fa-solid fa-check"></i>
+                                    </div>
+                                    <div class="step-label"
+                                         th:text="${isRejected} ? 'Rejected' : 'Approved'"></div>
+                                </div>
+
+                                <!-- Step 3: Scheduled -->
+                                <div th:class="'step-item' +
+                                    (${pastSchedule} ? ' step-done'   :
+                                    (${isApproved}   ? ' step-active' : ''))">
+                                    <div class="step-dot">
+                                        <i th:if="${pastSchedule}" class="fa-solid fa-check"></i>
+                                    </div>
+                                    <div class="step-label">Scheduled</div>
+                                </div>
+
+                                <!-- Step 4: Completed (imaging procedure finished) -->
+                                <div th:class="'step-item' +
+                                    (${pastImagingDone} ? ' step-done'   :
+                                    ((${isScheduled} or ${isInProgress}) ? ' step-active' : ''))">
+                                    <div class="step-dot">
+                                        <i th:if="${pastImagingDone}" class="fa-solid fa-check"></i>
+                                    </div>
+                                    <div class="step-label">Completed</div>
+                                </div>
+
+                                <!-- Step 5: Report Ready -->
+                                <div th:class="'step-item' +
+                                    (${isReportReady} ? ' step-done'   :
+                                    ((${isReportPending} or ${isCompletedLegacy}) ? ' step-active' : ''))">
+                                    <div class="step-dot">
+                                        <i th:if="${isReportReady}" class="fa-solid fa-check"></i>
+                                        <i th:if="${isReportPending or isCompletedLegacy}" class="fa-solid fa-file-waveform"></i>
+                                    </div>
+                                    <div class="step-label">Report<br>Ready</div>
+                                </div>
+
+                            </div><!-- end step-track -->
+
+                            <!-- Appointment detail (SCHEDULED / COMPLETED) -->
+                            <th:block th:with="appt=${appointmentMap[req.requestId]}">
+                                <div th:if="${appt != null}" class="tl-appt-info">
+                                    <i class="fa-solid fa-calendar-check" style="margin-right:5px;"></i>
+                                    <span th:text="${(appt.appointmentDate != null ? #dates.format(appt.appointmentDate,'dd MMM yyyy') : 'TBD') + ' · ' + appt.timeSlot + ' · ' + appt.equipment}"></span>
+                                </div>
+                            </th:block>
+
+                            <!-- Rejection reason -->
+                            <div th:if="${isRejected and req.rejectionReason != null and !#strings.isEmpty(req.rejectionReason)}"
+                                 class="tl-reject-info">
+                                <i class="fa-solid fa-circle-xmark" style="margin-right:5px;"></i>
+                                <span th:text="${req.rejectionReason}"></span>
+                            </div>
+
+                            <!-- Cancellation reason -->
+                            <div th:if="${isCancelled and req.cancellationReason != null and !#strings.isEmpty(req.cancellationReason)}"
+                                 class="tl-reject-info" style="background:#f3f4f6;border-color:#d1d5db;color:#4b5563;">
+                                <i class="fa-solid fa-ban" style="margin-right:5px;"></i>
+                                <span th:text="${req.cancellationReason}"></span>
+                            </div>
+                        </div>
+
+                    </th:block>
+                </th:block>
+            </div><!-- end timeline-cards -->
+
+            <div th:if="${#lists.size(myRequests) > 12}"
+                 style="padding:14px 24px;text-align:center;font-size:12px;color:var(--text-light);border-top:1px solid var(--sand-dark);">
+                Showing the 12 most recent requests.
+            </div>
+        </div><!-- end Section 3 -->
+
+    </main>
+</div>
+
+<!-- ════════════ Cancel Confirmation Modal ════════════ -->
+<div id="cancelModal" class="cancel-modal-overlay">
+    <div class="cancel-modal-box">
+        <h5><i class="fa-solid fa-triangle-exclamation" style="color:#f59e0b;margin-right:8px;"></i>Cancel Imaging Request</h5>
+        <p>Are you sure you want to cancel <strong id="cancelReqIdLabel"></strong>? This action cannot be undone.</p>
+        <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:6px;">
+            Cancellation Reason
+            <span style="color:#9ca3af;font-weight:400;">(optional)</span>
+        </label>
+        <textarea id="cancelReasonInput" rows="3"
+                  placeholder="e.g. Patient no longer requires this scan..."></textarea>
+        <div class="cancel-modal-actions">
+            <button type="button" class="btn-modal-keep" onclick="closeCancelModal()">
+                Keep Request
+            </button>
+            <button type="button" class="btn-modal-confirm" onclick="confirmCancel()">
+                <i class="fa-solid fa-xmark"></i> Yes, Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const HIGH_RISK = ['stroke', 'bleeding', 'trauma'];
+
+    function computeScore(urgency, notes) {
+        let base = urgency === 'EMERGENCY' ? 100 : urgency === 'URGENT' ? 70 : 30;
+        if (HIGH_RISK.some(k => (notes || '').toLowerCase().includes(k))) {
+            base = Math.min(100, base + 20);
+        }
+        return base;
+    }
+
+    function updatePriorityPreview() {
+        const urgency = document.getElementById('urgencyLevel').value;
+        const notes   = document.getElementById('clinicalNotes').value;
+        const el      = document.getElementById('priorityPreview');
+        if (!urgency) {
+            el.querySelector('span').textContent = 'Select urgency level to see AI priority score.';
+            el.style.borderColor = 'var(--primary-200)';
+            return;
+        }
+        const score      = computeScore(urgency, notes);
+        const color      = score >= 90 ? '#dc2626' : score >= 60 ? '#d97706' : '#059669';
+        const label      = score >= 90 ? 'CRITICAL'  : score >= 60 ? 'HIGH'   : 'STANDARD';
+        const hasKeyword = HIGH_RISK.some(k => (notes || '').toLowerCase().includes(k));
+        el.style.borderColor = color;
+        el.querySelector('span').innerHTML =
+            'AI Priority Score: <strong style="color:' + color + ';font-size:16px;">' + score + ' / 100</strong>' +
+            ' &nbsp;·&nbsp; <strong style="color:' + color + '">' + label + '</strong>' +
+            (hasKeyword
+                ? ' &nbsp;·&nbsp; <span style="font-size:11px;background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:10px;">&#9872; High-risk keyword detected</span>'
+                : '');
+    }
+
+    function showToast(msg, type) {
+        const t = document.getElementById('toast');
+        t.className = 'alert-toast ' + type;
+        t.innerHTML = '<i class="fa-solid fa-' + (type === 'success' ? 'check-circle' : 'circle-exclamation') + '"></i> ' + msg;
+        setTimeout(() => { t.className = 'alert-toast'; }, 4500);
+    }
+
+    function submitRequest() {
+        const patientId          = document.getElementById('patientId').value;
+        const modality           = document.getElementById('modality').value;
+        const bodyPart           = document.getElementById('bodyPart').value.trim();
+        const referringPhysician = document.getElementById('referringPhysician').value.trim();
+        const urgencyLevel       = document.getElementById('urgencyLevel').value;
+        const clinicalNotes      = document.getElementById('clinicalNotes').value.trim();
+
+      if (!patientId || !modality || !urgencyLevel) {
+    showToast('Please fill in all required fields (Patient, Modality, Urgency Level).', 'error');
+            return;
+        }
+
+        fetch('/api/imaging-requests', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ patientId, modality, bodyPart, referringPhysician, urgencyLevel, clinicalNotes })
+})
+        .then(r => r.json().then(d => ({ ok: r.ok, data: d })))
+        .then(({ ok, data }) => {
+            if (ok) {
+                showToast('Request submitted! ID: ' + data.requestId + '  ·  Priority: ' + data.priorityScore + '/100', 'success');
+                ['patientId', 'modality', 'urgencyLevel', 'clinicalNotes', 'bodyPart', 'referringPhysician'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+                updatePriorityPreview();
+                setTimeout(() => location.reload(), 2000);
+            } else {
+                showToast(data.error || 'Submission failed.', 'error');
+            }
+        })
+        .catch(() => showToast('Network error. Please try again.', 'error'));
+    }
+
+    // ── Cancel modal ──────────────────────────────────────────────────────────
+
+    let _cancelTargetId = null;
+
+    function openCancelModal(requestId) {
+        _cancelTargetId = requestId;
+        document.getElementById('cancelReqIdLabel').textContent = requestId;
+        document.getElementById('cancelReasonInput').value = '';
+        document.getElementById('cancelModal').style.display = 'flex';
+    }
+
+    function closeCancelModal() {
+        _cancelTargetId = null;
+        document.getElementById('cancelModal').style.display = 'none';
+    }
+
+    async function confirmCancel() {
+        if (!_cancelTargetId) return;
+        const reason = document.getElementById('cancelReasonInput').value.trim() || 'Cancelled by doctor';
+
+        try {
+            const res = await fetch('/api/imaging-requests/' + _cancelTargetId + '/cancel', {
+    method: 'PATCH',
+    credentials: 'same-origin',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+                body: JSON.stringify({ cancellationReason: reason })
+            });
+
+            if (res.ok) {
+                closeCancelModal();
+                showToast('Request ' + _cancelTargetId + ' has been cancelled.', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                const err = await res.json().catch(() => ({}));
+                showToast(err.message || 'Failed to cancel request. Please try again.', 'error');
+            }
+        } catch (e) {
+            showToast('Network error. Please try again.', 'error');
+        }
+    }
+
+    // Close modal when clicking the dark overlay outside the box
+    document.getElementById('cancelModal').addEventListener('click', function (e) {
+        if (e.target === this) closeCancelModal();
+    });
+
+    function csrfToken()  { const m = document.cookie.match(/XSRF-TOKEN=([^;]+)/); return m ? m[1] : ''; }
+    function csrfHeader() { return 'X-XSRF-TOKEN'; }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('select').forEach(function(el) {
+        new TomSelect(el, { allowEmptyOption: true, onInitialize: function() { this.wrapper.style.width = '100%'; } });
+    });
+});
+</script>
+</body>
+</html>

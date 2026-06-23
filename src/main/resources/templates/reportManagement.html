@@ -8,121 +8,71 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/themes/theme-base.css}">
+    <link rel="stylesheet" th:if="${userRole == 'ADMIN'}"        th:href="@{/css/themes/admin-theme.css}">
+    <link rel="stylesheet" th:if="${userRole == 'DOCTOR'}"       th:href="@{/css/themes/doctor-theme.css}">
+    <link rel="stylesheet" th:if="${userRole == 'RADIOLOGIST'}"  th:href="@{/css/themes/radiologist-theme.css}">
+    <link rel="stylesheet" th:if="${userRole == 'RADIOGRAPHER'}" th:href="@{/css/themes/radiographer-theme.css}">
     <style>
-        :root {
-            --indigo-900: #1a1a4e;
-            --indigo-700: #2d2d8a;
-            --indigo-500: #4a4ac4;
-            --indigo-300: #7a7ae0;
-            --indigo-50:  #eeeeff;
-            --sand:       #f5f0e8;
-            --sand-dark:  #e8dfd0;
-            --text-dark:  #1a1a35;
-            --text-mid:   #4a4a70;
-            --text-light: #9a9ab8;
-            --white:      #ffffff;
-            --danger:     #e05c5c;
-            --success:    #3aaa7a;
-            --shadow-sm:  0 2px 8px rgba(26,26,78,0.08);
-            --radius:     12px;
-            --radius-lg:  20px;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DM Sans', sans-serif; background-color: var(--sand); color: var(--text-dark); min-height: 100vh; }
-        .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+        /* ── Page-specific components ── */
+        .btn-create { display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; background: var(--primary-500); color: var(--white); border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; transition: background 0.2s; white-space: nowrap; }
+        .btn-create:hover { background: var(--primary-700); color: var(--white); }
 
-        /* SIDEBAR */
-        .sidebar { background: var(--indigo-900); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
-        .sidebar-brand { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-        .sidebar-brand .brand-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--indigo-300); font-weight: 500; margin-bottom: 6px; }
-        .sidebar-brand h1 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--white); line-height: 1.2; }
-        .sidebar-brand h1 span { color: var(--indigo-300); }
-        .profile-card { margin: 20px 16px; background: rgba(255,255,255,0.06); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.08); }
-        .profile-info .name { font-size: 14px; font-weight: 600; color: var(--white); }
-        .profile-info .role-badge { font-size: 10px; background: var(--indigo-500); color: var(--white); padding: 2px 8px; border-radius: 20px; margin-top: 4px; display: inline-block; }
-        .sidebar-nav { padding: 8px 12px; flex: 1; }
-        .nav-section-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--indigo-300); padding: 12px 12px 6px; font-weight: 500; }
-        .nav-link-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; color: rgba(255,255,255,0.65); text-decoration: none; font-size: 14px; transition: all 0.2s ease; margin-bottom: 2px; }
-        .nav-link-item:hover, .nav-link-item.active { background: var(--indigo-700); color: var(--white); }
-        .nav-link-item i { width: 18px; text-align: center; font-size: 15px; }
-        .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
-        .logout-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 14px; background: rgba(224,92,92,0.15); border: 1px solid rgba(224,92,92,0.25); border-radius: 10px; color: #f4a0a0; font-size: 14px; cursor: pointer; text-decoration: none; transition: all 0.2s; }
-        .logout-btn:hover { background: rgba(224,92,92,0.28); color: #ffcccc; }
-
-        /* MAIN */
-        .main { padding: 32px 36px; overflow-y: auto; }
-        .page-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
-        .page-header-text .subtitle { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--indigo-500); font-weight: 500; margin-bottom: 4px; }
-        .page-header-text h2 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--indigo-900); font-weight: 600; }
-
-        /* BUTTON */
-        .btn-create { display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; background: var(--indigo-500); color: var(--white); border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; transition: background 0.2s; white-space: nowrap; }
-        .btn-create:hover { background: var(--indigo-700); color: var(--white); }
-
-        /* FILTER BAR */
         .filter-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
         .search-wrap { display: flex; align-items: center; gap: 8px; background: var(--white); border: 1px solid var(--sand-dark); border-radius: 10px; padding: 0 14px; flex: 1; min-width: 200px; }
         .search-wrap i { color: var(--text-light); font-size: 13px; }
         .search-wrap input { border: none; outline: none; background: transparent; font-size: 14px; color: var(--text-dark); padding: 10px 0; width: 100%; }
         .filter-select { border: 1px solid var(--sand-dark); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--text-dark); background: var(--white); cursor: pointer; }
-        .btn-filter { padding: 10px 18px; background: var(--indigo-50); color: var(--indigo-500); border: 1px solid var(--indigo-300); border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .btn-filter:hover { background: var(--indigo-500); color: var(--white); }
+        .btn-filter { padding: 10px 18px; background: var(--primary-50); color: var(--primary-500); border: 1px solid var(--primary-300); border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-filter:hover { background: var(--primary-500); color: var(--white); }
 
-        /* TABLE CARD */
         .table-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid rgba(0,0,0,0.04); overflow: hidden; }
         .table-card-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--sand-dark); }
-        .table-card-header h5 { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--indigo-900); margin: 0; }
+        .table-card-header h5 { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--primary-900); margin: 0; }
         .record-count { font-size: 12px; color: var(--text-light); background: var(--sand); padding: 4px 12px; border-radius: 20px; }
 
         .report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        .report-table thead th { background: var(--indigo-900); color: var(--white); padding: 13px 18px; text-align: left; font-weight: 500; font-size: 12px; letter-spacing: 0.4px; }
+        .report-table thead th { background: var(--primary-900); color: var(--white); padding: 13px 18px; text-align: left; font-weight: 500; font-size: 12px; letter-spacing: 0.4px; }
         .report-table tbody td { padding: 14px 18px; border-bottom: 1px solid var(--sand-dark); color: var(--text-dark); vertical-align: middle; }
         .report-table tbody tr:last-child td { border-bottom: none; }
-        .report-table tbody tr:hover td { background: var(--indigo-50); }
+        .report-table tbody tr:hover td { background: var(--primary-50); }
 
-        /* ID CELL */
         .cell-id { font-size: 11px; color: var(--text-light); font-family: monospace; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        /* STATUS BADGES */
         .badge-draft     { background: #fff3cd; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
         .badge-finalized { background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
 
-        /* ACTION BUTTONS */
         .actions-cell { display: flex; align-items: center; gap: 8px; }
         .btn-action { display: inline-flex; align-items: center; gap: 5px; padding: 6px 13px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; text-decoration: none; transition: all 0.15s; }
-        .btn-view     { background: var(--indigo-50); color: var(--indigo-500); }
-        .btn-view:hover { background: var(--indigo-500); color: var(--white); }
+        .btn-view     { background: var(--primary-50); color: var(--primary-500); }
+        .btn-view:hover { background: var(--primary-500); color: var(--white); }
         .btn-download { background: #ecfdf5; color: #059669; }
         .btn-download:hover { background: #059669; color: var(--white); }
         .btn-finalize { background: #fef3c7; color: #d97706; }
         .btn-finalize:hover { background: #d97706; color: var(--white); }
 
-        /* EMPTY STATE */
         .empty-state { text-align: center; padding: 60px 24px; color: var(--text-light); }
         .empty-state i { font-size: 40px; margin-bottom: 14px; display: block; }
         .empty-state p { font-size: 14px; }
 
-        /* ALERTS */
         .alert-toast { position: fixed; top: 24px; right: 24px; z-index: 9999; padding: 14px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; display: none; align-items: center; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-width: 340px; }
         .alert-toast.success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
         .alert-toast.error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
 
-        /* MODAL */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26,26,78,0.45); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; align-items: center; justify-content: center; }
         .modal-overlay.open { display: flex; }
-        .modal-box { background: var(--white); border-radius: var(--radius-lg); padding: 32px; width: 100%; max-width: 600px; box-shadow: 0 20px 60px rgba(26,26,78,0.2); }
-        .modal-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--indigo-900); margin-bottom: 6px; }
+        .modal-box { background: var(--white); border-radius: var(--radius-lg); padding: 32px; width: 100%; max-width: 600px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .modal-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--primary-900); margin-bottom: 6px; }
         .modal-subtitle { font-size: 13px; color: var(--text-light); margin-bottom: 24px; }
         .form-label-m { font-size: 13px; font-weight: 500; color: var(--text-mid); margin-bottom: 6px; display: block; }
         .form-control-m { width: 100%; border: 1px solid var(--sand-dark); border-radius: 10px; padding: 10px 14px; font-size: 14px; color: var(--text-dark); background: var(--sand); margin-bottom: 14px; outline: none; transition: border-color 0.2s; }
-        .form-control-m:focus { border-color: var(--indigo-300); background: var(--white); }
+        .form-control-m:focus { border-color: var(--primary-300); background: var(--white); }
         textarea.form-control-m { resize: vertical; min-height: 90px; }
         .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; }
         .btn-cancel  { padding: 10px 22px; background: var(--sand); color: var(--text-mid); border: 1px solid var(--sand-dark); border-radius: 10px; font-size: 14px; cursor: pointer; }
-        .btn-confirm { padding: 10px 22px; background: var(--indigo-500); color: var(--white); border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
-        .btn-confirm:hover { background: var(--indigo-700); }
+        .btn-confirm { padding: 10px 22px; background: var(--primary-500); color: var(--white); border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .btn-confirm:hover { background: var(--primary-700); }
 
-        /* DETAIL MODAL ROWS */
         .detail-row { display: flex; gap: 8px; margin-bottom: 12px; font-size: 14px; }
         .detail-label { color: var(--text-light); min-width: 140px; flex-shrink: 0; }
         .detail-value { color: var(--text-dark); font-weight: 500; word-break: break-all; }
@@ -130,61 +80,73 @@
         .detail-block .detail-label { margin-bottom: 4px; display: block; }
         .detail-block .detail-value { background: var(--sand); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 400; line-height: 1.6; white-space: pre-wrap; }
 
-        @media (max-width: 992px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+        .page-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+
+        /* ── Imaging reference preview (inside Create Report modal) ── */
+        .image-preview-box { margin-bottom: 16px; }
+        .image-preview-strip {
+            display: flex; gap: 10px; overflow-x: auto; align-items: center;
+            min-height: 120px; padding: 10px; background: var(--sand);
+            border: 1px solid var(--sand-dark); border-radius: 10px;
+        }
+        .image-preview-item { flex-shrink: 0; text-align: center; }
+        .image-preview-thumb {
+            width: 130px; height: 130px; object-fit: cover; border-radius: 8px;
+            border: 1px solid var(--sand-dark); cursor: zoom-in; background: var(--white);
+            transition: transform 0.15s, border-color 0.15s; display: block;
+        }
+        .image-preview-thumb:hover { transform: scale(1.04); border-color: var(--primary-300); }
+        .image-preview-caption { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+        .image-preview-empty, .image-preview-loading {
+            font-size: 13px; color: var(--text-light); font-style: italic;
+            width: 100%; text-align: center; padding: 20px 0;
+        }
+
+        .lightbox-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.82);
+            z-index: 2000; align-items: center; justify-content: center; cursor: zoom-out;
+            overflow: hidden;
+        }
+        .lightbox-overlay.open { display: flex; }
+        .lightbox-overlay img {
+            max-width: 90vw; max-height: 90vh; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            transition: transform 0.15s ease-out; user-select: none; -webkit-user-drag: none; touch-action: none;
+        }
+        .lightbox-close-btn {
+            position: absolute; top: 20px; right: 24px; width: 38px; height: 38px; border-radius: 50%;
+            border: none; background: rgba(255,255,255,0.12); color: #fff; font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: background 0.15s;
+        }
+        .lightbox-close-btn:hover { background: rgba(255,255,255,0.25); }
+        .lightbox-hint {
+            position: absolute; top: 28px; left: 24px; color: rgba(255,255,255,0.6);
+            font-size: 12px; letter-spacing: 0.2px;
+        }
+        .lightbox-toolbar {
+            position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+            display: flex; align-items: center; gap: 6px; background: rgba(20,20,20,0.7);
+            border-radius: 999px; padding: 6px 10px; backdrop-filter: blur(4px);
+        }
+        .lightbox-toolbar button {
+            width: 34px; height: 34px; border-radius: 50%; border: none; background: rgba(255,255,255,0.12);
+            color: #fff; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: background 0.15s;
+        }
+        .lightbox-toolbar button:hover { background: rgba(255,255,255,0.25); }
+        .lightbox-zoom-label { color: #fff; font-size: 12px; min-width: 42px; text-align: center; font-variant-numeric: tabular-nums; }
     </style>
+    <!-- Tom Select — searchable dropdowns -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/tom-select-theme.css}">
 </head>
 
 <body>
 <div class="layout">
 
-    <!-- ════════ SIDEBAR ════════ -->
-    <aside class="sidebar">
-        <div class="sidebar-brand">
-            <div class="brand-label">WellCheck System</div>
-            <h1>Radiology <span>Reports</span></h1>
-        </div>
+    <!-- ════════════ SIDEBAR ════════════ -->
+    <aside th:replace="~{fragments/sidebar/shared-sidebar :: sidebar('reports', ${userRole}, ${userName}, ${dashboardUrl})}"></aside>
 
-        <div class="profile-card">
-            <div class="profile-info">
-                <div class="name" th:text="${userName}">User</div>
-                <span class="role-badge" th:text="${userRole}">Role</span>
-            </div>
-        </div>
-
-        <nav class="sidebar-nav">
-            <div class="nav-section-label">Main Menu</div>
-            <a th:href="${dashboardUrl}" class="nav-link-item">
-                <i class="fa-solid fa-house-medical"></i>
-                Dashboard
-            </a>
-            <div class="nav-section-label" style="margin-top: 8px;">Imaging</div>
-            <a th:href="@{/radiology}" class="nav-link-item">
-                <i class="fa-solid fa-x-ray"></i>
-                Medical Imaging
-            </a>
-            <a th:href="@{/reports}" class="nav-link-item active">
-                <i class="fa-solid fa-file-medical-alt"></i>
-                Report Management
-            </a>
-            <div class="nav-section-label" style="margin-top: 8px;">Collaboration</div>
-            <a th:href="@{/communication}" class="nav-link-item">
-                <i class="fa-solid fa-comments"></i>
-                Communication
-            </a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <form th:action="@{/logout}" method="post" hidden name="logoutForm">
-                <input type="submit" value="Logout" />
-            </form>
-            <a href="javascript: document.logoutForm.submit()" class="logout-btn">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                Logout
-            </a>
-        </div>
-    </aside>
-
-    <!-- ════════ MAIN ════════ -->
+    <!-- ════════════ MAIN ════════════ -->
     <main class="main">
 
         <div class="page-header">
@@ -192,7 +154,7 @@
                 <div class="subtitle">Radiology Module</div>
                 <h2>Radiology Report Management</h2>
             </div>
-            <button class="btn-create" onclick="openCreateModal()">
+            <button class="btn-create" th:if="${userRole == 'RADIOLOGIST'}" onclick="openCreateModal()">
                 <i class="fa-solid fa-file-circle-plus"></i>
                 Create Report
             </button>
@@ -218,7 +180,7 @@
         <!-- TABLE CARD -->
         <div class="table-card">
             <div class="table-card-header">
-                <h5><i class="fa-solid fa-list-ul" style="color:var(--indigo-500); margin-right:8px;"></i>All Reports</h5>
+                <h5><i class="fa-solid fa-list-ul" style="color:var(--primary-500); margin-right:8px;"></i>All Reports</h5>
                 <span class="record-count" id="recordCount">Loading…</span>
             </div>
 
@@ -234,9 +196,7 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="reportTableBody">
-                        <!-- Populated via JS -->
-                    </tbody>
+                    <tbody id="reportTableBody"></tbody>
                 </table>
                 <div class="empty-state" id="emptyState" style="display:none;">
                     <i class="fa-solid fa-folder-open"></i>
@@ -248,7 +208,7 @@
     </main>
 </div>
 
-<!-- ════════ TOAST ════════ -->
+<!-- TOAST -->
 <div class="alert-toast success" id="toastSuccess">
     <i class="fa-solid fa-circle-check"></i>
     <span id="toastSuccessMsg"></span>
@@ -258,25 +218,35 @@
     <span id="toastErrorMsg"></span>
 </div>
 
-<!-- ════════ CREATE REPORT MODAL ════════ -->
-<div class="modal-overlay" id="createModal">
+<!-- CREATE REPORT MODAL — Radiologist only -->
+<div class="modal-overlay" id="createModal" th:if="${userRole == 'RADIOLOGIST'}">
     <div class="modal-box">
         <h4 class="modal-title">Create New Report</h4>
         <p class="modal-subtitle">Enter report details below. Status will default to <strong>Draft</strong>.</p>
         <form id="createReportForm" onsubmit="submitCreate(event)">
-            <label class="form-label-m">Request ID <span style="color:var(--danger)">*</span></label>
-            <input type="text" id="cr-requestId" class="form-control-m" placeholder="Imaging request ID" required />
+
+            <div class="image-preview-box">
+                <label class="form-label-m">Imaging Reference</label>
+                <div class="image-preview-strip" id="cr-imagePreviewStrip">
+                    <span class="image-preview-empty">Select an imaging request below to preview the uploaded image.</span>
+                </div>
+            </div>
+
+<label class="form-label-m">Request ID <span style="color:var(--danger)">*</span></label>
+            <select id="cr-requestId" class="form-control-m" onchange="onRequestIdChange()" required>
+                <option value="">Select an imaging request…</option>
+            </select>
 
             <label class="form-label-m">Radiologist ID <span style="color:var(--danger)">*</span></label>
             <input type="text" id="cr-radiologistId" class="form-control-m"
-                   th:value="${userId}" placeholder="Your user ID" required />
+                   placeholder="Auto-filled from selected request" readonly required
+                   style="background: var(--sand-dark); cursor: not-allowed;" />
 
-            <label class="form-label-m">Findings</label>
-            <textarea id="cr-findings" class="form-control-m" placeholder="Enter clinical findings…"></textarea>
+            <label class="form-label-m">Findings <span style="color:var(--danger)">*</span></label>
+            <textarea id="cr-findings" class="form-control-m" placeholder="Enter clinical findings…" required></textarea>
 
-            <label class="form-label-m">Impression</label>
-            <textarea id="cr-impression" class="form-control-m" placeholder="Enter impression / conclusion…"></textarea>
-
+            <label class="form-label-m">Impression <span style="color:var(--danger)">*</span></label>
+            <textarea id="cr-impression" class="form-control-m" placeholder="Enter impression / conclusion…" required></textarea>
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" onclick="closeModal('createModal')">Cancel</button>
                 <button type="submit" class="btn-confirm">
@@ -287,40 +257,19 @@
     </div>
 </div>
 
-<!-- ════════ VIEW DETAIL MODAL ════════ -->
+<!-- VIEW DETAIL MODAL -->
 <div class="modal-overlay" id="viewModal">
     <div class="modal-box">
         <h4 class="modal-title">Report Detail</h4>
         <p class="modal-subtitle">Full information for the selected report.</p>
 
-        <div class="detail-row">
-            <span class="detail-label">Report ID</span>
-            <span class="detail-value" id="d-reportId">—</span>
-        </div>
-        <div class="detail-row">
-            <span class="detail-label">Request ID</span>
-            <span class="detail-value" id="d-requestId">—</span>
-        </div>
-        <div class="detail-row">
-            <span class="detail-label">Radiologist ID</span>
-            <span class="detail-value" id="d-radiologistId">—</span>
-        </div>
-        <div class="detail-row">
-            <span class="detail-label">Status</span>
-            <span class="detail-value" id="d-status">—</span>
-        </div>
-        <div class="detail-row">
-            <span class="detail-label">Created Date</span>
-            <span class="detail-value" id="d-createdDate">—</span>
-        </div>
-        <div class="detail-block">
-            <span class="detail-label">Findings</span>
-            <div class="detail-value" id="d-findings">—</div>
-        </div>
-        <div class="detail-block">
-            <span class="detail-label">Impression</span>
-            <div class="detail-value" id="d-impression">—</div>
-        </div>
+        <div class="detail-row"><span class="detail-label">Report ID</span><span class="detail-value" id="d-reportId">—</span></div>
+        <div class="detail-row"><span class="detail-label">Request ID</span><span class="detail-value" id="d-requestId">—</span></div>
+        <div class="detail-row"><span class="detail-label">Radiologist ID</span><span class="detail-value" id="d-radiologistId">—</span></div>
+        <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value" id="d-status">—</span></div>
+        <div class="detail-row"><span class="detail-label">Created Date</span><span class="detail-value" id="d-createdDate">—</span></div>
+        <div class="detail-block"><span class="detail-label">Findings</span><div class="detail-value" id="d-findings">—</div></div>
+        <div class="detail-block"><span class="detail-label">Impression</span><div class="detail-value" id="d-impression">—</div></div>
 
         <div class="modal-actions">
             <button type="button" class="btn-cancel" onclick="closeModal('viewModal')">Close</button>
@@ -331,8 +280,8 @@
     </div>
 </div>
 
-<!-- ════════ FINALIZE CONFIRM MODAL ════════ -->
-<div class="modal-overlay" id="finalizeModal">
+<!-- FINALIZE CONFIRM MODAL — Radiologist only -->
+<div class="modal-overlay" id="finalizeModal" th:if="${userRole == 'RADIOLOGIST'}">
     <div class="modal-box" style="max-width:440px; text-align:center;">
         <i class="fa-solid fa-circle-check" style="font-size:40px; color:var(--success); margin-bottom:14px;"></i>
         <h4 class="modal-title">Finalize Report?</h4>
@@ -349,17 +298,36 @@
     </div>
 </div>
 
-<script>
-    const BASE = '/api/reports';
-    let allReports = [];
+<!-- IMAGE LIGHTBOX — click a thumbnail in the Create Report modal to enlarge/zoom -->
+<div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+    <button type="button" class="lightbox-close-btn" onclick="event.stopPropagation(); closeLightbox()" title="Close (Esc)">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+    <span class="lightbox-hint">Scroll, double-click, or use the controls below to zoom</span>
+    <img id="lightboxImg" src="" alt="Imaging reference — full size"
+         onclick="event.stopPropagation();"
+         ondblclick="event.stopPropagation(); toggleLightboxZoom();"
+         onwheel="onLightboxWheel(event)"
+         onmousedown="onLightboxDragStart(event)"
+         ontouchstart="onLightboxDragStart(event)" />
+    <div class="lightbox-toolbar" onclick="event.stopPropagation();">
+        <button type="button" onclick="lightboxZoomOut()" title="Zoom out"><i class="fa-solid fa-minus"></i></button>
+        <span class="lightbox-zoom-label" id="lightboxZoomLabel">100%</span>
+        <button type="button" onclick="lightboxZoomIn()" title="Zoom in"><i class="fa-solid fa-plus"></i></button>
+        <button type="button" onclick="resetLightboxZoom()" title="Reset zoom"><i class="fa-solid fa-compress"></i></button>
+    </div>
+</div>
 
-    /* ─── Bootstrap ─── */
+<script th:inline="javascript">
+    const BASE = '/api/reports';
+    const USER_ROLE = /*[[${userRole}]]*/ '';
+    let allReports = [];
+    let requestRadiologistMap = {};
+
     document.addEventListener('DOMContentLoaded', loadReports);
 
-    /* ─── Load all reports ─── */
     async function loadReports() {
         try {
-            // Fetch by current user's radiologist ID first; fall back to all by status
             const res = await fetch(BASE + '/status/Draft');
             const drafts = res.ok ? await res.json() : [];
 
@@ -375,7 +343,6 @@
         }
     }
 
-    /* ─── Render table ─── */
     function renderTable(rows) {
         const tbody = document.getElementById('reportTableBody');
         const empty = document.getElementById('emptyState');
@@ -395,11 +362,26 @@
                 ? '<span class="badge-finalized">Finalized</span>'
                 : '<span class="badge-draft">Draft</span>';
 
-            const finalizeBtn = r.status !== 'Finalized'
+            const finalizeBtn = (USER_ROLE === 'RADIOLOGIST' && r.status !== 'Finalized')
                 ? `<button class="btn-action btn-finalize" onclick="openFinalizeModal('${r.reportId}')">
                        <i class="fa-solid fa-check-double"></i> Finalize
                    </button>`
                 : '';
+
+            // Doctors can only View/Download once a report is Finalized (UCR017/UCR020).
+            // Radiologists/Admins can always access their own Draft reports.
+            const doctorBlocked = (USER_ROLE === 'DOCTOR' && r.status !== 'Finalized');
+            const actionButtons = doctorBlocked
+                ? `<span style="font-size:12px; color:var(--text-light); font-style:italic;">
+                       Pending finalization
+                   </span>`
+                : `<button class="btn-action btn-view" onclick='openViewModal(${JSON.stringify(r)})'>
+                       <i class="fa-solid fa-eye"></i> View
+                   </button>
+                   <a class="btn-action btn-download"
+                      href="${BASE}/${encodeURIComponent(r.reportId)}/download">
+                       <i class="fa-solid fa-download"></i> Download
+                   </a>`;
 
             tbody.innerHTML += `
                 <tr>
@@ -410,13 +392,7 @@
                     <td>${r.createdDate ? new Date(r.createdDate).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '—'}</td>
                     <td>
                         <div class="actions-cell">
-                            <button class="btn-action btn-view" onclick='openViewModal(${JSON.stringify(r)})'>
-                                <i class="fa-solid fa-eye"></i> View
-                            </button>
-                            <a class="btn-action btn-download"
-                               href="${BASE}/${encodeURIComponent(r.reportId)}/download">
-                                <i class="fa-solid fa-download"></i> Download
-                            </a>
+                            ${actionButtons}
                             ${finalizeBtn}
                         </div>
                     </td>
@@ -424,7 +400,6 @@
         });
     }
 
-    /* ─── Filter table client-side ─── */
     function filterTable() {
         const q      = document.getElementById('searchInput').value.toLowerCase();
         const status = document.getElementById('statusFilter').value;
@@ -437,11 +412,194 @@
         renderTable(filtered);
     }
 
-    /* ─── Create report ─── */
     function openCreateModal() {
         document.getElementById('createReportForm').reset();
+        document.getElementById('cr-radiologistId').value = '';
+        const select = document.getElementById('cr-requestId');
+        if (select.tomselect) select.tomselect.clear();
+        resetImagePreview();
+        populateRequestDropdown();
         openModal('createModal');
     }
+
+    async function populateRequestDropdown() {
+        const select = document.getElementById('cr-requestId');
+        const ts = select.tomselect; // present because global init wraps all <select> elements on load
+
+        try {
+            const res = await fetch('/api/imaging-requests/awaiting-report');
+            const eligible = res.ok ? await res.json() : [];
+
+            // Exclude requests that already have a Draft report
+            const draftedRequestIds = new Set(
+                allReports.filter(r => r.status === 'Draft').map(r => r.requestId)
+            );
+            const available = eligible.filter(r => !draftedRequestIds.has(r.requestId));
+            requestRadiologistMap = {};
+            available.forEach(r => { requestRadiologistMap[r.requestId] = r.radiologistId || ''; });
+
+            if (ts) {
+                ts.clear();
+                ts.clearOptions();
+                if (available.length === 0) {
+                    ts.addOption({ value: '', text: 'No requests awaiting a report' });
+                } else {
+                    available.forEach(r => {
+                        ts.addOption({
+                            value: r.requestId,
+                            text: r.requestId + (r.bodyPart ? ' — ' + r.bodyPart : '')
+                        });
+                    });
+                }
+                ts.refreshOptions(false);
+            } else {
+                // Fallback if Tom Select hasn't initialized this element
+                select.innerHTML = '<option value="">Select an imaging request…</option>';
+                available.forEach(r => {
+                    const opt = document.createElement('option');
+                    opt.value = r.requestId;
+                    opt.textContent = r.requestId + (r.bodyPart ? ' — ' + r.bodyPart : '');
+                    select.appendChild(opt);
+                });
+            }
+        } catch (ex) {
+            showError('Failed to load imaging requests: ' + ex.message);
+        }
+    }
+
+    function onRequestIdChange() {
+        const select = document.getElementById('cr-requestId');
+        const requestId = select.tomselect ? select.tomselect.getValue() : select.value;
+        document.getElementById('cr-radiologistId').value = requestRadiologistMap[requestId] || '';
+        loadImagePreview(requestId);
+    }
+
+    function resetImagePreview() {
+        document.getElementById('cr-imagePreviewStrip').innerHTML =
+            '<span class="image-preview-empty">Select an imaging request below to preview the uploaded image.</span>';
+    }
+
+    // Fetch the medical image(s) tied to the selected imaging request and
+    // render them as clickable thumbnails so the radiologist can reference
+    // the scan while writing Findings / Impression, without leaving the modal.
+    async function loadImagePreview(requestId) {
+        const strip = document.getElementById('cr-imagePreviewStrip');
+
+        if (!requestId) {
+            resetImagePreview();
+            return;
+        }
+
+        strip.innerHTML = '<span class="image-preview-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading image…</span>';
+
+        try {
+            const res = await fetch('/api/images/search?requestId=' + encodeURIComponent(requestId));
+            const images = res.ok ? await res.json() : [];
+
+            if (!images.length) {
+                strip.innerHTML = '<span class="image-preview-empty">No uploaded image found for this request yet.</span>';
+                return;
+            }
+
+            strip.innerHTML = '';
+            images.forEach(img => {
+                const url = '/api/images/' + encodeURIComponent(img.id) + '/download';
+                const item = document.createElement('div');
+                item.className = 'image-preview-item';
+                item.innerHTML = `
+                    <img src="${url}" class="image-preview-thumb" alt="${img.modality || 'Medical image'}"
+                         onclick="openLightbox('${url}')" />
+                    <div class="image-preview-caption">${img.modality || ''}</div>`;
+                strip.appendChild(item);
+            });
+        } catch (ex) {
+            strip.innerHTML = '<span class="image-preview-empty">Could not load image preview: ' + ex.message + '</span>';
+        }
+    }
+
+    // ── Lightbox zoom/pan state ──
+    var LIGHTBOX_ZOOM_MIN  = 1;
+    var LIGHTBOX_ZOOM_MAX  = 4;
+    var LIGHTBOX_ZOOM_STEP = 0.5;
+    var lightboxZoom = { scale: 1, x: 0, y: 0 };
+    var lightboxDrag = { active: false, startX: 0, startY: 0, originX: 0, originY: 0 };
+
+    function openLightbox(url) {
+        document.getElementById('lightboxImg').src = url;
+        document.getElementById('lightboxOverlay').classList.add('open');
+        resetLightboxZoom();
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightboxOverlay').classList.remove('open');
+        document.getElementById('lightboxImg').src = '';
+        resetLightboxZoom();
+    }
+
+    function applyLightboxZoom() {
+        var img = document.getElementById('lightboxImg');
+        if (!img) return;
+        img.style.transform = 'translate(' + lightboxZoom.x + 'px, ' + lightboxZoom.y + 'px) scale(' + lightboxZoom.scale + ')';
+        img.style.cursor = lightboxZoom.scale > LIGHTBOX_ZOOM_MIN ? 'grab' : 'zoom-in';
+        var label = document.getElementById('lightboxZoomLabel');
+        if (label) label.textContent = Math.round(lightboxZoom.scale * 100) + '%';
+    }
+
+    function setLightboxZoom(newScale) {
+        newScale = Math.min(LIGHTBOX_ZOOM_MAX, Math.max(LIGHTBOX_ZOOM_MIN, newScale));
+        lightboxZoom.scale = newScale;
+        if (newScale === LIGHTBOX_ZOOM_MIN) { lightboxZoom.x = 0; lightboxZoom.y = 0; }
+        applyLightboxZoom();
+    }
+
+    function lightboxZoomIn()  { setLightboxZoom(lightboxZoom.scale + LIGHTBOX_ZOOM_STEP); }
+    function lightboxZoomOut() { setLightboxZoom(lightboxZoom.scale - LIGHTBOX_ZOOM_STEP); }
+    function resetLightboxZoom() { lightboxZoom.x = 0; lightboxZoom.y = 0; setLightboxZoom(LIGHTBOX_ZOOM_MIN); }
+    function toggleLightboxZoom() { setLightboxZoom(lightboxZoom.scale > LIGHTBOX_ZOOM_MIN ? LIGHTBOX_ZOOM_MIN : 2); }
+
+    function onLightboxWheel(e) {
+        e.preventDefault();
+        setLightboxZoom(lightboxZoom.scale + (e.deltaY < 0 ? LIGHTBOX_ZOOM_STEP : -LIGHTBOX_ZOOM_STEP));
+    }
+
+    function onLightboxDragStart(e) {
+        if (lightboxZoom.scale <= LIGHTBOX_ZOOM_MIN) return;
+        lightboxDrag.active = true;
+        var point = e.touches ? e.touches[0] : e;
+        lightboxDrag.startX = point.clientX;
+        lightboxDrag.startY = point.clientY;
+        lightboxDrag.originX = lightboxZoom.x;
+        lightboxDrag.originY = lightboxZoom.y;
+        var img = document.getElementById('lightboxImg');
+        if (img) img.style.cursor = 'grabbing';
+        e.preventDefault();
+    }
+
+    function onLightboxDragMove(e) {
+        if (!lightboxDrag.active) return;
+        var point = e.touches ? e.touches[0] : e;
+        lightboxZoom.x = lightboxDrag.originX + (point.clientX - lightboxDrag.startX);
+        lightboxZoom.y = lightboxDrag.originY + (point.clientY - lightboxDrag.startY);
+        applyLightboxZoom();
+        if (e.touches) e.preventDefault();
+    }
+
+    function onLightboxDragEnd() {
+        if (!lightboxDrag.active) return;
+        lightboxDrag.active = false;
+        var img = document.getElementById('lightboxImg');
+        if (img) img.style.cursor = lightboxZoom.scale > LIGHTBOX_ZOOM_MIN ? 'grab' : 'zoom-in';
+    }
+
+    document.addEventListener('mousemove', onLightboxDragMove);
+    document.addEventListener('mouseup', onLightboxDragEnd);
+    document.addEventListener('touchmove', onLightboxDragMove, { passive: false });
+    document.addEventListener('touchend', onLightboxDragEnd);
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.getElementById('lightboxOverlay').classList.contains('open')) {
+            closeLightbox();
+        }
+    });
 
     async function submitCreate(e) {
         e.preventDefault();
@@ -451,6 +609,10 @@
             findings:      document.getElementById('cr-findings').value.trim(),
             impression:    document.getElementById('cr-impression').value.trim()
         };
+        if (!body.requestId)     { showError('Please select an imaging request.'); return; }
+        if (!body.radiologistId) { showError('No radiologist is assigned to this request.'); return; }
+        if (!body.findings)      { showError('Findings is required.'); return; }
+        if (!body.impression)    { showError('Impression is required.'); return; }
         try {
             const res = await fetch(BASE, {
                 method: 'POST',
@@ -464,23 +626,21 @@
         } catch (ex) { showError('Network error: ' + ex.message); }
     }
 
-    /* ─── View detail ─── */
     function openViewModal(r) {
-        document.getElementById('d-reportId').textContent     = r.reportId || '—';
-        document.getElementById('d-requestId').textContent    = r.requestId || '—';
+        document.getElementById('d-reportId').textContent      = r.reportId || '—';
+        document.getElementById('d-requestId').textContent     = r.requestId || '—';
         document.getElementById('d-radiologistId').textContent = r.radiologistId || '—';
-        document.getElementById('d-status').innerHTML         = r.status === 'Finalized'
+        document.getElementById('d-status').innerHTML          = r.status === 'Finalized'
             ? '<span class="badge-finalized">Finalized</span>'
             : '<span class="badge-draft">Draft</span>';
-        document.getElementById('d-createdDate').textContent  = r.createdDate
+        document.getElementById('d-createdDate').textContent   = r.createdDate
             ? new Date(r.createdDate).toLocaleString('en-GB') : '—';
-        document.getElementById('d-findings').textContent     = r.findings   || 'N/A';
-        document.getElementById('d-impression').textContent   = r.impression || 'N/A';
-        document.getElementById('d-downloadLink').href        = BASE + '/' + encodeURIComponent(r.reportId) + '/download';
+        document.getElementById('d-findings').textContent      = r.findings   || 'N/A';
+        document.getElementById('d-impression').textContent    = r.impression || 'N/A';
+        document.getElementById('d-downloadLink').href         = BASE + '/' + encodeURIComponent(r.reportId) + '/download';
         openModal('viewModal');
     }
 
-    /* ─── Finalize ─── */
     function openFinalizeModal(reportId) {
         document.getElementById('finalizeReportId').value = reportId;
         openModal('finalizeModal');
@@ -501,16 +661,13 @@
         } catch (ex) { showError('Network error: ' + ex.message); }
     }
 
-    /* ─── Modal helpers ─── */
     function openModal(id)  { document.getElementById(id).classList.add('open'); }
     function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-    // Close on backdrop click
     document.querySelectorAll('.modal-overlay').forEach(el => {
         el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
     });
 
-    /* ─── Toast helpers ─── */
     function showSuccess(msg) { showToast('toastSuccess', 'toastSuccessMsg', msg); }
     function showError(msg)   { showToast('toastError',   'toastErrorMsg',   msg); }
 
@@ -523,5 +680,17 @@
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('select').forEach(function(el) {
+        const options = { allowEmptyOption: true, onInitialize: function() { this.wrapper.style.width = '100%'; } };
+        if (el.id === 'cr-requestId') {
+            options.onChange = onRequestIdChange;
+        }
+        new TomSelect(el, options);
+    });
+});
+</script>
 </body>
 </html>

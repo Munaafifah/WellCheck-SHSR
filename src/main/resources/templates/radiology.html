@@ -8,159 +8,48 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/themes/theme-base.css}">
+    <link rel="stylesheet" th:if="${userRole == 'ADMIN'}"        th:href="@{/css/themes/admin-theme.css}">
+    <link rel="stylesheet" th:if="${userRole == 'DOCTOR'}"       th:href="@{/css/themes/doctor-theme.css}">
+    <link rel="stylesheet" th:if="${userRole == 'RADIOLOGIST'}"  th:href="@{/css/themes/radiologist-theme.css}">
+    <link rel="stylesheet" th:if="${userRole == 'RADIOGRAPHER'}" th:href="@{/css/themes/radiographer-theme.css}">
     <style>
-        /* ── Copied verbatim from radiologistDashBoard.html ── */
-        :root {
-            --indigo-900: #1a1a4e;
-            --indigo-700: #2d2d8a;
-            --indigo-500: #4a4ac4;
-            --indigo-300: #7a7ae0;
-            --indigo-100: #c2c2f4;
-            --indigo-50:  #eeeeff;
-            --sand: #f5f0e8;
-            --sand-dark: #e8dfd0;
-            --text-dark: #1a1a35;
-            --text-mid:  #4a4a70;
-            --text-light: #9a9ab8;
-            --white: #ffffff;
-            --danger: #e05c5c;
-            --success: #3aaa7a;
-            --shadow-sm: 0 2px 8px rgba(26,26,78,0.08);
-            --shadow-md: 0 6px 24px rgba(26,26,78,0.12);
-            --radius: 12px;
-            --radius-lg: 20px;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DM Sans', sans-serif; background-color: var(--sand); color: var(--text-dark); min-height: 100vh; }
-        .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
-
-        /* SIDEBAR */
-        .sidebar { background: var(--indigo-900); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
-        .sidebar-brand { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-        .sidebar-brand .brand-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--indigo-300); font-weight: 500; margin-bottom: 6px; }
-        .sidebar-brand h1 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--white); line-height: 1.2; }
-        .sidebar-brand h1 span { color: var(--indigo-300); }
-        .profile-card { margin: 20px 16px; background: rgba(255,255,255,0.06); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.08); }
-        .profile-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--indigo-300); flex-shrink: 0; }
-        .profile-info .name { font-size: 14px; font-weight: 600; color: var(--white); }
-        .profile-info .role-badge { font-size: 10px; background: var(--indigo-500); color: var(--white); padding: 2px 8px; border-radius: 20px; margin-top: 4px; display: inline-block; }
-        .sidebar-nav { padding: 8px 12px; flex: 1; }
-        .nav-section-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--indigo-300); padding: 12px 12px 6px; font-weight: 500; }
-        .nav-link-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; color: rgba(255,255,255,0.65); text-decoration: none; font-size: 14px; transition: all 0.2s ease; margin-bottom: 2px; }
-        .nav-link-item:hover, .nav-link-item.active { background: var(--indigo-700); color: var(--white); }
-        .nav-link-item i { width: 18px; text-align: center; font-size: 15px; }
-        .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
-        .logout-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 14px; background: rgba(224,92,92,0.15); border: 1px solid rgba(224,92,92,0.25); border-radius: 10px; color: #f4a0a0; font-size: 14px; cursor: pointer; text-decoration: none; transition: all 0.2s; }
-        .logout-btn:hover { background: rgba(224,92,92,0.28); color: #ffcccc; }
-
-        /* MAIN */
-        .main { padding: 32px 36px; overflow-y: auto; }
-        .page-header { margin-bottom: 28px; }
-        .page-header .subtitle { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--indigo-500); font-weight: 500; margin-bottom: 4px; }
-        .page-header h2 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--indigo-900); font-weight: 600; }
-
-        /* STATS */
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
-        .stat-card { background: var(--white); border-radius: var(--radius-lg); padding: 22px 24px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0,0,0,0.04); display: flex; align-items: center; gap: 16px; }
-        .stat-icon { width: 50px; height: 50px; border-radius: 14px; background: var(--indigo-50); display: flex; align-items: center; justify-content: center; color: var(--indigo-500); font-size: 22px; flex-shrink: 0; }
-        .stat-value { font-size: 26px; font-weight: 700; color: var(--indigo-900); line-height: 1; }
-        .stat-label { font-size: 12px; color: var(--text-light); margin-top: 4px; }
-
-        /* INFO CARD */
-        .info-card { background: var(--white); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm); border: 1px solid rgba(0,0,0,0.04); margin-bottom: 24px; }
-        .info-card h5 { font-family: 'Playfair Display', serif; font-size: 17px; color: var(--indigo-900); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .info-card h5 i { color: var(--indigo-500); }
-        .info-row { display: flex; gap: 8px; margin-bottom: 12px; font-size: 14px; }
-        .info-label { color: var(--text-light); width: 140px; flex-shrink: 0; }
-        .info-value { color: var(--text-dark); font-weight: 500; }
-
-        /* FILE DROP ZONE — new component, minimal style */
-        .file-drop-zone { border: 2px dashed var(--indigo-300); border-radius: var(--radius); padding: 24px; text-align: center; cursor: pointer; background: var(--indigo-50); transition: all 0.2s; margin-bottom: 20px; }
-        .file-drop-zone:hover { border-color: var(--indigo-500); }
-        .file-drop-zone i { font-size: 28px; color: var(--indigo-500); margin-bottom: 8px; display: block; }
+        /* ── Page-specific components ── */
+        .file-drop-zone { border: 2px dashed var(--primary-300); border-radius: var(--radius); padding: 24px; text-align: center; cursor: pointer; background: var(--primary-50); transition: all 0.2s; margin-bottom: 20px; }
+        .file-drop-zone:hover { border-color: var(--primary-500); }
+        .file-drop-zone i { font-size: 28px; color: var(--primary-500); margin-bottom: 8px; display: block; }
         .file-drop-zone .drop-hint { font-size: 13px; color: var(--text-light); }
-        .file-drop-zone .file-chosen { font-size: 13px; font-weight: 600; color: var(--indigo-700); margin-top: 6px; }
+        .file-drop-zone .file-chosen { font-size: 13px; font-weight: 600; color: var(--primary-700); margin-top: 6px; }
 
-        /* TABLE overrides (Bootstrap table is loaded — just tweak colours) */
         .img-table thead th { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-light); font-weight: 600; border-bottom: 2px solid var(--sand-dark); padding: 10px 14px; }
         .img-table tbody td { font-size: 14px; color: var(--text-dark); padding: 12px 14px; vertical-align: middle; border-bottom: 1px solid var(--sand); }
-        .img-table tbody tr:hover td { background: var(--indigo-50); }
+        .img-table tbody tr:hover td { background: var(--primary-50); }
         .img-table tbody tr:last-child td { border-bottom: none; }
 
-        /* SHARE TOKEN BOX */
-        .token-box { background: var(--indigo-50); border: 1px solid var(--indigo-100); border-radius: var(--radius); padding: 14px 18px; font-family: monospace; font-size: 13px; word-break: break-all; color: var(--indigo-900); margin-top: 12px; }
-
-        @media (max-width: 992px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } .stats-grid { grid-template-columns: 1fr 1fr; } }
+        .token-box { background: var(--primary-50); border: 1px solid var(--primary-100); border-radius: var(--radius); padding: 14px 18px; font-family: monospace; font-size: 13px; word-break: break-all; color: var(--primary-900); margin-top: 12px; }
     </style>
+    <!-- Tom Select — searchable dropdowns -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/tom-select-theme.css}">
 </head>
 
 <body>
 <div class="layout">
 
-    <!-- ════════════════════════════════════════
-         SIDEBAR  —  identical structure to
-         radiologistDashBoard.html / radiographerDashBoard.html
-         ════════════════════════════════════════ -->
-    <aside class="sidebar">
-        <div class="sidebar-brand">
-            <div class="brand-label">WellCheck System</div>
-            <h1>Radiology <span>Portal</span></h1>
-        </div>
+    <!-- ════════════ SIDEBAR ════════════ -->
+    <aside th:replace="~{fragments/sidebar/shared-sidebar :: sidebar('imaging', ${userRole}, ${userName}, ${dashboardUrl})}"></aside>
 
-        <div class="profile-card">
-            <img class="profile-avatar" src="/image/img_avatar1.png" alt="Profile" />
-            <div class="profile-info">
-                <div class="name" th:text="${userName}">User</div>
-                <span class="role-badge" th:text="${userRole}">Role</span>
-            </div>
-        </div>
-
-        <nav class="sidebar-nav">
-            <div class="nav-section-label">Main Menu</div>
-            <a th:href="${dashboardUrl}" class="nav-link-item">
-                <i class="fa-solid fa-house-medical"></i>
-                Dashboard
-            </a>
-
-            <div class="nav-section-label" style="margin-top: 8px;">Imaging</div>
-            <a th:href="@{/radiology}" class="nav-link-item active">
-                <i class="fa-solid fa-x-ray"></i>
-                Medical Imaging
-            </a>
-
-            <div class="nav-section-label" style="margin-top: 8px;">Collaboration</div>
-            <a th:href="@{/communication}" class="nav-link-item"
-               th:if="${userRole != 'PATIENT'}">
-                <i class="fa-solid fa-comments"></i>
-                Communication
-            </a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <form th:action="@{/logout}" method="post" hidden name="logoutForm">
-                <input type="submit" value="Logout" />
-            </form>
-            <a href="javascript: document.logoutForm.submit()" class="logout-btn">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                Logout
-            </a>
-        </div>
-    </aside>
-
-    <!-- ════════════════════════════════════════
-         MAIN
-         ════════════════════════════════════════ -->
+    <!-- ════════════ MAIN ════════════ -->
     <main class="main">
 
-        <!-- Page Header — same pattern as dashboard -->
         <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
             <div>
                 <div class="subtitle">Radiology Module</div>
                 <h2>Medical Imaging</h2>
             </div>
-            <button onclick="document.getElementById('uploadModal').style.display='flex'"
+            <button onclick="openUploadModal()"
                     th:if="${userRole == 'RADIOGRAPHER' or userRole == 'RADIOLOGIST' or userRole == 'ADMIN'}"
-                    style="padding:10px 22px; background:var(--indigo-500); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; font-family:inherit; white-space:nowrap;">
+                    style="padding:10px 22px; background:var(--primary-500); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; font-family:inherit; white-space:nowrap;">
                 <i class="fa-solid fa-cloud-arrow-up"></i> Upload Image
             </button>
         </div>
@@ -175,12 +64,12 @@
             <div class="token-box" id="shareTokenText"></div>
             <p style="font-size:12px; color:var(--text-light); margin-top:8px;" id="shareExpiry"></p>
             <button onclick="document.getElementById('shareResult').style.display='none'"
-                    style="margin-top:14px; padding:7px 18px; background:transparent; border:1px solid var(--indigo-300); border-radius:8px; color:var(--indigo-500); font-size:13px; font-weight:600; cursor:pointer;">
+                    style="margin-top:14px; padding:7px 18px; background:transparent; border:1px solid var(--primary-300); border-radius:8px; color:var(--primary-500); font-size:13px; font-weight:600; cursor:pointer;">
                 <i class="fa-solid fa-xmark"></i> Dismiss
             </button>
         </div>
 
-        <!-- ── Stats row ──────────────────────────────────── -->
+        <!-- Stats row -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon"><i class="fa-solid fa-images"></i></div>
@@ -205,7 +94,7 @@
             </div>
         </div>
 
-        <!-- ── Search & Filter ───────────────────────────── -->
+        <!-- Search & Filter -->
         <div class="info-card">
             <h5><i class="fa-solid fa-magnifying-glass"></i> Search &amp; Filter Images</h5>
             <div class="row g-3 align-items-end">
@@ -227,18 +116,28 @@
                 </div>
                 <div class="col-md-3 d-flex gap-2">
                     <button onclick="handleSearch()"
-                            style="padding:9px 20px; background:var(--indigo-500); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; white-space:nowrap; font-family:inherit; flex:1;">
+                            style="padding:9px 20px; background:var(--primary-500); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; white-space:nowrap; font-family:inherit; flex:1;">
                         <i class="fa-solid fa-search"></i> Search
                     </button>
                     <button onclick="loadMyImages()"
-                            style="padding:9px 16px; background:transparent; border:1.5px solid var(--indigo-300); border-radius:10px; color:var(--indigo-500); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;">
+                            style="padding:9px 16px; background:transparent; border:1.5px solid var(--primary-300); border-radius:10px; color:var(--primary-500); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;">
                         <i class="fa-solid fa-rotate-right"></i>
                     </button>
                 </div>
             </div>
+            <div class="row g-3 mt-1" th:if="${userRole == 'RADIOLOGIST' or userRole == 'RADIOGRAPHER'}">
+                <div class="col-12">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="filterMyUploads" onchange="handleSearch()">
+                        <label class="form-check-label" for="filterMyUploads" style="font-size:13px; color:var(--text-mid);">
+                            Show only images I uploaded
+                        </label>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- ── Images Library ────────────────────────────── -->
+        <!-- Images Library -->
         <div class="info-card">
             <h5>
                 <i class="fa-solid fa-folder-open"></i>
@@ -256,22 +155,22 @@
     </main>
 </div>
 
-<!-- ════════════════════════════════════════
-     UPLOAD MODAL — Bootstrap modal structure
-     ════════════════════════════════════════ -->
+<!-- UPLOAD MODAL -->
 <div id="uploadModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1050; align-items:center; justify-content:center; padding:20px;"
      onclick="if(event.target===this) this.style.display='none'">
     <div style="background:var(--white); border-radius:var(--radius-lg); width:100%; max-width:560px; padding:32px; box-shadow:var(--shadow-md); max-height:90vh; overflow-y:auto;">
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
-            <h5 style="font-family:'Playfair Display',serif; font-size:18px; color:var(--indigo-900); margin:0;">
-                <i class="fa-solid fa-cloud-arrow-up" style="color:var(--indigo-500); margin-right:8px;"></i>Upload Medical Image
+            <h5 style="font-family:'Playfair Display',serif; font-size:18px; color:var(--primary-900); margin:0;">
+                <i class="fa-solid fa-cloud-arrow-up" style="color:var(--primary-500); margin-right:8px;"></i>Upload Medical Image
             </h5>
             <button onclick="document.getElementById('uploadModal').style.display='none'"
                     style="background:none; border:none; font-size:20px; color:var(--text-light); cursor:pointer; line-height:1;">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
+
+        <div id="uploadModalError" style="display:none; background:#fef2f2; border:1px solid #fecaca; color:#991b1b; border-radius:10px; padding:10px 16px; font-size:13px; margin-bottom:16px;"></div>
 
         <form id="uploadForm" onsubmit="handleUpload(event)">
             <div class="file-drop-zone" onclick="document.getElementById('fileInput').click()">
@@ -283,27 +182,26 @@
                    onchange="document.getElementById('selectedFileName').textContent = this.files[0] ? this.files[0].name : 'No file selected'">
 
             <div class="row g-3 mb-3">
-                <div class="col-md-6">
-                    <label class="form-label" style="font-size:12px; text-transform:uppercase; letter-spacing:1px; font-weight:600; color:var(--text-light);">Patient ID *</label>
-                    <input type="text" name="patientId" class="form-control" placeholder="e.g. P001" required>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label" style="font-size:12px; text-transform:uppercase; letter-spacing:1px; font-weight:600; color:var(--text-light);">Request / Referral ID</label>
-                    <input type="text" name="requestId" class="form-control" placeholder="Optional">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label" style="font-size:12px; text-transform:uppercase; letter-spacing:1px; font-weight:600; color:var(--text-light);">Modality *</label>
-                    <select name="modality" class="form-select" required>
-                        <option value="" disabled selected>Select modality</option>
-                        <option value="X_RAY">X-Ray</option>
-                        <option value="CT">CT Scan</option>
-                        <option value="MRI">MRI</option>
-                        <option value="ULTRASOUND">Ultrasound</option>
+                <div class="col-md-12">
+                    <label class="form-label" style="font-size:12px; text-transform:uppercase; letter-spacing:1px; font-weight:600; color:var(--text-light);">Scheduled Request *</label>
+                    <select id="uploadRequestId" name="requestId" class="form-select" required onchange="onRequestSelected(this.value)">
+                        <option value="" disabled selected>Loading scheduled requests...</option>
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <label class="form-label" style="font-size:12px; text-transform:uppercase; letter-spacing:1px; font-weight:600; color:var(--text-light);">Patient ID</label>
+                    <input type="text" id="uploadPatientIdDisplay" class="form-control" disabled placeholder="Auto-filled">
+                    <input type="hidden" id="uploadPatientId" name="patientId">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" style="font-size:12px; text-transform:uppercase; letter-spacing:1px; font-weight:600; color:var(--text-light);">Modality</label>
+                    <input type="text" id="uploadModalityDisplay" class="form-control" disabled placeholder="Auto-filled">
+                    <input type="hidden" id="uploadModality" name="modality">
+                </div>
+                <div class="col-md-4">
                     <label class="form-label" style="font-size:12px; text-transform:uppercase; letter-spacing:1px; font-weight:600; color:var(--text-light);">Capture Date</label>
-                    <input type="date" name="captureDate" class="form-control">
+                    <input type="text" id="uploadCaptureDateDisplay" class="form-control" disabled placeholder="Auto-filled">
+                    <input type="hidden" id="uploadCaptureDate" name="captureDate">
                 </div>
             </div>
 
@@ -316,7 +214,7 @@
                     Cancel
                 </button>
                 <button type="submit" id="submitUploadBtn"
-                        style="padding:10px 22px; background:var(--indigo-500); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:8px;">
+                        style="padding:10px 22px; background:var(--primary-500); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:8px;">
                     <i class="fa-solid fa-upload"></i> Upload Image
                 </button>
             </div>
@@ -326,7 +224,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Thymeleaf server-side variables ONLY -->
 <script th:inline="javascript">
     /*<![CDATA[*/
     var CURRENT_USER_ID = /*[[${userId}]]*/ '';
@@ -334,35 +231,158 @@
     /*]]>*/
 </script>
 
-<!-- All app logic — no th:inline, Thymeleaf does NOT touch ${...} here -->
 <script>
     window.addEventListener('DOMContentLoaded', function() {
         loadMyImages();
     });
 
-    /* ── Load images for the current user ── */
     function loadMyImages() {
         if (CURRENT_ROLE === 'RADIOGRAPHER' || CURRENT_ROLE === 'RADIOLOGIST') {
-            fetchAndRender('/api/images/uploader/' + CURRENT_USER_ID);
+            var checkbox = document.getElementById('filterMyUploads');
+            if (checkbox) checkbox.checked = false;
+            fetchAndRender('/api/images/search');
         } else if (CURRENT_ROLE === 'PATIENT') {
             fetchAndRender('/api/images/patient/' + CURRENT_USER_ID);
+        } else if (CURRENT_ROLE === 'DOCTOR') {
+            loadDoctorImages();
         } else {
             renderTable([]);
             updateStats([]);
         }
     }
 
-    /* ── Search ── */
+    // Doctors don't upload images, but they should see images for the patients
+    // they have submitted imaging requests for — never an arbitrary patient.
+    // Cached after first load so the search box (handleSearch) can validate
+    // against the same set without re-fetching every keystroke.
+    var DOCTOR_PATIENT_IDS = [];
+    var doctorPatientIdsLoaded = false;
+
+    function fetchDoctorPatientIds() {
+        if (doctorPatientIdsLoaded) return Promise.resolve(DOCTOR_PATIENT_IDS);
+        return fetch('/api/imaging-requests/my')
+            .then(function(res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+            .then(function(requests) {
+                DOCTOR_PATIENT_IDS = Array.from(new Set(
+                    (requests || []).map(function(r) { return r.patientId; }).filter(Boolean)
+                ));
+                doctorPatientIdsLoaded = true;
+                return DOCTOR_PATIENT_IDS;
+            });
+    }
+
+    // Loads every image belonging to the doctor's own patients, optionally
+    // narrowed further by modality (used by the Modality filter when no
+    // Patient ID has been typed into the search box).
+    function loadDoctorImages(modalityFilter) {
+        setGallery(
+            '<div style="text-align:center; padding:40px; color:var(--text-light);">' +
+            '<i class="fa-solid fa-spinner fa-spin fa-2x" style="display:block; margin-bottom:12px;"></i>' +
+            '<span style="font-size:14px;">Loading images...</span></div>'
+        );
+        fetchDoctorPatientIds()
+            .then(function(patientIds) {
+                if (patientIds.length === 0) {
+                    renderTable([]);
+                    updateStats([]);
+                    return;
+                }
+                return Promise.all(patientIds.map(function(pid) {
+                    return fetch('/api/images/patient/' + encodeURIComponent(pid))
+                        .then(function(res) { return res.ok ? res.json() : []; })
+                        .catch(function() { return []; });
+                })).then(function(resultsArrays) {
+                    var merged = [].concat.apply([], resultsArrays);
+                    if (modalityFilter) {
+                        merged = merged.filter(function(img) { return img.modality === modalityFilter; });
+                    }
+                    var seen = {}, deduped = [];
+                    merged.forEach(function(img) {
+                        if (img.id && !seen[img.id]) { seen[img.id] = true; deduped.push(img); }
+                    });
+                    renderTable(deduped);
+                    updateStats(deduped);
+                });
+            })
+            .catch(function(err) {
+                setGallery(
+                    '<div style="text-align:center; padding:40px; color:var(--text-light);">' +
+                    '<i class="fa-solid fa-circle-exclamation fa-2x" style="display:block; margin-bottom:12px;"></i>' +
+                    '<span style="font-size:14px;">Failed to load images. ' + err.message + '</span></div>'
+                );
+                updateStats([]);
+            });
+    }
+
     function handleSearch() {
         var patientId = document.getElementById('searchPatientId').value.trim();
         var modality  = document.getElementById('searchModality').value;
+
+        if (CURRENT_ROLE === 'DOCTOR') {
+            if (!patientId) {
+                // No patient typed — show all of my patients, optionally filtered by modality.
+                loadDoctorImages(modality || null);
+                return;
+            }
+            fetchDoctorPatientIds().then(function(ids) {
+                if (ids.indexOf(patientId) === -1) {
+                    setGallery(
+                        '<div style="text-align:center; padding:40px; color:var(--text-light);">' +
+                        '<i class="fa-solid fa-lock fa-2x" style="display:block; margin-bottom:12px;"></i>' +
+                        '<span style="font-size:14px;">You can only view images for patients you have requested imaging for.</span></div>'
+                    );
+                    updateStats([]);
+                    return;
+                }
+                var url = '/api/images/search?patientId=' + encodeURIComponent(patientId)
+                        + (modality ? '&modality=' + encodeURIComponent(modality) : '');
+                fetchAndRender(url);
+            });
+            return;
+        }
+
+        var myUploadsCheckbox = document.getElementById('filterMyUploads');
+        var myUploadsOnly = myUploadsCheckbox ? myUploadsCheckbox.checked : false;
+
+        if (myUploadsOnly && (CURRENT_ROLE === 'RADIOLOGIST' || CURRENT_ROLE === 'RADIOGRAPHER')) {
+            fetchAndRenderFiltered('/api/images/uploader/' + CURRENT_USER_ID, patientId, modality);
+            return;
+        }
+
         var url = '/api/images/search?';
         if (patientId) url += 'patientId=' + encodeURIComponent(patientId) + '&';
         if (modality)  url += 'modality='  + encodeURIComponent(modality)  + '&';
         fetchAndRender(url);
     }
 
-    /* ── Fetch + render ── */
+    // Like fetchAndRender, but the uploader endpoint doesn't support
+    // patientId/modality query params server-side, so apply those filters
+    // client-side after the fetch — only used by the "My uploads only" toggle.
+    function fetchAndRenderFiltered(url, patientId, modality) {
+        setGallery(
+            '<div style="text-align:center; padding:40px; color:var(--text-light);">' +
+            '<i class="fa-solid fa-spinner fa-spin fa-2x" style="display:block; margin-bottom:12px;"></i>' +
+            '<span style="font-size:14px;">Loading images...</span></div>'
+        );
+        fetch(url)
+            .then(function(res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+            .then(function(images) {
+                var filtered = images || [];
+                if (patientId) filtered = filtered.filter(function(i) { return i.patientId === patientId; });
+                if (modality)  filtered = filtered.filter(function(i) { return i.modality === modality; });
+                renderTable(filtered);
+                updateStats(filtered);
+            })
+            .catch(function(err) {
+                setGallery(
+                    '<div style="text-align:center; padding:40px; color:var(--text-light);">' +
+                    '<i class="fa-solid fa-circle-exclamation fa-2x" style="display:block; margin-bottom:12px;"></i>' +
+                    '<span style="font-size:14px;">Failed to load images. ' + err.message + '</span></div>'
+                );
+                updateStats([]);
+            });
+    }
+
     function fetchAndRender(url) {
         setGallery(
             '<div style="text-align:center; padding:40px; color:var(--text-light);">' +
@@ -393,12 +413,16 @@
         document.getElementById('statModality').textContent = mods;
     }
 
-    /* ── Render table ── */
     function renderTable(images) {
         if (!images || images.length === 0) {
-            var hint = (CURRENT_ROLE === 'DOCTOR' || CURRENT_ROLE === 'ADMIN')
-                ? 'Enter a Patient ID above and click Search to view images.'
-                : 'No images found.';
+            var hint;
+            if (CURRENT_ROLE === 'DOCTOR') {
+                hint = 'No images found for the patients in your imaging requests yet.';
+            } else if (CURRENT_ROLE === 'ADMIN') {
+                hint = 'Enter a Patient ID above and click Search to view images.';
+            } else {
+                hint = 'No images found.';
+            }
             setGallery(
                 '<div style="text-align:center; padding:40px; color:var(--text-light);">' +
                 '<i class="fa-solid fa-images fa-2x" style="display:block; margin-bottom:12px;"></i>' +
@@ -414,19 +438,19 @@
         var rows = images.map(function(img) {
             var mi         = getModalityInfo(img.modality);
             var isAnon     = img.anonymized === true;
-            var patientId  = img.patientId  || '\u2014';
-            var uploadedBy = img.uploadedBy || '\u2014';
+            var patientId  = img.patientId  || '—';
+            var uploadedBy = img.uploadedBy || '—';
             var imgId      = img.id         || '';
-            var shortId    = imgId.length > 10 ? imgId.substring(0, 10) + '...' : (imgId || '\u2014');
-            var capDate    = img.captureDate ? new Date(img.captureDate).toLocaleDateString() : '\u2014';
+            var shortId    = imgId.length > 10 ? imgId.substring(0, 10) + '...' : (imgId || '—');
+            var capDate    = img.captureDate ? new Date(img.captureDate).toLocaleDateString() : '—';
 
             var modalityBadge = '<span style="display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:.5px; ' + mi.style + '">' + mi.label + '</span>';
             var statusBadge   = isAnon
                 ? '<span style="display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; background:rgba(58,170,122,.12); color:#3aaa7a;"><i class="fa-solid fa-user-slash" style="font-size:10px;"></i> Anonymized</span>'
-                : '<span style="display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; background:var(--indigo-50); color:var(--indigo-500);">Standard</span>';
+                : '<span style="display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; background:var(--primary-50); color:var(--primary-500);">Standard</span>';
 
             var shareBtn  = canShare
-                ? '<button onclick="shareImage(\'' + imgId + '\')" title="Share" style="' + btnStyle('var(--indigo-500)') + '"><i class="fa-solid fa-share-nodes"></i></button>'
+                ? '<button onclick="shareImage(\'' + imgId + '\')" title="Share" style="' + btnStyle('var(--primary-500)') + '"><i class="fa-solid fa-share-nodes"></i></button>'
                 : '';
             var anonBtn   = (canAnonymize && !isAnon)
                 ? '<button onclick="anonymizeImage(\'' + imgId + '\')" title="Anonymize" style="' + btnStyle('#e8a838') + '"><i class="fa-solid fa-user-slash"></i></button>'
@@ -434,7 +458,7 @@
             var deleteBtn = canDelete
                 ? '<button onclick="deleteImage(\'' + imgId + '\')" title="Delete" style="' + btnStyle('var(--danger)') + '"><i class="fa-solid fa-trash"></i></button>'
                 : '';
-            var dlBtn     = '<a href="/api/images/' + imgId + '/download" download title="Download" style="' + btnStyle('var(--indigo-500)') + ' text-decoration:none;"><i class="fa-solid fa-download"></i></a>';
+            var dlBtn     = '<a href="/api/images/' + imgId + '/download" download title="Download" style="' + btnStyle('var(--primary-500)') + ' text-decoration:none;"><i class="fa-solid fa-download"></i></a>';
 
             return '<tr>' +
                 '<td style="font-size:12px; font-family:monospace; color:var(--text-light);" title="' + esc(imgId) + '">' + esc(shortId) + '</td>' +
@@ -464,11 +488,19 @@
     function getModalityInfo(mod) {
         var map = {
             'X_RAY':      { label: 'X-Ray',      style: 'background:#dbeafe; color:#1e40af;' },
+            'XRAY':       { label: 'X-Ray',      style: 'background:#dbeafe; color:#1e40af;' },
             'CT':         { label: 'CT Scan',     style: 'background:#f3e8ff; color:#6d28d9;' },
             'MRI':        { label: 'MRI',         style: 'background:#dcfce7; color:#166534;' },
             'ULTRASOUND': { label: 'Ultrasound',  style: 'background:#fef3c7; color:#b45309;' }
         };
-        return map[mod] || { label: mod || '\u2014', style: 'background:var(--indigo-50); color:var(--indigo-500);' };
+        return map[mod] || { label: mod || '—', style: 'background:var(--primary-50); color:var(--primary-500);' };
+    }
+
+    // The image upload endpoint's Modality enum uses "X_RAY"; the imaging
+    // request's Modality enum uses "XRAY" (no underscore). Translate here.
+    function normalizeModalityForUpload(code) {
+        if (code === 'XRAY') return 'X_RAY';
+        return code;
     }
 
     function esc(s) {
@@ -477,12 +509,91 @@
 
     function setGallery(html) { document.getElementById('galleryContainer').innerHTML = html; }
 
-    /* ── Upload ── */
+    // ── Upload modal: scheduled-request lookup & field interlinking ──
+    var ELIGIBLE_REQUESTS = {};
+
+    function showModalError(msg) {
+        var el = document.getElementById('uploadModalError');
+        el.textContent = msg;
+        el.style.display = 'block';
+    }
+
+    function clearModalError() {
+        var el = document.getElementById('uploadModalError');
+        el.style.display = 'none';
+        el.textContent = '';
+    }
+
+    function openUploadModal() {
+        document.getElementById('uploadModal').style.display = 'flex';
+        clearModalError();
+        document.getElementById('uploadPatientIdDisplay').value = '';
+        document.getElementById('uploadPatientId').value = '';
+        document.getElementById('uploadModalityDisplay').value = '';
+        document.getElementById('uploadModality').value = '';
+        document.getElementById('uploadCaptureDateDisplay').value = '';
+        document.getElementById('uploadCaptureDate').value = '';
+        loadEligibleRequests();
+    }
+
+    function loadEligibleRequests() {
+        var select = document.getElementById('uploadRequestId');
+        select.innerHTML = '<option value="" disabled selected>Loading scheduled requests...</option>';
+        fetch('/api/imaging-requests/awaiting-imaging')
+            .then(function(res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+            .then(function(requests) {
+                ELIGIBLE_REQUESTS = {};
+                if (!requests || requests.length === 0) {
+                    select.innerHTML = '<option value="" disabled selected>No scheduled requests awaiting imaging</option>';
+                    return;
+                }
+                var options = '<option value="" disabled selected>Select a scheduled request...</option>';
+                requests.forEach(function(r) {
+                    ELIGIBLE_REQUESTS[r.requestId] = r;
+                    var modLabel = getModalityInfo(r.modality).label;
+                    options += '<option value="' + esc(r.requestId) + '">' +
+                        esc(r.requestId) + ' — ' + esc(r.patientId) + ' — ' + esc(modLabel) +
+                        '</option>';
+                });
+                select.innerHTML = options;
+            })
+            .catch(function() {
+                select.innerHTML = '<option value="" disabled selected>Failed to load requests</option>';
+            });
+    }
+
+    function onRequestSelected(requestId) {
+        var req = ELIGIBLE_REQUESTS[requestId];
+        if (!req) return;
+
+        document.getElementById('uploadPatientId').value = req.patientId;
+        document.getElementById('uploadPatientIdDisplay').value = req.patientId;
+
+        var modInfo = getModalityInfo(req.modality);
+        document.getElementById('uploadModality').value = normalizeModalityForUpload(req.modality);
+        document.getElementById('uploadModalityDisplay').value = modInfo.label;
+
+        document.getElementById('uploadCaptureDateDisplay').value = 'Loading...';
+        fetch('/api/appointments/by-request/' + encodeURIComponent(requestId))
+            .then(function(res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+            .then(function(apt) {
+                var d = apt.appointmentDate ? new Date(apt.appointmentDate) : null;
+                document.getElementById('uploadCaptureDate').value = d ? d.toISOString().split('T')[0] : '';
+                document.getElementById('uploadCaptureDateDisplay').value = d ? d.toLocaleDateString() : '—';
+            })
+            .catch(function() {
+                document.getElementById('uploadCaptureDate').value = '';
+                document.getElementById('uploadCaptureDateDisplay').value = 'Unavailable';
+            });
+    }
+
     function handleUpload(event) {
         event.preventDefault();
+        clearModalError();
         var form      = document.getElementById('uploadForm');
         var fileInput = document.getElementById('fileInput');
-        if (!fileInput.files || fileInput.files.length === 0) { showAlert('Please select a file before uploading.', 'warning'); return; }
+        if (!fileInput.files || fileInput.files.length === 0) { showModalError('Please select a file before uploading.'); return; }
+        if (!document.getElementById('uploadRequestId').value) { showModalError('Please select a scheduled request.'); return; }
 
         var btn = document.getElementById('submitUploadBtn');
         btn.disabled = true;
@@ -498,14 +609,13 @@
                     loadMyImages();
                 } else {
                     res.json().catch(function() { return { error: 'Upload failed' }; })
-                        .then(function(err) { showAlert('Upload failed: ' + (err.error || 'Unknown error'), 'danger'); });
+                        .then(function(err) { showModalError('Upload failed: ' + (err.error || 'Unknown error')); });
                 }
             })
-            .catch(function() { showAlert('Network error during upload.', 'danger'); })
+            .catch(function() { showModalError('Network error during upload.'); })
             .finally(function() { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-upload"></i> Upload Image'; });
     }
 
-    /* ── Share ── */
     function shareImage(imageId) {
         var hours = prompt('Share token valid for how many hours? (default: 24)', '24');
         if (hours === null) return;
@@ -530,7 +640,6 @@
         .catch(function() { showAlert('Network error while sharing.', 'danger'); });
     }
 
-    /* ── Anonymize ── */
     function anonymizeImage(imageId) {
         if (!confirm('Anonymize this image? Identifiable metadata will be removed. This cannot be undone.')) return;
         fetch('/api/images/' + imageId + '/anonymize', { method: 'PUT' })
@@ -541,7 +650,6 @@
             .catch(function() { showAlert('Network error.', 'danger'); });
     }
 
-    /* ── Delete ── */
     function deleteImage(imageId) {
         var reason = prompt('Reason for deletion:', 'No reason provided');
         if (reason === null) return;
@@ -554,7 +662,6 @@
             .catch(function() { showAlert('Network error.', 'danger'); });
     }
 
-    /* ── Alert ── */
     function showAlert(message, type) {
         var colorMap = {
             'success': 'background:#f0fdf4; color:#166534; border:1px solid #bbf7d0;',
@@ -564,10 +671,18 @@
         var area = document.getElementById('alertArea');
         area.innerHTML = '<div style="padding:12px 18px; border-radius:10px; font-size:14px; display:flex; justify-content:space-between; align-items:center; ' + (colorMap[type] || colorMap['danger']) + '">' +
             '<span>' + message + '</span>' +
-            '<button onclick="this.parentElement.remove()" style="background:none; border:none; font-size:18px; cursor:pointer; color:inherit; line-height:1; margin-left:12px;">&times;</button>' +
+            '<button onclick="this.parentElement.remove()" style="background:none; border:none; font-size:18px; cursor:pointer; color:inherit; line-height:1;">&times;</button>' +
             '</div>';
         if (type === 'success') setTimeout(function() { if (area.firstChild) area.firstChild.remove(); }, 5000);
     }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('select:not(#uploadRequestId)').forEach(function(el) {
+        new TomSelect(el, { allowEmptyOption: true, onInitialize: function() { this.wrapper.style.width = '100%'; } });
+    });
+});
 </script>
 </body>
 </html>

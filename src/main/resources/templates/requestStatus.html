@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Request Status</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/themes/theme-base.css}">
+    <link rel="stylesheet" th:if="${userRole == 'ADMIN'}"  th:href="@{/css/themes/admin-theme.css}">
+    <link rel="stylesheet" th:if="${userRole == 'DOCTOR'}" th:href="@{/css/themes/doctor-theme.css}">
+    <style>
+        .status-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .status-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid rgba(0,0,0,0.04); overflow: hidden; }
+        .status-card-header { padding: 16px 20px; background: var(--primary-900); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .status-card-header .req-id { font-size: 10px; font-family: monospace; color: rgba(255,255,255,0.5); }
+        .status-card-header .modality-label { font-size: 14px; font-weight: 700; color: var(--white); letter-spacing: 0.3px; }
+        .status-card-body { padding: 18px 20px; }
+        .info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px; font-size: 13px; }
+        .info-label { color: var(--text-light); }
+        .info-value { color: var(--text-dark); font-weight: 500; text-align: right; }
+
+        /* ── Status badges (all 9 states) ── */
+        .badge-pending        { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-approved       { background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-rejected       { background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-scheduled      { background: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-in_progress    { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-report_pending { background: #fef9c3; color: #854d0e; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-report_ready   { background: #f3e8ff; color: #7e22ce; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-completed      { background: #ede9fe; color: #6d28d9; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-cancelled      { background: #f3f4f6; color: #6b7280; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+
+        .urgency-emergency { color: #dc2626; font-weight: 700; }
+        .urgency-urgent    { color: #d97706; font-weight: 600; }
+        .divider { border: none; border-top: 1px solid var(--sand-dark); margin: 12px 0; }
+        .appt-block { background: var(--primary-50); border: 1.5px solid var(--primary-300); border-radius: 10px; padding: 14px 16px; margin-top: 10px; }
+        .appt-block-title { font-weight: 700; color: var(--primary-700); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; font-size: 13px; }
+        .rejection-block { background: #fee2e2; border: 1.5px solid #fca5a5; border-radius: 10px; padding: 12px 14px; margin-top: 10px; font-size: 13px; color: #991b1b; }
+        .rejection-block strong { display: block; margin-bottom: 4px; }
+        .cancellation-block { background: #f3f4f6; border: 1.5px solid #d1d5db; border-radius: 10px; padding: 12px 14px; margin-top: 10px; font-size: 13px; color: #4b5563; }
+        .cancellation-block strong { display: block; margin-bottom: 4px; }
+        .priority-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .priority-high   { background: #fee2e2; color: #991b1b; }
+        .priority-medium { background: #fef3c7; color: #d97706; }
+        .priority-low    { background: #d1fae5; color: #065f46; }
+        .empty-state { text-align: center; padding: 80px 24px; color: var(--text-light); }
+        .empty-state i { font-size: 48px; margin-bottom: 16px; display: block; opacity: 0.4; }
+        .empty-state p { font-size: 14px; margin-top: 8px; }
+        .alert-toast { position: fixed; top: 24px; right: 24px; z-index: 9999; padding: 14px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; display: none; align-items: center; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-width: 400px; }
+        .alert-toast.success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; display: flex; }
+        .alert-toast.error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; display: flex; }
+        /* Appointment status mini-badges */
+        .appt-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+        .appt-badge-scheduled      { background: #dbeafe; color: #1e40af; }
+        .appt-badge-confirmed      { background: #d1fae5; color: #065f46; }
+        .appt-badge-in_progress    { background: #e0f2fe; color: #0369a1; }
+        .appt-badge-completed      { background: #ede9fe; color: #6d28d9; }
+        .appt-badge-cancelled      { background: #f3f4f6; color: #6b7280; }
+        .appt-badge-no_show        { background: #fef3c7; color: #92400e; }
+        /* Read-only notice for Doctor */
+        .readonly-notice { display: flex; align-items: center; gap: 8px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 10px 16px; font-size: 13px; color: #0369a1; margin-bottom: 20px; }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+
+    <!-- ════════════ SIDEBAR ════════════ -->
+    <aside th:replace="~{fragments/sidebar/shared-sidebar :: sidebar('requestStatus', ${userRole}, ${userName}, ${dashboardUrl})}"></aside>
+
+    <!-- ════════════ MAIN ════════════ -->
+    <main class="main">
+
+        <div class="page-header">
+            <div class="subtitle">UCR013</div>
+            <h2>Request Status</h2>
+        </div>
+
+        <div id="toast" class="alert-toast"></div>
+
+        <!-- Read-only notice -->
+        <div class="readonly-notice">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>
+                <strong>View-only.</strong>
+                Request management is handled by the Radiology team via Manage Requests.
+                Appointment scheduling is handled via Appointment Scheduling.
+            </span>
+        </div>
+
+        <!-- ── Search & Filter ── -->
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:center;">
+            <div style="position:relative;flex:1;min-width:200px;">
+                <i class="fa-solid fa-magnifying-glass"
+                   style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:13px;"></i>
+                <input type="text" id="searchId" placeholder="Search by Request ID…"
+                       oninput="filterCards()"
+                       style="width:100%;padding:9px 14px 9px 34px;border:1px solid var(--sand-dark);border-radius:10px;font-size:13px;background:var(--white);outline:none;font-family:inherit;box-sizing:border-box;">
+            </div>
+            <select id="filterStatus" onchange="filterCards()"
+                    style="padding:9px 36px 9px 14px;border:1px solid var(--sand-dark);border-radius:10px;font-size:13px;background:var(--white);color:var(--text-dark);outline:none;font-family:inherit;cursor:pointer;appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22><path fill=%22%236b7280%22 d=%22M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z%22/></svg>');background-repeat:no-repeat;background-position:right 10px center;background-size:14px;">
+                <option value="">All Statuses</option>
+                <option value="PENDING">PENDING</option>
+                <option value="APPROVED">APPROVED</option>
+                <option value="SCHEDULED">SCHEDULED</option>
+                <option value="IN_PROGRESS">IN PROGRESS</option>
+                <option value="REPORT_PENDING">REPORT PENDING</option>
+                <option value="REPORT_READY">REPORT READY</option>
+                <option value="COMPLETED">COMPLETED</option>
+                <option value="REJECTED">REJECTED</option>
+                <option value="CANCELLED">CANCELLED</option>
+            </select>
+            <span id="filterCount" style="font-size:12px;color:var(--text-light);white-space:nowrap;"></span>
+        </div>
+
+        <div th:if="${#lists.isEmpty(requests)}" class="empty-state">
+            <i class="fa-solid fa-inbox"></i>
+            <p>No imaging requests found.</p>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(requests)}" class="status-cards" id="cardsGrid">
+            <div th:each="req : ${requests}" class="status-card"
+                 th:attr="data-requestid=${req.requestId}, data-status=${req.status}">
+
+                <!-- Card Header -->
+                <div class="status-card-header">
+                    <div>
+                        <div class="req-id" th:text="${req.requestId}"></div>
+                        <div class="modality-label" th:text="${req.modality}"></div>
+                    </div>
+                    <span th:class="'badge-' + ${#strings.toLowerCase(req.status)}"
+                          th:text="${req.status}"></span>
+                </div>
+
+                <!-- Card Body -->
+                <div class="status-card-body">
+                    <div class="info-row">
+                        <span class="info-label">Body Part</span>
+                        <span class="info-value" th:text="${req.bodyPart != null} ? ${req.bodyPart} : '—'"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Urgency</span>
+                        <span class="info-value"
+                              th:class="${req.urgencyLevel.name() == 'EMERGENCY'} ? 'info-value urgency-emergency' : (${req.urgencyLevel.name() == 'URGENT'} ? 'info-value urgency-urgent' : 'info-value')"
+                              th:text="${req.urgencyLevel}"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">AI Priority</span>
+                        <span th:classappend="${req.priorityScore >= 90} ? 'priority-high' : (${req.priorityScore >= 60} ? 'priority-medium' : 'priority-low')"
+                              class="priority-badge" th:text="${req.priorityScore} + ' / 100'"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Patient ID</span>
+                        <span class="info-value" th:text="${req.patientId}"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Submitted</span>
+                        <span class="info-value" style="font-size:12px;"
+                              th:text="${req.createdDate != null} ? ${#dates.format(req.createdDate,'dd MMM yyyy')} : '—'"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Last Updated</span>
+                        <span class="info-value" style="font-size:12px;"
+                              th:text="${req.updatedDate != null} ? ${#dates.format(req.updatedDate,'dd MMM yyyy')} : '—'"></span>
+                    </div>
+
+                    <!-- Rejection reason -->
+                    <div th:if="${req.rejectionReason != null and !#strings.isEmpty(req.rejectionReason)}"
+                         class="rejection-block">
+                        <strong><i class="fa-solid fa-circle-xmark"></i> Rejection Reason</strong>
+                        <span th:text="${req.rejectionReason}"></span>
+                    </div>
+
+                    <!-- Cancellation reason -->
+                    <div th:if="${req.status.name() == 'CANCELLED' and req.cancellationReason != null and !#strings.isEmpty(req.cancellationReason)}"
+                         class="cancellation-block">
+                        <strong><i class="fa-solid fa-ban"></i> Cancellation Reason</strong>
+                        <span th:text="${req.cancellationReason}"></span>
+                    </div>
+
+                    <!-- Appointment details block (any non-cancelled appointment) -->
+                    <th:block th:with="appt=${appointmentMap[req.requestId]}">
+                        <div th:if="${appt != null}">
+                            <hr class="divider"/>
+                            <div class="appt-block">
+                                <div class="appt-block-title">
+                                    <i class="fa-solid fa-calendar-check"></i>
+                                    Appointment
+                                    <span th:class="'appt-badge appt-badge-' + ${#strings.toLowerCase(appt.status)}"
+                                          th:text="${appt.status}"></span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Date</span>
+                                    <span class="info-value"
+                                          th:text="${appt.appointmentDate != null} ? ${#dates.format(appt.appointmentDate,'dd MMM yyyy')} : '—'"></span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Time Slot</span>
+                                    <span class="info-value" th:text="${appt.timeSlot}"></span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Equipment</span>
+                                    <span class="info-value" th:text="${appt.equipment}"></span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Radiographer</span>
+                                    <span class="info-value" style="font-size:12px;" th:text="${appt.radiographerId}"></span>
+                                </div>
+                                <!-- Show cancellation reason if appointment was cancelled -->
+                                <div th:if="${appt.status.name() == 'CANCELLED' and appt.cancellationReason != null and !#strings.isEmpty(appt.cancellationReason)}"
+                                     style="margin-top:8px;background:#f3f4f6;border-radius:8px;padding:8px 12px;font-size:12px;color:#6b7280;">
+                                    <strong style="display:block;margin-bottom:2px;"><i class="fa-solid fa-ban"></i> Cancelled</strong>
+                                    <span th:text="${appt.cancellationReason}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+    function filterCards() {
+        const idQuery     = (document.getElementById('searchId').value || '').trim().toLowerCase();
+        const statusQuery = (document.getElementById('filterStatus').value || '').toUpperCase();
+        const cards       = document.querySelectorAll('#cardsGrid .status-card');
+        let visible = 0;
+        cards.forEach(function(card) {
+            const rid    = (card.dataset.requestid || '').toLowerCase();
+            const status = (card.dataset.status || '').toUpperCase();
+            const matchId     = !idQuery     || rid.includes(idQuery);
+            const matchStatus = !statusQuery || status === statusQuery;
+            const show = matchId && matchStatus;
+            card.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+        const countEl = document.getElementById('filterCount');
+        if (countEl) countEl.textContent = visible + ' of ' + cards.length + ' shown';
+    }
+
+    document.addEventListener('DOMContentLoaded', filterCards);
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

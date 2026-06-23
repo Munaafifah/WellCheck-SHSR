@@ -1,0 +1,12 @@
+/* ═══════════════════════════════════════
+   Radiologist Theme — Purple/Indigo Palette
+   Overrides --primary-* from theme-base.css
+═══════════════════════════════════════ */
+:root {
+    --primary-900: #1a1a4e;
+    --primary-700: #2d2d8a;
+    --primary-500: #4a4ac4;
+    --primary-300: #7a7ae0;
+    --primary-100: #c2c2f4;
+    --primary-50:  #eeeeff;
+}

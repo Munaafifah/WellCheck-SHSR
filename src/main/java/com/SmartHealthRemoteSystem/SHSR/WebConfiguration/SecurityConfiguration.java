@@ -39,10 +39,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .requiresChannel()
-                .requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null)
-                .requiresSecure()
-                .and()
                 .authorizeRequests()
 
                 // ── Public routes ──
@@ -93,6 +89,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "CLINIC_ASSISTANT")
                 .antMatchers("/api/messages/**")
                     .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "CLINIC_ASSISTANT")
+                .antMatchers("/api/users/**")
+                    .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "CLINIC_ASSISTANT")
 
                 // ── Radiology routes ──
                 .antMatchers("/radiology", "/radiology/**")
@@ -100,6 +98,36 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/images/**")
                     .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "PATIENT")
 
+                // ── Radiology Request & Scheduling routes (UCR008-UCR015) ──
+                // UCR008 — submit request: Doctor only
+                .antMatchers("/request-scheduling")
+                    .hasAnyRole("ADMIN", "DOCTOR")
+                .antMatchers("/imaging-request-form")
+                    .hasAnyRole("ADMIN", "DOCTOR")
+                // UCR009 — manage requests: Radiologist / Radiographer
+                .antMatchers("/manage-requests")
+                    .hasAnyRole("ADMIN", "RADIOLOGIST", "RADIOGRAPHER")
+                // UCR010 — appointment scheduling: Radiographer
+                .antMatchers("/appointment-scheduling")
+                    .hasAnyRole("ADMIN", "RADIOGRAPHER")
+                // UCR013 — view request status: Admin / Doctor only
+                .antMatchers("/request-status")
+                    .hasAnyRole("ADMIN", "DOCTOR")
+                // Notifications: all scheduling module roles
+                .antMatchers("/notifications")
+                    .hasAnyRole("ADMIN", "DOCTOR", "RADIOLOGIST", "RADIOGRAPHER")
+                // API: imaging requests — Doctor submits, Radiologist/Radiographer manage/cancel
+                .antMatchers("/api/imaging-requests/**")
+                    .hasAnyRole("ADMIN", "DOCTOR", "RADIOLOGIST", "RADIOGRAPHER")
+               // API: appointments — Radiographer schedules, Radiologist/Radiographer cancel/confirm
+                .antMatchers("/api/appointments/**")
+                    .hasAnyRole("ADMIN", "RADIOGRAPHER", "RADIOLOGIST")
+                // API: rooms — Radiographer/Radiologist check room availability when scheduling
+                .antMatchers("/api/rooms/**")
+                    .hasAnyRole("ADMIN", "RADIOGRAPHER", "RADIOLOGIST")
+                // API: notifications — all scheduling module roles
+                .antMatchers("/api/notifications/**")
+                    .hasAnyRole("ADMIN", "DOCTOR", "RADIOLOGIST", "RADIOGRAPHER")
                 // ── Shared patient/doctor/admin routes ──
                 .antMatchers("/DiagnosisResult")
                     .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
@@ -125,9 +153,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/login")
 
-                .and()
-                .csrf().disable()
-                .httpBasic();
+               .and()
+.csrf().disable();
     }
 
     @Bean
