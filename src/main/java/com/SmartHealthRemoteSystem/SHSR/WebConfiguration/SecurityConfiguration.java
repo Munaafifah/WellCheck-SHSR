@@ -58,6 +58,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                              "/admin/sensor-status",
                              "/admin/doctor-schedule/**").hasRole("ADMIN")
 
+                // Analytics — radiologists get read-only access alongside admins
+                .antMatchers("/admin/analytics", "/admin/analytics/**")
+                    .hasAnyRole("ADMIN", "RADIOLOGIST")
+
                 // ── Admin catch-all ──
                 .antMatchers("/admin/**").hasRole("ADMIN")
 

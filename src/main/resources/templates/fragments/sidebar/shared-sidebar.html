@@ -20,7 +20,10 @@
 
     <!-- Brand -->
     <div class="sidebar-brand">
-        <div class="brand-label">WellCheck System</div>
+        <div th:if="${userRole == 'RADIOLOGIST' or userRole == 'RADIOGRAPHER'}"
+             class="brand-label">WellCheck Radiance</div>
+        <div th:unless="${userRole == 'RADIOLOGIST' or userRole == 'RADIOGRAPHER'}"
+             class="brand-label">WellCheck System</div>
         <h1 th:if="${userRole == 'ADMIN'}">Admin <span>Control</span></h1>
         <h1 th:if="${userRole == 'DOCTOR'}">Doctor <span>Hub</span></h1>
         <h1 th:if="${userRole == 'RADIOLOGIST'}">Radiology <span>Portal</span></h1>
@@ -177,6 +180,12 @@
             <a th:href="@{/communication}" class="nav-link-item"
                th:classappend="${activePage == 'communication'} ? ' active'">
                 <i class="fa-solid fa-comments"></i> Communication
+            </a>
+
+            <div class="nav-section-label">Analytics</div>
+            <a th:href="@{/admin/analytics}" class="nav-link-item"
+               th:classappend="${activePage == 'analytics'} ? ' active'">
+                <i class="fa-solid fa-chart-line"></i> Analytics Dashboard
             </a>
 
             <div class="nav-section-label">Account</div>

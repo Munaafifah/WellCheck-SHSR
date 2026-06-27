@@ -21,8 +21,16 @@
 <body>
 <div class="layout">
 
-    <!-- ════════════ SIDEBAR — shared admin fragment ════════════ -->
-    <aside th:replace="~{fragments/admin/admin-sidebar :: sidebar('analytics')}"></aside>
+    <!-- ════════════ SIDEBAR ════════════ -->
+    <!-- th:replace has higher Thymeleaf processing priority than th:if,
+         so they must NOT be on the same element. Wrap each aside in a
+         th:block so the conditional fires independently. -->
+    <th:block th:if="${userRole == 'RADIOLOGIST'}">
+        <aside th:replace="~{fragments/sidebar/shared-sidebar :: sidebar('analytics', ${userRole}, ${userName}, ${dashboardUrl})}"></aside>
+    </th:block>
+    <th:block th:unless="${userRole == 'RADIOLOGIST'}">
+        <aside th:replace="~{fragments/admin/admin-sidebar :: sidebar('analytics')}"></aside>
+    </th:block>
 
     <!-- ════════════ MAIN CONTENT ════════════ -->
     <main class="main">
@@ -30,7 +38,7 @@
         <!-- ── Page Header ─────────────────────────────────────────────── -->
         <div class="page-header">
             <div>
-                <div class="page-subtitle">Analytics</div>
+                <div class="page-subtitle">WellCheck Radiance</div>
                 <h2 class="page-title">Analytics Dashboard</h2>
                 <p class="update-timestamp">System performance and operational insights</p>
             </div>

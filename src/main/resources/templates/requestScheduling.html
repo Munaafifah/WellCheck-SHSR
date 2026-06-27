@@ -13,7 +13,7 @@
     <style>
         /* ── Stats ── */
         .stats-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 28px; }
-        .stat-chip { flex: 1; min-width: 100px; background: var(--white); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; }
+        .stat-chip { flex: 1; min-width: 100px; background: var(--white); border-radius: 16px; box-shadow: var(--shadow-sm); padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; }
         .stat-chip .stat-val { font-size: 26px; font-weight: 700; line-height: 1; }
         .stat-chip .stat-lbl { font-size: 11px; font-weight: 500; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
         .chip-pending   .stat-val { color: #b45309; }
@@ -119,6 +119,54 @@
         .empty-state i { font-size: 36px; display: block; margin-bottom: 12px; opacity: 0.35; }
         .empty-state p { font-size: 14px; margin: 4px 0; }
 
+        /* ── Filter / Search bar ── */
+        .filter-bar {
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+            padding: 14px 20px; border-bottom: 1px solid var(--sand-dark);
+            background: var(--sand);
+        }
+        .filter-bar .filter-search {
+            flex: 1; min-width: 180px;
+            border: 1px solid var(--sand-dark); border-radius: 8px; padding: 7px 12px;
+            font-size: 12px; color: var(--text-dark); background: var(--white);
+            outline: none; transition: border-color 0.2s; font-family: inherit;
+        }
+        .filter-bar .filter-search:focus { border-color: var(--primary-300); }
+        .filter-bar .filter-select {
+            flex: 0 0 auto; width: 140px;
+            border: 1px solid var(--sand-dark); border-radius: 8px; padding: 7px 12px;
+            font-size: 12px; color: var(--text-dark); background: var(--white);
+            outline: none; transition: border-color 0.2s; font-family: inherit;
+            -webkit-appearance: auto; appearance: auto;
+        }
+        .filter-bar .filter-select:focus { border-color: var(--primary-300); }
+        .btn-filter-reset {
+            flex: 0 0 auto;
+            padding: 7px 14px; background: transparent; border: 1.5px solid var(--primary-300);
+            border-radius: 8px; color: var(--primary-500); font-size: 12px; font-weight: 600;
+            cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap;
+        }
+        .btn-filter-reset:hover { background: var(--primary-50); }
+        .filter-count { font-size: 12px; color: var(--text-light); margin-left: auto; white-space: nowrap; }
+
+        /* ── Pagination ── */
+        .pagination-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 20px; border-top: 1px solid var(--sand-dark); flex-wrap: wrap; gap: 8px;
+        }
+        .page-info { font-size: 12px; color: var(--text-light); }
+        .page-btns { display: flex; gap: 4px; }
+        .page-btn {
+            width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--sand-dark);
+            background: var(--white); font-size: 12px; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; color: var(--text-mid);
+            transition: all 0.15s; font-family: inherit;
+        }
+        .page-btn:hover:not(:disabled) { background: var(--primary-50); border-color: var(--primary-300); color: var(--primary-600); }
+        .page-btn.active { background: var(--primary-500); color: #fff; border-color: var(--primary-500); }
+        .page-btn:disabled { opacity: 0.4; cursor: default; }
+        .no-match-row td { text-align: center; padding: 28px; color: var(--text-light); font-size: 13px; }
+
         /* ── Toast ── */
         .alert-toast { position: fixed; top: 24px; right: 24px; z-index: 9999; padding: 14px 20px; border-radius: 10px; font-size: 13px; font-weight: 500; display: none; align-items: center; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-width: 360px; }
         .alert-toast.success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; display: flex; }
@@ -155,7 +203,7 @@
     <main class="main">
 
         <div class="page-header">
-            <div class="subtitle">UCR008 / UCR013</div>
+            <div class="subtitle">WellCheck Radiance</div>
             <h2>Request &amp; Scheduling</h2>
         </div>
 
@@ -258,10 +306,6 @@
                                   oninput="updatePriorityPreview()"></textarea>
                     </div>
 
-                    <div class="priority-preview" id="priorityPreview">
-                        <i class="fa-solid fa-brain" style="font-size:17px;flex-shrink:0;color:var(--primary-500);"></i>
-                        <span>Select urgency level to see AI priority score.</span>
-                    </div>
 
                     <div class="form-actions">
                         <button class="btn-submit" onclick="submitRequest()">
@@ -319,74 +363,124 @@
                 <p style="font-size:12px;">Use the form above to submit your first request.</p>
             </div>
 
-            <div th:unless="${#lists.isEmpty(myRequests)}" class="table-wrapper">
-                <table class="rs-table">
-                    <thead>
-                        <tr>
-                            <th>Request ID</th>
-                            <th>Patient</th>
-                            <th>Modality</th>
-                            <th>Urgency</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Appointment Date</th>
-                            <th>Last Updated</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="req : ${myRequests}">
-                            <td class="req-id-mono" th:text="${req.requestId}"></td>
-                            <td>
-                                <div style="font-weight:500;font-size:13px;"
-                                     th:text="${patientNameMap[req.patientId] ?: req.patientId}"></div>
-                                <div class="req-id-mono" style="margin-top:2px;" th:text="${req.patientId}"></div>
-                            </td>
-                            <td>
-                                <span class="modality-badge" th:text="${req.modality}"></span>
-                            </td>
-                            <td>
-                                <span th:class="${req.urgencyLevel.name() == 'EMERGENCY'} ? 'urgency-emergency' :
-                                               (${req.urgencyLevel.name() == 'URGENT'}    ? 'urgency-urgent'    : 'urgency-routine')"
-                                      th:text="${req.urgencyLevel}"></span>
-                            </td>
-                            <td>
-                                <span class="priority-badge"
-                                      th:classappend="${req.priorityScore >= 90} ? ' p-critical' :
-                                                     (${req.priorityScore >= 60} ? ' p-high' : ' p-standard')"
-                                      th:text="${req.priorityScore} + '/100'"></span>
-                            </td>
-                            <td>
-                                <span class="badge-status"
-                                      th:classappend="' badge-' + ${#strings.toLowerCase(req.status)}"
-                                      th:text="${req.status}"></span>
-                            </td>
-                            <td>
-                                <th:block th:with="appt=${appointmentMap[req.requestId]}">
-                                    <span th:if="${appt != null}" style="font-size:12px;"
-                                          th:text="${appt.appointmentDate != null} ?
-                                                   ${#dates.format(appt.appointmentDate,'dd MMM yyyy')} + ' · ' + ${appt.timeSlot}
-                                                   : appt.timeSlot"></span>
-                                    <span th:if="${appt == null}" style="color:var(--text-light);">—</span>
-                                </th:block>
-                            </td>
-                            <td style="font-size:12px;color:var(--text-mid);"
-                                th:text="${req.updatedDate != null} ? ${#dates.format(req.updatedDate,'dd MMM yyyy')} : '—'"></td>
-                            <!-- ── Cancel action: use th:data-id to safely pass requestId ── -->
-                            <td>
-                                <button th:if="${req.status.name() == 'PENDING'}"
-                                        type="button"
-                                        class="btn-cancel-sm"
-                                        th:data-id="${req.requestId}"
-                                        onclick="openCancelModal(this.dataset.id)">
-                                    <i class="fa-solid fa-xmark"></i> Cancel
-                                </button>
-                                <span th:unless="${req.status.name() == 'PENDING'}"
-                                      style="color:var(--text-light);font-size:11px;">—</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div th:unless="${#lists.isEmpty(myRequests)}">
+                <!-- Filter / Search bar -->
+                <div class="filter-bar">
+                    <input type="text" id="tblSearch" class="filter-search" placeholder="&#xf002;  Search all columns…" oninput="applyTableFilters()">
+                    <select id="tblModality" class="filter-select" data-no-tomselect onchange="applyTableFilters()">
+                        <option value="">All Modalities</option>
+                        <option value="XRAY">X-Ray</option>
+                        <option value="CT">CT Scan</option>
+                        <option value="MRI">MRI</option>
+                        <option value="ULTRASOUND">Ultrasound</option>
+                    </select>
+                    <select id="tblUrgency" class="filter-select" data-no-tomselect onchange="applyTableFilters()">
+                        <option value="">All Urgencies</option>
+                        <option value="EMERGENCY">Emergency</option>
+                        <option value="URGENT">Urgent</option>
+                        <option value="ROUTINE">Routine</option>
+                    </select>
+                    <select id="tblStatus" class="filter-select" data-no-tomselect onchange="applyTableFilters()">
+                        <option value="">All Statuses</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="APPROVED">Approved</option>
+                        <option value="SCHEDULED">Scheduled</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="REPORT_PENDING">Report Pending</option>
+                        <option value="REPORT_READY">Report Ready</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="REJECTED">Rejected</option>
+                        <option value="CANCELLED">Cancelled</option>
+                    </select>
+                    <button type="button" class="btn-filter-reset" onclick="resetTableFilters()">
+                        <i class="fa-solid fa-rotate-left"></i> Reset
+                    </button>
+                    <span class="filter-count" id="tblFilterCount"></span>
+                </div>
+                <div class="table-wrapper">
+                    <table class="rs-table">
+                        <thead>
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Patient</th>
+                                <th>Modality</th>
+                                <th>Urgency</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Appointment Date</th>
+                                <th>Last Updated</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requestTableBody">
+                            <tr th:each="req : ${myRequests}"
+                                th:attr="data-reqid=${req.requestId},
+                                         data-patient=${patientNameMap[req.patientId] ?: req.patientId},
+                                         data-patientid=${req.patientId},
+                                         data-modality=${req.modality},
+                                         data-urgency=${req.urgencyLevel},
+                                         data-priority=${req.priorityScore},
+                                         data-status=${req.status},
+                                         data-apptdate=${appointmentMap[req.requestId] != null and appointmentMap[req.requestId].appointmentDate != null ? #dates.format(appointmentMap[req.requestId].appointmentDate,'dd MMM yyyy') : ''},
+                                         data-updated=${req.updatedDate != null ? #dates.format(req.updatedDate,'dd MMM yyyy') : ''}">
+                                <td class="req-id-mono" th:text="${req.requestId}"></td>
+                                <td>
+                                    <div style="font-weight:500;font-size:13px;"
+                                         th:text="${patientNameMap[req.patientId] ?: req.patientId}"></div>
+                                    <div class="req-id-mono" style="margin-top:2px;" th:text="${req.patientId}"></div>
+                                </td>
+                                <td>
+                                    <span class="modality-badge" th:text="${req.modality}"></span>
+                                </td>
+                                <td>
+                                    <span th:class="${req.urgencyLevel.name() == 'EMERGENCY'} ? 'urgency-emergency' :
+                                                   (${req.urgencyLevel.name() == 'URGENT'}    ? 'urgency-urgent'    : 'urgency-routine')"
+                                          th:text="${req.urgencyLevel}"></span>
+                                </td>
+                                <td>
+                                    <span class="priority-badge"
+                                          th:classappend="${req.priorityScore >= 90} ? ' p-critical' :
+                                                         (${req.priorityScore >= 60} ? ' p-high' : ' p-standard')"
+                                          th:text="${req.priorityScore} + '/100'"></span>
+                                </td>
+                                <td>
+                                    <span class="badge-status"
+                                          th:classappend="' badge-' + ${#strings.toLowerCase(req.status)}"
+                                          th:text="${req.status}"></span>
+                                </td>
+                                <td>
+                                    <th:block th:with="appt=${appointmentMap[req.requestId]}">
+                                        <span th:if="${appt != null}" style="font-size:12px;"
+                                              th:text="${appt.appointmentDate != null} ?
+                                                       ${#dates.format(appt.appointmentDate,'dd MMM yyyy')} + ' · ' + ${appt.timeSlot}
+                                                       : appt.timeSlot"></span>
+                                        <span th:if="${appt == null}" style="color:var(--text-light);">—</span>
+                                    </th:block>
+                                </td>
+                                <td style="font-size:12px;color:var(--text-mid);"
+                                    th:text="${req.updatedDate != null} ? ${#dates.format(req.updatedDate,'dd MMM yyyy')} : '—'"></td>
+                                <td>
+                                    <button th:if="${req.status.name() == 'PENDING'}"
+                                            type="button"
+                                            class="btn-cancel-sm"
+                                            th:data-id="${req.requestId}"
+                                            onclick="openCancelModal(this.dataset.id)">
+                                        <i class="fa-solid fa-xmark"></i> Cancel
+                                    </button>
+                                    <span th:unless="${req.status.name() == 'PENDING'}"
+                                          style="color:var(--text-light);font-size:11px;">—</span>
+                                </td>
+                            </tr>
+                            <tr id="tblNoMatch" class="no-match-row" style="display:none;">
+                                <td colspan="9"><i class="fa-solid fa-filter-circle-xmark" style="margin-right:6px;"></i>No requests match the selected filters.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-bar" id="tblPaginationBar">
+                    <span class="page-info" id="tblPageInfo"></span>
+                    <div class="page-btns" id="tblPageBtns"></div>
+                </div>
             </div>
         </div><!-- end Section 2 -->
 
@@ -397,16 +491,30 @@
                     <i class="fa-solid fa-route" style="color:var(--primary-500);"></i>
                     Request Timeline
                 </h3>
-                <span style="font-size:12px;color:var(--text-light);">
-                    Showing
-                    <span th:text="${#lists.size(myRequests) > 12 ? 12 : #lists.size(myRequests)}">0</span>
-                    of
-                    <span th:text="${#lists.size(myRequests)}">0</span>
-                </span>
+                <span class="filter-count" id="tlFilterCount"></span>
             </div>
 
-            <div class="timeline-cards">
-                <th:block th:each="req, rStat : ${myRequests}" th:if="${rStat.index < 12}">
+            <!-- Timeline filter bar -->
+            <div class="filter-bar">
+                <select id="tlStatus" class="filter-select" data-no-tomselect onchange="applyTimelineFilters()">
+                    <option value="">All Statuses</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="APPROVED">Approved</option>
+                    <option value="SCHEDULED">Scheduled</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="REPORT_PENDING">Report Pending</option>
+                    <option value="REPORT_READY">Report Ready</option>
+                    <option value="COMPLETED">Completed</option>
+                    <option value="REJECTED">Rejected</option>
+                    <option value="CANCELLED">Cancelled</option>
+                </select>
+                <button type="button" class="btn-filter-reset" onclick="resetTimelineFilters()">
+                    <i class="fa-solid fa-rotate-left"></i> Reset
+                </button>
+            </div>
+
+            <div class="timeline-cards" id="tlCardsContainer">
+                <th:block th:each="req, rStat : ${myRequests}">
                     <th:block th:with="
                         s=${req.status.name()},
                         isPending=${s == 'PENDING'},
@@ -422,7 +530,7 @@
                         pastSchedule=${s == 'SCHEDULED' or s == 'IN_PROGRESS' or s == 'COMPLETED' or s == 'REPORT_PENDING' or s == 'REPORT_READY'},
                         pastImagingDone=${s == 'COMPLETED' or s == 'REPORT_PENDING' or s == 'REPORT_READY'}">
 
-                        <div class="timeline-card">
+                        <div class="timeline-card" th:attr="data-status=${req.status}">
                             <div class="tl-header">
                                 <div>
                                     <div class="tl-id" th:text="${req.requestId}"></div>
@@ -489,7 +597,7 @@
 
                             </div><!-- end step-track -->
 
-                            <!-- Appointment detail (SCHEDULED / COMPLETED) -->
+                            <!-- Appointment detail -->
                             <th:block th:with="appt=${appointmentMap[req.requestId]}">
                                 <div th:if="${appt != null}" class="tl-appt-info">
                                     <i class="fa-solid fa-calendar-check" style="margin-right:5px;"></i>
@@ -516,9 +624,12 @@
                 </th:block>
             </div><!-- end timeline-cards -->
 
-            <div th:if="${#lists.size(myRequests) > 12}"
-                 style="padding:14px 24px;text-align:center;font-size:12px;color:var(--text-light);border-top:1px solid var(--sand-dark);">
-                Showing the 12 most recent requests.
+            <div id="tlNoMatch" style="display:none;padding:36px;text-align:center;color:var(--text-light);font-size:13px;border-top:1px solid var(--sand-dark);">
+                <i class="fa-solid fa-filter-circle-xmark" style="margin-right:6px;"></i>No timeline cards match the selected filter.
+            </div>
+            <div class="pagination-bar" id="tlPaginationBar">
+                <span class="page-info" id="tlPageInfo"></span>
+                <div class="page-btns" id="tlPageBtns"></div>
             </div>
         </div><!-- end Section 3 -->
 
@@ -548,6 +659,196 @@
 </div>
 
 <script>
+    // ═══════════════════════════════════════════════════════
+    // TABLE — filter + search + pagination (10 rows / page)
+    // ═══════════════════════════════════════════════════════
+    const TBL_PAGE_SIZE = 10;
+    var tblCurrentPage = 1;
+    var tblFilteredRows = [];
+
+    function getTableRows() {
+        return Array.from(document.querySelectorAll('#requestTableBody tr:not(#tblNoMatch)'));
+    }
+
+    function applyTableFilters() {
+        var search   = (document.getElementById('tblSearch')   || {value:''}).value.trim().toLowerCase();
+        var modality = (document.getElementById('tblModality') || {value:''}).value;
+        var urgency  = (document.getElementById('tblUrgency')  || {value:''}).value;
+        var status   = (document.getElementById('tblStatus')   || {value:''}).value;
+
+        tblFilteredRows = getTableRows().filter(function(row) {
+            if (modality && row.dataset.modality !== modality) return false;
+            if (urgency  && row.dataset.urgency  !== urgency)  return false;
+            if (status   && row.dataset.status   !== status)   return false;
+            if (search) {
+                var text = [
+                    row.dataset.reqid, row.dataset.patient, row.dataset.patientid,
+                    row.dataset.modality, row.dataset.urgency, row.dataset.priority,
+                    row.dataset.status, row.dataset.apptdate, row.dataset.updated
+                ].join(' ').toLowerCase();
+                if (!text.includes(search)) return false;
+            }
+            return true;
+        });
+
+        tblCurrentPage = 1;
+        renderTablePage();
+    }
+
+    function renderTablePage() {
+        var allRows = getTableRows();
+        allRows.forEach(function(r) { r.style.display = 'none'; });
+
+        var start = (tblCurrentPage - 1) * TBL_PAGE_SIZE;
+        var pageRows = tblFilteredRows.slice(start, start + TBL_PAGE_SIZE);
+        pageRows.forEach(function(r) { r.style.display = ''; });
+
+        var noMatch = document.getElementById('tblNoMatch');
+        if (noMatch) noMatch.style.display = tblFilteredRows.length === 0 ? '' : 'none';
+
+        var countEl = document.getElementById('tblFilterCount');
+        if (countEl) {
+            var isFiltered = tblFilteredRows.length !== allRows.length;
+            countEl.textContent = isFiltered
+                ? tblFilteredRows.length + ' of ' + allRows.length + ' requests'
+                : allRows.length + ' requests';
+        }
+        renderTablePagination();
+    }
+
+    function renderTablePagination() {
+        var totalPages = Math.max(1, Math.ceil(tblFilteredRows.length / TBL_PAGE_SIZE));
+        var start = Math.min((tblCurrentPage - 1) * TBL_PAGE_SIZE + 1, tblFilteredRows.length || 0);
+        var end   = Math.min(tblCurrentPage * TBL_PAGE_SIZE, tblFilteredRows.length);
+
+        var info = document.getElementById('tblPageInfo');
+        if (info) info.textContent = tblFilteredRows.length
+            ? 'Showing ' + start + '\u2013' + end + ' of ' + tblFilteredRows.length
+            : 'No results';
+
+        var btns = document.getElementById('tblPageBtns');
+        if (!btns) return;
+        btns.innerHTML = '';
+
+        var prev = document.createElement('button');
+        prev.className = 'page-btn'; prev.textContent = '\u2039';
+        prev.disabled = tblCurrentPage === 1;
+        prev.onclick = function() { tblCurrentPage--; renderTablePage(); };
+        btns.appendChild(prev);
+
+        for (var i = 1; i <= totalPages; i++) {
+            (function(page) {
+                var btn = document.createElement('button');
+                btn.className = 'page-btn' + (page === tblCurrentPage ? ' active' : '');
+                btn.textContent = page;
+                btn.onclick = function() { tblCurrentPage = page; renderTablePage(); };
+                btns.appendChild(btn);
+            })(i);
+        }
+
+        var next = document.createElement('button');
+        next.className = 'page-btn'; next.textContent = '\u203a';
+        next.disabled = tblCurrentPage === totalPages;
+        next.onclick = function() { tblCurrentPage++; renderTablePage(); };
+        btns.appendChild(next);
+    }
+
+    function resetTableFilters() {
+        var s = document.getElementById('tblSearch'); if (s) s.value = '';
+        var m = document.getElementById('tblModality'); if (m) m.value = '';
+        var u = document.getElementById('tblUrgency'); if (u) u.value = '';
+        var st = document.getElementById('tblStatus'); if (st) st.value = '';
+        applyTableFilters();
+    }
+
+    // ════════════════════════════════════════════════════
+    // TIMELINE — status filter + pagination (10 / page)
+    // ════════════════════════════════════════════════════
+    const TL_PAGE_SIZE = 9;
+    var tlCurrentPage = 1;
+    var tlFilteredCards = [];
+
+    function getTimelineCards() {
+        return Array.from(document.querySelectorAll('#tlCardsContainer .timeline-card'));
+    }
+
+    function applyTimelineFilters() {
+        var status = (document.getElementById('tlStatus') || {value:''}).value;
+        tlFilteredCards = getTimelineCards().filter(function(card) {
+            return !status || card.dataset.status === status;
+        });
+        tlCurrentPage = 1;
+        renderTimelinePage();
+    }
+
+    function renderTimelinePage() {
+        var allCards = getTimelineCards();
+        allCards.forEach(function(c) { c.style.display = 'none'; });
+
+        var start = (tlCurrentPage - 1) * TL_PAGE_SIZE;
+        tlFilteredCards.slice(start, start + TL_PAGE_SIZE).forEach(function(c) { c.style.display = ''; });
+
+        var noMatch = document.getElementById('tlNoMatch');
+        if (noMatch) noMatch.style.display = tlFilteredCards.length === 0 ? '' : 'none';
+
+        var countEl = document.getElementById('tlFilterCount');
+        if (countEl) {
+            var isFiltered = tlFilteredCards.length !== allCards.length;
+            countEl.textContent = isFiltered
+                ? tlFilteredCards.length + ' of ' + allCards.length + ' requests'
+                : allCards.length + ' requests';
+        }
+        renderTimelinePagination();
+    }
+
+    function renderTimelinePagination() {
+        var totalPages = Math.max(1, Math.ceil(tlFilteredCards.length / TL_PAGE_SIZE));
+        var start = Math.min((tlCurrentPage - 1) * TL_PAGE_SIZE + 1, tlFilteredCards.length || 0);
+        var end   = Math.min(tlCurrentPage * TL_PAGE_SIZE, tlFilteredCards.length);
+
+        var info = document.getElementById('tlPageInfo');
+        if (info) info.textContent = tlFilteredCards.length
+            ? 'Showing ' + start + '\u2013' + end + ' of ' + tlFilteredCards.length
+            : 'No results';
+
+        var btns = document.getElementById('tlPageBtns');
+        if (!btns) return;
+        btns.innerHTML = '';
+
+        var prev = document.createElement('button');
+        prev.className = 'page-btn'; prev.textContent = '\u2039';
+        prev.disabled = tlCurrentPage === 1;
+        prev.onclick = function() { tlCurrentPage--; renderTimelinePage(); };
+        btns.appendChild(prev);
+
+        for (var i = 1; i <= totalPages; i++) {
+            (function(page) {
+                var btn = document.createElement('button');
+                btn.className = 'page-btn' + (page === tlCurrentPage ? ' active' : '');
+                btn.textContent = page;
+                btn.onclick = function() { tlCurrentPage = page; renderTimelinePage(); };
+                btns.appendChild(btn);
+            })(i);
+        }
+
+        var next = document.createElement('button');
+        next.className = 'page-btn'; next.textContent = '\u203a';
+        next.disabled = tlCurrentPage === totalPages;
+        next.onclick = function() { tlCurrentPage++; renderTimelinePage(); };
+        btns.appendChild(next);
+    }
+
+    function resetTimelineFilters() {
+        var s = document.getElementById('tlStatus'); if (s) s.value = '';
+        applyTimelineFilters();
+    }
+
+    // Initialise both sections on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        applyTableFilters();
+        applyTimelineFilters();
+    });
+
     const HIGH_RISK = ['stroke', 'bleeding', 'trauma'];
 
     function computeScore(urgency, notes) {
@@ -679,7 +980,7 @@
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('select').forEach(function(el) {
+    document.querySelectorAll('select:not([data-no-tomselect])').forEach(function(el) {
         new TomSelect(el, { allowEmptyOption: true, onInitialize: function() { this.wrapper.style.width = '100%'; } });
     });
 });

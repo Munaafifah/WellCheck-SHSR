@@ -21,6 +21,10 @@ public class AdminAccessValidator {
     }
 
     public boolean canAccessAnalytics(Authentication authentication) {
-        return isAdmin(authentication);
+        if (authentication == null || !authentication.isAuthenticated()) return false;
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        return authorities.stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())
+                            || "ROLE_RADIOLOGIST".equals(a.getAuthority()));
     }
 }

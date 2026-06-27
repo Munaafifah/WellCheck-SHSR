@@ -25,13 +25,13 @@ import java.util.stream.Collectors;
 
 /**
  * UCR026-UCR031 — Analytics Dashboard controller.
- * All routes under /admin/analytics/** are protected by ROLE_ADMIN.
- * The parent pattern /admin/** is already secured in SecurityConfiguration,
- * and @PreAuthorize adds a second layer of defence-in-depth.
+ * Accessible by ADMIN (full access) and RADIOLOGIST (read-only view).
+ * The parent pattern /admin/analytics/** is specifically allowed for RADIOLOGIST
+ * in SecurityConfiguration before the /admin/** catch-all.
  */
 @Controller
 @RequestMapping("/admin/analytics")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'RADIOLOGIST')")
 public class AnalyticsController {
 
     private static final Logger log = LoggerFactory.getLogger(AnalyticsController.class);
@@ -60,6 +60,7 @@ public class AnalyticsController {
     @GetMapping
     public String analyticsDashboard(
             @RequestParam(defaultValue = "monthly") String period,
+            Authentication authentication,
             Model model) {
 
         DashboardStatsDTO     stats            = analyticsService.getDashboardStats();
@@ -94,6 +95,18 @@ public class AnalyticsController {
         model.addAttribute("forecastJson",         toJson(forecast));
         model.addAttribute("modalityUtilJson",     toJson(modalityUtil));
         model.addAttribute("demographicsJson",     toJson(demographics));
+
+        // Pass user context so the template can render the correct sidebar
+        // (admin-sidebar for ADMIN, shared-sidebar for RADIOLOGIST).
+        if (authentication != null && authentication.getPrincipal() instanceof
+                com.SmartHealthRemoteSystem.SHSR.WebConfiguration.MyUserDetails) {
+            com.SmartHealthRemoteSystem.SHSR.WebConfiguration.MyUserDetails userDetails =
+                    (com.SmartHealthRemoteSystem.SHSR.WebConfiguration.MyUserDetails) authentication.getPrincipal();
+            String role = userDetails.getUser().getRole();
+            model.addAttribute("userRole",     role);
+            model.addAttribute("userName",     userDetails.getUser().getName());
+            model.addAttribute("dashboardUrl", "RADIOLOGIST".equals(role) ? "/radiologist" : "/admin");
+        }
 
         return "analytics-dashboard";
     }

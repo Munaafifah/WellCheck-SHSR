@@ -10,7 +10,7 @@
 <aside th:fragment="sidebar(activePage, radiologist)" class="sidebar">
 
     <div class="sidebar-brand">
-        <div class="brand-label">WellCheck System</div>
+        <div class="brand-label">WellCheck Radiance</div>
         <h1>Radiology <span>Portal</span></h1>
     </div>
 
@@ -78,6 +78,15 @@
            th:classappend="${activePage == 'communication'} ? ' active'">
             <i class="fa-solid fa-comments"></i>
             Communication
+        </a>
+
+        <div class="nav-section-label">Analytics</div>
+
+        <a th:href="@{/admin/analytics}"
+           class="nav-link-item"
+           th:classappend="${activePage == 'analytics'} ? ' active'">
+            <i class="fa-solid fa-chart-line"></i>
+            Analytics Dashboard
         </a>
 
         <div class="nav-section-label">Account</div>
