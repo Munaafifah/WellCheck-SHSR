@@ -28,6 +28,7 @@ import com.mongodb.client.result.DeleteResult;
 
 @Service
 public class AppointmentHandler {
+
     private static final Logger logger = LoggerFactory.getLogger(AppointmentHandler.class);
     private static final String CONNECTION_STRING = "mongodb+srv://admin:admin@atlascluster.htlbqbu.mongodb.net/?retryWrites=true&w=majority&appName=AtlasCluster";
 
@@ -234,7 +235,13 @@ public class AppointmentHandler {
             if (result.getModifiedCount() > 0) {
                 String patientEmail = appointment.getString("email");
                 try {
-                    emailService.sendAppointmentStatusEmail(patientEmail, appointmentId, newStatus);
+                    emailService.sendAppointmentStatusEmail(
+                            patientEmail,
+                            newStatus,
+                            appointment.getString("appointmentDate"),
+                            appointment.getString("appointmentTime"),
+                            appointment.getString("registeredHospital"),
+                            appointment.getString("typeOfSickness"));
                     logger.info("Status update email sent to patient: {}", patientEmail);
                 } catch (Exception e) {
                     logger.error("Failed to send status update email: {}", e.getMessage());
@@ -412,7 +419,13 @@ public class AppointmentHandler {
                 if (appointment != null) {
                     String patientEmail = appointment.getString("email");
                     try {
-                        emailService.sendAppointmentStatusEmail(patientEmail, appointmentId, newStatus);
+                        emailService.sendAppointmentStatusEmail(
+                                patientEmail,
+                                newStatus,
+                                appointment.getString("appointmentDate"),
+                                appointment.getString("appointmentTime"),
+                                appointment.getString("registeredHospital"),
+                                appointment.getString("typeOfSickness"));
                         logger.info("Status update email sent to patient: {}", patientEmail);
                     } catch (Exception e) {
                         logger.error("Failed to send status update email: {}", e.getMessage());
@@ -475,7 +488,12 @@ public class AppointmentHandler {
                 if (appointment != null) {
                     String patientEmail = appointment.getString("email");
                     try {
-                        emailService.sendAppointmentUpdateEmail(patientEmail, appointmentId, newDate, newTime);
+                        emailService.sendAppointmentUpdateEmail(
+                                patientEmail,
+                                newDate,
+                                newTime,
+                                appointment.getString("registeredHospital"),
+                                appointment.getString("typeOfSickness"));
                         logger.info("Appointment update email sent to patient: {}", patientEmail);
                     } catch (Exception e) {
                         logger.error("Failed to send appointment update email: {}", e.getMessage());
@@ -573,8 +591,9 @@ public class AppointmentHandler {
             response.put("success", false);
             response.put("message", "An error occurred while updating costs");
         } finally {
-            if (mongoClient != null)
+            if (mongoClient != null) {
                 mongoClient.close();
+            }
         }
         return response;
     }
@@ -602,8 +621,9 @@ public class AppointmentHandler {
             response.put("success", false);
             response.put("message", "An error occurred while deleting appointment");
         } finally {
-            if (mongoClient != null)
+            if (mongoClient != null) {
                 mongoClient.close();
+            }
         }
         return response;
     }
@@ -632,8 +652,9 @@ public class AppointmentHandler {
             response.put("success", false);
             response.put("message", "Error updating drug cost");
         } finally {
-            if (mongoClient != null)
+            if (mongoClient != null) {
                 mongoClient.close();
+            }
         }
         return response;
     }
@@ -704,6 +725,17 @@ public class AppointmentHandler {
             collection.insertOne(newAppointment);
 
             logger.info("✅ CA booked appointment {} for patient {}", appointmentId, userId);
+
+            // ── Send booking confirmation email ──
+            if (email != null && !email.trim().isEmpty()) {
+                try {
+                    emailService.sendAppointmentBookedEmail(email, appointmentDate, appointmentTime, registeredHospital, typeOfSickness);
+                    logger.info("Booking confirmation email sent to: {}", email);
+                } catch (Exception e) {
+                    logger.error("Failed to send booking confirmation email: {}", e.getMessage());
+                }
+            }
+
             response.put("success", true);
             response.put("message", "Appointment booked successfully.");
             response.put("appointmentId", appointmentId);
@@ -713,8 +745,9 @@ public class AppointmentHandler {
             response.put("success", false);
             response.put("message", "Failed to book appointment: " + e.getMessage());
         } finally {
-            if (mongoClient != null)
+            if (mongoClient != null) {
                 mongoClient.close();
+            }
         }
         return response;
     }
