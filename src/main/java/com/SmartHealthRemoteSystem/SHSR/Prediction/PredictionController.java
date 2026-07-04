@@ -6,7 +6,9 @@ import com.SmartHealthRemoteSystem.SHSR.User.Patient.Patient;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +25,7 @@ public class PredictionController {
     @Autowired private PatientService patientService;
     @Autowired private DoctorService doctorService;
     @Autowired private MailService mailService;
+    @Autowired private MongoTemplate mongoTemplate;
 
     private final DiseasePrecautionService diseasePrecautionService = new DiseasePrecautionService();
 
@@ -66,6 +69,19 @@ public class PredictionController {
         String timeCreated = predictionService.createPrediction(prediction, patientId);
 
         Patient patient = patientService.getPatientById(patientId);
+
+        // Also record a flat HealthStatus document so mobile's
+        // View Health Status page (which reads the HealthStatus
+        // collection by userId) can see web-submitted predictions too.
+        Document healthStatusDoc = new Document();
+        healthStatusDoc.put("healthStatusId", UUID.randomUUID().toString());
+        healthStatusDoc.put("userId", patientId);
+        healthStatusDoc.put("doctorId", patient.getAssigned_doctor() != null ? patient.getAssigned_doctor() : "");
+        healthStatusDoc.put("additionalNotes", String.join(", ", symptoms));
+        healthStatusDoc.put("diagnosisList", diseases);
+        healthStatusDoc.put("timestamp", new java.util.Date());
+        mongoTemplate.save(healthStatusDoc, "HealthStatus");
+
         System.out.println("🩺 Assigned doctor ID: " + patient.getAssigned_doctor());
         Doctor doctor = doctorService.getDoctor(patient.getAssigned_doctor());
         System.out.println("📨 Doctor email: " + (doctor != null ? doctor.getEmail() : "Doctor not found"));
