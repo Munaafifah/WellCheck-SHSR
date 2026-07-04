@@ -232,15 +232,17 @@ public class SendPrescriptionController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
         Doctor doctor = doctorService.getDoctor(userDetails.getUsername());
+        Patient patient = patientService.getPatientById(patientId);
 
         model.addAttribute("doctor", doctor);
+        model.addAttribute("patient", patient);
 
         List<Prescription> allPrescriptions = prescriptionService.getAllPrescriptions(patientId);
 
         if (!searchQuery.isEmpty()) {
             allPrescriptions = allPrescriptions.stream()
                     .filter(p -> p.getPrescriptionDescription().toLowerCase().contains(searchQuery.toLowerCase())
-                            || p.getDiagnosisAilmentDescription().toLowerCase().contains(searchQuery.toLowerCase()))
+                    || p.getDiagnosisAilmentDescription().toLowerCase().contains(searchQuery.toLowerCase()))
                     .collect(Collectors.toList());
         }
 
