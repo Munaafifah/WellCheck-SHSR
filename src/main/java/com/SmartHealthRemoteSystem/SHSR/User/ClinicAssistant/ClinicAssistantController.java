@@ -43,12 +43,20 @@ public class ClinicAssistantController {
 
     // ── Dashboard (appointment list) ──────────────────────────────────
     @GetMapping
-    public String dashboard(Model model) throws ExecutionException, InterruptedException {
+    public String dashboard(Model model,
+            @RequestParam(defaultValue = "0") int activePageNo,
+            @RequestParam(defaultValue = "0") int expiredPageNo,
+            @RequestParam(defaultValue = "5") int pageSize) throws ExecutionException, InterruptedException {
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         MyUserDetails userDetails = (MyUserDetails) auth.getPrincipal();
 
         ClinicAssistant ca = clinicAssistantService.getClinicAssistant(userDetails.getUsername());
-        List<Appointment> allAppointments = appointmentHandler.getAllAppointments();
+        String caClinic = ca.getClinic() != null ? ca.getClinic().trim() : "";
+        List<Appointment> allAppointments = appointmentHandler.getAllAppointments().stream()
+                .filter(a -> a.getRegisteredHospital() != null
+                && a.getRegisteredHospital().trim().equalsIgnoreCase(caClinic))
+                .collect(Collectors.toList());
 
         long activeCount = allAppointments.stream()
                 .filter(a -> !"Expired".equals(a.getStatusAppointment())).count();
@@ -57,11 +65,39 @@ public class ClinicAssistantController {
         long pendingCount = allAppointments.stream()
                 .filter(a -> "Not Approved".equals(a.getStatusAppointment())).count();
 
+        // ── split into active / expired lists ──
+        List<Appointment> activeList = allAppointments.stream()
+                .filter(a -> !"Expired".equals(a.getStatusAppointment()))
+                .collect(Collectors.toList());
+        List<Appointment> expiredList = allAppointments.stream()
+                .filter(a -> "Expired".equals(a.getStatusAppointment()))
+                .collect(Collectors.toList());
+
+        // ── paginate active (5 per page) ──
+        int activeTotal = activeList.size();
+        int activeStart = Math.min(activePageNo * pageSize, activeTotal);
+        int activeEnd = Math.min(activeStart + pageSize, activeTotal);
+        List<Appointment> pagedActive = activeList.subList(activeStart, activeEnd);
+
+        // ── paginate expired (5 per page) ──
+        int expiredTotal = expiredList.size();
+        int expiredStart = Math.min(expiredPageNo * pageSize, expiredTotal);
+        int expiredEnd = Math.min(expiredStart + pageSize, expiredTotal);
+        List<Appointment> pagedExpired = expiredList.subList(expiredStart, expiredEnd);
+
         model.addAttribute("clinicAssistant", ca);
-        model.addAttribute("appointments", allAppointments);
+        model.addAttribute("activeAppointments", pagedActive);
+        model.addAttribute("expiredAppointments", pagedExpired);
         model.addAttribute("activeCount", activeCount);
         model.addAttribute("expiredCount", expiredCount);
         model.addAttribute("pendingCount", pendingCount);
+        model.addAttribute("totalCount", allAppointments.size());
+
+        model.addAttribute("activePageNo", activePageNo);
+        model.addAttribute("expiredPageNo", expiredPageNo);
+        model.addAttribute("pageSize", pageSize);
+        model.addAttribute("activeTotalPages", (int) Math.ceil((double) activeTotal / pageSize));
+        model.addAttribute("expiredTotalPages", (int) Math.ceil((double) expiredTotal / pageSize));
 
         ObjectMapper mapper = new ObjectMapper();
         Map<String, String> costItemsJson = new HashMap<>();
@@ -189,11 +225,11 @@ public class ClinicAssistantController {
         List<Map<String, Object>> patientList = new ArrayList<>();
         for (Patient p : allPatients) {
             Map<String, Object> entry = new HashMap<>();
-            entry.put("userId",             p.getUserId());
-            entry.put("name",               p.getName() != null ? p.getName() : "");
-            entry.put("email",              p.getEmail() != null ? p.getEmail() : "");
+            entry.put("userId", p.getUserId());
+            entry.put("name", p.getName() != null ? p.getName() : "");
+            entry.put("email", p.getEmail() != null ? p.getEmail() : "");
             entry.put("registeredHospital", ca.getClinic() != null ? ca.getClinic() : "");
-            entry.put("hospitalId",         "");
+            entry.put("hospitalId", "");
             patientList.add(entry);
         }
 

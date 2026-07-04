@@ -24,7 +24,9 @@
     --radius-lg: 20px;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -260,10 +262,21 @@ body {
     border-radius: 4px 0 0 4px;
 }
 
-.stat-card.teal::before { background: var(--teal-500); }
-.stat-card.success::before { background: var(--success); }
-.stat-card.warning::before { background: var(--warning); }
-.stat-card.danger::before { background: var(--danger); }
+.stat-card.teal::before {
+    background: var(--teal-500);
+}
+
+.stat-card.success::before {
+    background: var(--success);
+}
+
+.stat-card.warning::before {
+    background: var(--warning);
+}
+
+.stat-card.danger::before {
+    background: var(--danger);
+}
 
 .stat-icon {
     width: 40px;
@@ -276,10 +289,25 @@ body {
     margin-bottom: 14px;
 }
 
-.stat-card.teal .stat-icon { background: rgba(42, 157, 138, 0.12); color: var(--teal-500); }
-.stat-card.success .stat-icon { background: rgba(58, 170, 122, 0.12); color: var(--success); }
-.stat-card.warning .stat-icon { background: rgba(232, 168, 56, 0.12); color: var(--warning); }
-.stat-card.danger .stat-icon { background: rgba(224, 92, 92, 0.12); color: var(--danger); }
+.stat-card.teal .stat-icon {
+    background: rgba(42, 157, 138, 0.12);
+    color: var(--teal-500);
+}
+
+.stat-card.success .stat-icon {
+    background: rgba(58, 170, 122, 0.12);
+    color: var(--success);
+}
+
+.stat-card.warning .stat-icon {
+    background: rgba(232, 168, 56, 0.12);
+    color: var(--warning);
+}
+
+.stat-card.danger .stat-icon {
+    background: rgba(224, 92, 92, 0.12);
+    color: var(--danger);
+}
 
 .stat-value {
     font-size: 28px;
@@ -425,8 +453,13 @@ body {
     transition: background 0.15s;
 }
 
-.appt-table tbody tr:hover { background: var(--teal-50); }
-.appt-table tbody tr:last-child { border-bottom: none; }
+.appt-table tbody tr:hover {
+    background: var(--teal-50);
+}
+
+.appt-table tbody tr:last-child {
+    border-bottom: none;
+}
 
 .appt-table tbody td {
     padding: 14px 16px;
@@ -464,18 +497,59 @@ body {
     flex-shrink: 0;
 }
 
-.badge-approved { background: rgba(58, 170, 122, 0.12); color: #2a8a5a; }
-.badge-approved::before { background: #3aaa7a; }
-.badge-pending { background: rgba(232, 168, 56, 0.12); color: #a87018; }
-.badge-pending::before { background: #e8a838; }
-.badge-cancelled { background: rgba(224, 92, 92, 0.12); color: #b83a3a; }
-.badge-cancelled::before { background: #e05c5c; }
-.badge-expired { background: rgba(100, 100, 100, 0.1); color: #666; }
-.badge-expired::before { background: #999; }
-.badge-paid { background: rgba(58, 143, 212, 0.12); color: #2060a0; }
-.badge-paid::before { background: #3a8fd4; }
-.badge-notpaid { background: rgba(224, 92, 92, 0.12); color: #b83a3a; }
-.badge-notpaid::before { background: #e05c5c; }
+.badge-approved {
+    background: rgba(58, 170, 122, 0.12);
+    color: #2a8a5a;
+}
+
+.badge-approved::before {
+    background: #3aaa7a;
+}
+
+.badge-pending {
+    background: rgba(232, 168, 56, 0.12);
+    color: #a87018;
+}
+
+.badge-pending::before {
+    background: #e8a838;
+}
+
+.badge-cancelled {
+    background: rgba(224, 92, 92, 0.12);
+    color: #b83a3a;
+}
+
+.badge-cancelled::before {
+    background: #e05c5c;
+}
+
+.badge-expired {
+    background: rgba(100, 100, 100, 0.1);
+    color: #666;
+}
+
+.badge-expired::before {
+    background: #999;
+}
+
+.badge-paid {
+    background: rgba(58, 143, 212, 0.12);
+    color: #2060a0;
+}
+
+.badge-paid::before {
+    background: #3a8fd4;
+}
+
+.badge-notpaid {
+    background: rgba(224, 92, 92, 0.12);
+    color: #b83a3a;
+}
+
+.badge-notpaid::before {
+    background: #e05c5c;
+}
 
 /* Action buttons */
 .action-group {
@@ -497,16 +571,55 @@ body {
     transition: all 0.2s;
 }
 
-.btn-approve { background: rgba(58, 170, 122, 0.12); color: var(--success); }
-.btn-approve:hover { background: var(--success); color: var(--white); }
-.btn-cancel { background: rgba(232, 168, 56, 0.12); color: var(--warning); }
-.btn-cancel:hover { background: var(--warning); color: var(--white); }
-.btn-delete { background: rgba(224, 92, 92, 0.12); color: var(--danger); }
-.btn-delete:hover { background: var(--danger); color: var(--white); }
-.btn-cost { background: rgba(42, 157, 138, 0.12); color: var(--teal-500); }
-.btn-cost:hover { background: var(--teal-500); color: var(--white); }
-.btn-view { background: rgba(58, 143, 212, 0.12); color: var(--info); }
-.btn-view:hover { background: var(--info); color: var(--white); }
+.btn-approve {
+    background: rgba(58, 170, 122, 0.12);
+    color: var(--success);
+}
+
+.btn-approve:hover {
+    background: var(--success);
+    color: var(--white);
+}
+
+.btn-cancel {
+    background: rgba(232, 168, 56, 0.12);
+    color: var(--warning);
+}
+
+.btn-cancel:hover {
+    background: var(--warning);
+    color: var(--white);
+}
+
+.btn-delete {
+    background: rgba(224, 92, 92, 0.12);
+    color: var(--danger);
+}
+
+.btn-delete:hover {
+    background: var(--danger);
+    color: var(--white);
+}
+
+.btn-cost {
+    background: rgba(42, 157, 138, 0.12);
+    color: var(--teal-500);
+}
+
+.btn-cost:hover {
+    background: var(--teal-500);
+    color: var(--white);
+}
+
+.btn-view {
+    background: rgba(58, 143, 212, 0.12);
+    color: var(--info);
+}
+
+.btn-view:hover {
+    background: var(--info);
+    color: var(--white);
+}
 
 /* Empty state */
 .empty-state {
@@ -521,7 +634,9 @@ body {
     opacity: 0.4;
 }
 
-.empty-state p { font-size: 14px; }
+.empty-state p {
+    font-size: 14px;
+}
 
 /* ── MODALS ── */
 .modal-content {
@@ -544,7 +659,9 @@ body {
     color: var(--teal-900);
 }
 
-.modal-body { padding: 24px; }
+.modal-body {
+    padding: 24px;
+}
 
 .modal-footer {
     padding: 16px 24px;
@@ -605,8 +722,14 @@ body {
     font-size: 13px;
 }
 
-.detail-row:last-child { border-bottom: none; }
-.detail-key { color: var(--text-light); font-weight: 500; }
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-key {
+    color: var(--text-light);
+    font-weight: 500;
+}
 
 .detail-value {
     color: var(--text-dark);
@@ -629,7 +752,9 @@ body {
     transition: background 0.2s;
 }
 
-.btn-teal:hover { background: var(--teal-900); }
+.btn-teal:hover {
+    background: var(--teal-900);
+}
 
 .btn-outline-teal {
     background: transparent;
@@ -644,7 +769,9 @@ body {
     transition: all 0.2s;
 }
 
-.btn-outline-teal:hover { background: var(--teal-50); }
+.btn-outline-teal:hover {
+    background: var(--teal-50);
+}
 
 .btn-red {
     background: var(--danger);
@@ -659,7 +786,9 @@ body {
     transition: background 0.2s;
 }
 
-.btn-red:hover { background: #c44; }
+.btn-red:hover {
+    background: #c44;
+}
 
 /* Toast */
 .toast-container {
@@ -686,16 +815,71 @@ body {
     max-width: 320px;
 }
 
-.toast-msg.error { background: var(--danger); }
+.pagination-bar {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    border-top: 1px solid var(--sand);
+}
+
+.page-btn {
+    padding: 7px 13px;
+    border: 1px solid var(--sand-dark);
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--text-mid);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.page-btn:hover {
+    background: var(--teal-50);
+    border-color: var(--teal-300);
+    color: var(--teal-700);
+}
+
+.page-btn.active {
+    background: var(--teal-500);
+    border-color: var(--teal-500);
+    color: var(--white);
+}
+
+.page-btn.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.toast-msg.error {
+    background: var(--danger);
+}
 
 @keyframes slideIn {
-    from { transform: translateX(40px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+    from {
+        transform: translateX(40px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 /* Responsive */
 @media (max-width: 992px) {
-    .layout { grid-template-columns: 1fr; }
-    .sidebar { display: none; }
-    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        display: none;
+    }
+
+    .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }

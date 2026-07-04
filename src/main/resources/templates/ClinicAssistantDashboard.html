@@ -87,7 +87,7 @@
             <div class="stats-row">
                 <div class="stat-card teal">
                     <div class="stat-icon"><i class="fa-solid fa-calendar-days"></i></div>
-                    <div class="stat-value" th:text="${#lists.size(appointments)}">0</div>
+                    <div class="stat-value" th:text="${totalCount}">0</div>
                     <div class="stat-label">Total Appointments</div>
                 </div>
                 <div class="stat-card success">
@@ -131,7 +131,6 @@
                     <table class="appt-table">
                         <thead>
                             <tr>
-                                <th>Appointment ID</th>
                                 <th>Patient ID</th>
                                 <th>Hospital / Clinic</th>
                                 <th>Date &amp; Time</th>
@@ -142,11 +141,9 @@
                             </tr>
                         </thead>
                         <tbody id="activeTableBody">
-                            <tr th:each="appt : ${appointments}" th:if="${appt.statusAppointment != 'Expired'}"
+                            <tr th:each="appt : ${activeAppointments}"
                                 th:attr="data-status=${appt.statusAppointment},
-                                 data-search=${appt.appointmentId + ' ' + appt.userId + ' ' + (appt.registeredHospital ?: '') + ' ' + appt.appointmentDate + ' ' + (appt.typeOfSickness ?: '')}">
-                                <td><span class="appt-id"
-                                        th:text="${#strings.abbreviate(appt.appointmentId,14)}">ID</span></td>
+     data-search=${appt.appointmentId + ' ' + appt.userId + ' ' + (appt.registeredHospital ?: '') + ' ' + appt.appointmentDate + ' ' + (appt.typeOfSickness ?: '')}">
                                 <td th:text="${appt.userId}">—</td>
                                 <td th:text="${appt.registeredHospital}">—</td>
                                 <td>
@@ -203,6 +200,20 @@
                             </tr>
                         </tbody>
                     </table>
+                    <div class="pagination-bar" th:if="${activeTotalPages > 1}">
+                        <a class="page-btn" th:classappend="${activePageNo == 0} ? 'disabled'"
+                            th:href="@{/clinicassistant(activePageNo=${activePageNo - 1}, expiredPageNo=${expiredPageNo}, pageSize=${pageSize}, tab='active')}">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                        <a class="page-btn" th:each="i : ${#numbers.sequence(0, activeTotalPages - 1)}"
+                            th:classappend="${i == activePageNo} ? 'active'"
+                            th:href="@{/clinicassistant(activePageNo=${i}, expiredPageNo=${expiredPageNo}, pageSize=${pageSize}, tab='active')}"
+                            th:text="${i + 1}">1</a>
+                        <a class="page-btn" th:classappend="${activePageNo + 1 == activeTotalPages} ? 'disabled'"
+                            th:href="@{/clinicassistant(activePageNo=${activePageNo + 1}, expiredPageNo=${expiredPageNo}, pageSize=${pageSize}, tab='active')}">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </div>
                     <div class="empty-state" id="activeEmpty" style="display:none;">
                         <i class="fa-regular fa-calendar-xmark"></i>
                         <p>No active appointments found.</p>
@@ -214,7 +225,6 @@
                     <table class="appt-table">
                         <thead>
                             <tr>
-                                <th>Appointment ID</th>
                                 <th>Patient ID</th>
                                 <th>Hospital / Clinic</th>
                                 <th>Date &amp; Time</th>
@@ -224,9 +234,7 @@
                             </tr>
                         </thead>
                         <tbody id="expiredTableBody">
-                            <tr th:each="appt : ${appointments}" th:if="${appt.statusAppointment == 'Expired'}">
-                                <td><span class="appt-id"
-                                        th:text="${#strings.abbreviate(appt.appointmentId,14)}">ID</span></td>
+                            <tr th:each="appt : ${expiredAppointments}">
                                 <td th:text="${appt.userId}">—</td>
                                 <td th:text="${appt.registeredHospital}">—</td>
                                 <td>
@@ -257,6 +265,20 @@
                             </tr>
                         </tbody>
                     </table>
+                    <div class="pagination-bar" th:if="${expiredTotalPages > 1}">
+                        <a class="page-btn" th:classappend="${expiredPageNo == 0} ? 'disabled'"
+                            th:href="@{/clinicassistant(activePageNo=${activePageNo}, expiredPageNo=${expiredPageNo - 1}, pageSize=${pageSize}, tab='expired')}">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                        <a class="page-btn" th:each="i : ${#numbers.sequence(0, expiredTotalPages - 1)}"
+                            th:classappend="${i == expiredPageNo} ? 'active'"
+                            th:href="@{/clinicassistant(activePageNo=${activePageNo}, expiredPageNo=${i}, pageSize=${pageSize}, tab='expired')}"
+                            th:text="${i + 1}">1</a>
+                        <a class="page-btn" th:classappend="${expiredPageNo + 1 == expiredTotalPages} ? 'disabled'"
+                            th:href="@{/clinicassistant(activePageNo=${activePageNo}, expiredPageNo=${expiredPageNo + 1}, pageSize=${pageSize}, tab='expired')}">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </div>
                     <div class="empty-state" id="expiredEmpty" style="display:none;">
                         <i class="fa-regular fa-calendar-check"></i>
                         <p>No expired appointments.</p>
@@ -430,6 +452,12 @@
     <script>
         document.getElementById('currentDate').textContent =
             new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // ── Restore correct tab after pagination reload ──
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('tab') === 'expired') {
+            showTab('expired');
+        }
 
         function showTab(tab) {
             const isActive = tab === 'active';
