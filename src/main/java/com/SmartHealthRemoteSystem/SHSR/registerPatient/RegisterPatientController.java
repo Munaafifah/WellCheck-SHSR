@@ -47,29 +47,27 @@ public class RegisterPatientController {
             @RequestParam("emergencyContact") String emergencyContact,
             Model model) throws ExecutionException, InterruptedException {
 
-        // Check if user already exists
+        userId = userId == null ? "" : userId.trim().toUpperCase();
+
+        // Check duplicate User ID
         if (userService.getUserById(userId) != null) {
             model.addAttribute("error", "User ID already exists.");
             model.addAttribute("patient", new Patient());
             return "registerPatientForm";
         }
 
-        // Create Patient object
+        // Check duplicate Email
+        if (userService.getUserByEmail(email) != null) {
+            model.addAttribute("error", "Email already registered. Please use a different email or log in.");
+            model.addAttribute("patient", new Patient());
+            return "registerPatientForm";
+        }
+
         Patient newPatient = new Patient(
-                userId,
-                name,
-                password,
-                contact,
-                "PATIENT",
-                email,
-                address,
-                emergencyContact,
-                "",
-                "",
-                "Under Surveillance"
+                userId, name, password, contact, "PATIENT", email,
+                address, emergencyContact, "", "", "Under Surveillance"
         );
 
-        // Save patient to MongoDB
         String result = patientService.createPatient(newPatient);
         if (result.contains("already exists")) {
             model.addAttribute("error", result);
@@ -77,24 +75,15 @@ public class RegisterPatientController {
             return "registerPatientForm";
         }
 
-        // Save user to general user collection
-        User user = new User(
-                userId,
-                name,
-                password,
-                contact,
-                "PATIENT",
-                email
-        );
+        User user = new User(userId, name, password, contact, "PATIENT", email);
         userService.createUser(user);
 
-        // Send welcome email to the patient
         if (email != null && !email.isEmpty()) {
             String subject = "Welcome to WellCheck!";
             String message = "Dear " + name + ",\n\n"
-                           + "Your registration to the WellCheck Health Monitoring System was successful.\n"
-                           + "You can now log in and start using the system to track your health.\n\n"
-                           + "Regards,\nWellCheck Team";
+                    + "Your registration to the WellCheck Health Monitoring System was successful.\n"
+                    + "You can now log in and start using the system to track your health.\n\n"
+                    + "Regards,\nWellCheck Team";
             mailService.sendMail(email, subject, message);
         }
 

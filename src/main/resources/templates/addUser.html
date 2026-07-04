@@ -80,6 +80,11 @@
                 </div>
             </div>
 
+            <div th:if="${error}" class="alert-msg error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span th:text="${error}"></span>
+            </div>
+
             <!-- ════ FORM ════ -->
             <form method="post" th:action="@{/admin/adduser}" id="addUserForm" class="add-user-form">
                 <input type="hidden" name="action" value="add" />

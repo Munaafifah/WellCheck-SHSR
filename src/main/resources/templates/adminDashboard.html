@@ -88,6 +88,12 @@
                 </div>
             </div>
 
+            <div th:if="${message}" class="alert-msg"
+                th:classappend="${message.contains('already exists') or message.contains('Failed')} ? ' error' : ' success'">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span th:text="${message}"></span>
+            </div>
+
             <!-- Tab Pills -->
             <div class="tab-card">
                 <div class="tab-pills">

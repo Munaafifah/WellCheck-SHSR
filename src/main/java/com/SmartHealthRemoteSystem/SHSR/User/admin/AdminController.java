@@ -85,43 +85,43 @@ public class AdminController {
                 case "patient":
                     allPatients = allPatients.stream()
                             .filter(p -> contains(p.getName(), q) || contains(p.getUserId(), q)
-                                    || contains(p.getContact(), q) || contains(p.getEmail(), q))
+                            || contains(p.getContact(), q) || contains(p.getEmail(), q))
                             .collect(Collectors.toList());
                     break;
                 case "doctor":
                     doctorList = doctorList.stream()
                             .filter(d -> contains(d.getName(), q) || contains(d.getUserId(), q)
-                                    || contains(d.getContact(), q) || contains(d.getHospital(), q))
+                            || contains(d.getContact(), q) || contains(d.getHospital(), q))
                             .collect(Collectors.toList());
                     break;
                 case "pharmacist":
                     pharmacistList = pharmacistList.stream()
                             .filter(p -> contains(p.getName(), q) || contains(p.getUserId(), q)
-                                    || contains(p.getContact(), q))
+                            || contains(p.getContact(), q))
                             .collect(Collectors.toList());
                     break;
                 case "clinic_assistant":
                     clinicAssistantList = clinicAssistantList.stream()
                             .filter(c -> contains(c.getName(), q) || contains(c.getUserId(), q)
-                                    || contains(c.getContact(), q))
+                            || contains(c.getContact(), q))
                             .collect(Collectors.toList());
                     break;
                 case "radiographer":
                     radiographerList = radiographerList.stream()
                             .filter(r -> contains(r.getName(), q) || contains(r.getUserId(), q)
-                                    || contains(r.getContact(), q))
+                            || contains(r.getContact(), q))
                             .collect(Collectors.toList());
                     break;
                 case "radiologist":
                     radiologistList = radiologistList.stream()
                             .filter(r -> contains(r.getName(), q) || contains(r.getUserId(), q)
-                                    || contains(r.getContact(), q))
+                            || contains(r.getContact(), q))
                             .collect(Collectors.toList());
                     break;
                 case "admin":
                     adminList = adminList.stream()
                             .filter(a -> contains(a.getName(), q) || contains(a.getUserId(), q)
-                                    || contains(a.getContact(), q))
+                            || contains(a.getContact(), q))
                             .collect(Collectors.toList());
                     break;
             }
@@ -207,12 +207,29 @@ public class AdminController {
             @RequestParam(value = "radiologistDepartment", required = false) String radiologistDepartment,
             @RequestParam(value = "radiologistSpecialization", required = false) String radiologistSpecialization,
             @RequestParam("action") String action,
+            Model model,
             RedirectAttributes redirect)
             throws ExecutionException, InterruptedException {
 
         String message = "";
 
         if ("add".equalsIgnoreCase(action)) {
+
+            // Normalize ID so "p001" and "P001" can't become two accounts
+            userId = userId == null ? "" : userId.trim().toUpperCase();
+
+            // Duplicate ID check — shows error ON the Add User page, not the dashboard
+            if (userService.getUserById(userId) != null) {
+                model.addAttribute("error", "User ID '" + userId + "' already exists.");
+                return "addUser";
+            }
+
+            // Duplicate email check
+            if (userService.getUserByEmail(email) != null) {
+                model.addAttribute("error", "Email '" + email + "' is already registered.");
+                return "addUser";
+            }
+
             switch (role) {
                 case "PATIENT":
                     Patient p = new Patient(userId, name, password, contact, role, email,
@@ -220,8 +237,8 @@ public class AdminController {
                     message = patientService.createPatient(p);
                     mailService.sendMail(email, "Welcome to WellCheck",
                             "Dear " + name + ",\n\nYou have been registered as a patient.\nUser ID: " + userId
-                                    + "\nTemporary Password: " + password
-                                    + "\n\nPlease log in and change your password.");
+                            + "\nTemporary Password: " + password
+                            + "\n\nPlease log in and change your password.");
                     break;
 
                 case "DOCTOR":
@@ -230,8 +247,8 @@ public class AdminController {
                     message = doctorService.saveDoctor(d);
                     mailService.sendMail(email, "Welcome to WellCheck",
                             "Dear Dr. " + name + ",\n\nYou have been registered as a doctor.\nUser ID: " + userId
-                                    + "\nTemporary Password: " + password
-                                    + "\n\nPlease log in and change your password.");
+                            + "\nTemporary Password: " + password
+                            + "\n\nPlease log in and change your password.");
                     break;
 
                 case "PHARMACIST":
@@ -240,8 +257,8 @@ public class AdminController {
                     message = pharmacistService.createPharmacist(ph);
                     mailService.sendMail(email, "Welcome to WellCheck",
                             "Dear " + name + ",\n\nYou have been registered as a pharmacist.\nUser ID: " + userId
-                                    + "\nTemporary Password: " + password
-                                    + "\n\nPlease log in and change your password.");
+                            + "\nTemporary Password: " + password
+                            + "\n\nPlease log in and change your password.");
                     break;
 
                 case "CLINIC_ASSISTANT":
@@ -250,8 +267,8 @@ public class AdminController {
                     message = clinicAssistantService.createClinicAssistant(ca);
                     mailService.sendMail(email, "Welcome to WellCheck",
                             "Dear " + name + ",\n\nYou have been registered as a Clinic Assistant.\nUser ID: " + userId
-                                    + "\nTemporary Password: " + password
-                                    + "\n\nPlease log in and change your password.");
+                            + "\nTemporary Password: " + password
+                            + "\n\nPlease log in and change your password.");
                     break;
 
                 case "RADIOGRAPHER":
@@ -260,8 +277,8 @@ public class AdminController {
                     message = radiographerService.createRadiographer(rg);
                     mailService.sendMail(email, "Welcome to WellCheck",
                             "Dear " + name + ",\n\nYou have been registered as a Radiographer.\nUser ID: " + userId
-                                    + "\nTemporary Password: " + password
-                                    + "\n\nPlease log in and change your password.");
+                            + "\nTemporary Password: " + password
+                            + "\n\nPlease log in and change your password.");
                     break;
 
                 case "RADIOLOGIST":
@@ -270,8 +287,8 @@ public class AdminController {
                     message = radiologistService.createRadiologist(rl);
                     mailService.sendMail(email, "Welcome to WellCheck",
                             "Dear Dr. " + name + ",\n\nYou have been registered as a Radiologist.\nUser ID: " + userId
-                                    + "\nTemporary Password: " + password
-                                    + "\n\nPlease log in and change your password.");
+                            + "\nTemporary Password: " + password
+                            + "\n\nPlease log in and change your password.");
                     break;
 
                 default:

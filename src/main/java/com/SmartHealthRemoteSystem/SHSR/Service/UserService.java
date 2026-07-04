@@ -36,8 +36,8 @@ public class UserService implements IUserManagementService {
         List<User> userList = userRepository.getAll();
 
         boolean isTaken = userList.stream()
-                .anyMatch(existingUser -> existingUser.getUserId().equals(user.getUserId()) ||
-                        (user.getEmail() != null && user.getEmail().equals(existingUser.getEmail())));
+                .anyMatch(existingUser -> existingUser.getUserId().equals(user.getUserId())
+                || (user.getEmail() != null && user.getEmail().equals(existingUser.getEmail())));
 
         if (isTaken) {
             return "Failed to create user. ID or Email already exists.";
@@ -82,5 +82,15 @@ public class UserService implements IUserManagementService {
                 .stream()
                 .filter(user -> "CLINIC_ASSISTANT".equals(user.getRole()))
                 .collect(Collectors.toList());
+    }
+
+    public User getUserByEmail(String email) throws ExecutionException, InterruptedException {
+        if (email == null) {
+            return null;
+        }
+        return userRepository.getAll().stream()
+                .filter(u -> email.equalsIgnoreCase(u.getEmail()))
+                .findFirst()
+                .orElse(null);
     }
 }
