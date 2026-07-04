@@ -91,7 +91,7 @@ public class SensorDashboardController {
         int start    = Math.max(0, (page - 1) * pageSize);
         int end      = Math.min(start + pageSize, history.size());
 
-        model.addAttribute("sensorDataPage", history.subList(start, end));
+        model.addAttribute("pagedHistory", history.subList(start, end));
         model.addAttribute("currentPage",    page);
         model.addAttribute("totalPages",
                 (int) Math.ceil((double) history.size() / pageSize));

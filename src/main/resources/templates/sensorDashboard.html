@@ -218,7 +218,7 @@
                         </tr>
                         <tr th:each="h, stat : ${pagedHistory}">
                             <td th:text="${stat.count}">1</td>
-                            <td th:text="${h.timestamp}">—</td>
+                            <td th:text="${h.formattedTimestamp}">—</td>
                             <td th:classappend="${h.bodyTemperature > 37.2} ? 'abnormal-cell'"
                                 th:text="${h.bodyTemperature}">—</td>
                             <td th:classappend="${h.oxygenReading < 94} ? 'abnormal-cell'"

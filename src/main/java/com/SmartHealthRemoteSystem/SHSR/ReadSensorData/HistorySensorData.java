@@ -2,6 +2,8 @@ package com.SmartHealthRemoteSystem.SHSR.ReadSensorData;
 
 import java.time.Instant;
 import java.util.Date;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 import org.bson.Document;
 
@@ -76,23 +78,29 @@ public class HistorySensorData {
     }
 
     public static HistorySensorData fromDocument(Document doc) {
-    HistorySensorData h = new HistorySensorData();
-    h.setHeart_Rate(doc.getDouble("heart_Rate"));
-    h.setBodyTemperature(doc.getDouble("bodyTemperature"));
-    h.setEcgReading(doc.getDouble("ecgReading"));
-    h.setOxygenReading(doc.getDouble("oxygenReading"));
+        HistorySensorData h = new HistorySensorData();
+        h.setHeart_Rate(doc.getDouble("heart_Rate"));
+        h.setBodyTemperature(doc.getDouble("bodyTemperature"));
+        h.setEcgReading(doc.getDouble("ecgReading"));
+        h.setOxygenReading(doc.getDouble("oxygenReading"));
 
-    Object rawTimestamp = doc.get("timestamp");
+        Object rawTimestamp = doc.get("timestamp");
 
-    if (rawTimestamp instanceof String) {
-        h.setTimestamp(Instant.parse((String) rawTimestamp)); // if it's a String
-    } else if (rawTimestamp instanceof Date) {
-        h.setTimestamp(((Date) rawTimestamp).toInstant()); // if it's a Date
-    } else {
-        h.setTimestamp(Instant.now()); // fallback just in case
+        if (rawTimestamp instanceof String) {
+            h.setTimestamp(Instant.parse((String) rawTimestamp)); // if it's a String
+        } else if (rawTimestamp instanceof Date) {
+            h.setTimestamp(((Date) rawTimestamp).toInstant()); // if it's a Date
+        } else {
+            h.setTimestamp(Instant.now()); // fallback just in case
+        }
+
+        return h;
     }
 
-    return h;
-}
+    public String getFormattedTimestamp() {
+        return DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm:ss a")
+                .withZone(ZoneId.of("Asia/Kuala_Lumpur"))
+                .format(timestamp);
+    }
 
 }

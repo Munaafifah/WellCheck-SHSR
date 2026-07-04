@@ -3,6 +3,7 @@ package com.SmartHealthRemoteSystem.SHSR.ReadSensorData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fazecast.jSerialComm.SerialPort;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,9 @@ public class SerialReader {
 
     @Autowired
     private SensorDataRepository sensorDataRepository;
+
+    @Value("${active.sensor.id}")
+    private String activeSensorId;
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -52,7 +56,17 @@ public class SerialReader {
                 }
                 try {
                     SensorReading r = mapper.readValue(raw, SensorReading.class);
-                    upsertSensor("Muna Sensor", r);  // ✅ matches your MongoDB sensorDataId
+
+                    // ✅ Defense in depth: only accept the reading if all 4
+                    // values look real. The Arduino already gates this before
+                    // sending, but the server should never trust the wire blindly.
+                    if (r.heartRate <= 0 || r.temperature <= 0
+                            || r.oxygenReading <= 0 || r.ecgValue <= 0) {
+                        System.out.println("⚠  Incomplete reading, skipped: " + raw);
+                        continue;
+                    }
+
+                    upsertSensor(activeSensorId, r);
                 } catch (Exception ex) {
                     System.err.println("❌  JSON parse error: " + raw);
                     ex.printStackTrace();
