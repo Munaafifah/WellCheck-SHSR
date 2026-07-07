@@ -47,16 +47,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/diagnosis/receiveSymptoms").permitAll()
                 .antMatchers("/js/**", "/css/**", "/image/**").permitAll()
 
-                // ── Patient sensor routes (specific, before any catch-all) ──
+                // ── Patient sensor routes ──
                 .antMatchers("/register").hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
                 .antMatchers("/sensor/agreement").hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
                 .antMatchers("/sensor/request").hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
 
-                // ── Admin specific routes (MUST be before /admin/**) ──
+                // ── Admin specific routes ──
                 .antMatchers("/admin/assign-sensor",
-                             "/admin/assign-sensor/**",
-                             "/admin/sensor-status",
-                             "/admin/doctor-schedule/**").hasRole("ADMIN")
+                        "/admin/assign-sensor/**",
+                        "/admin/sensor-status",
+                        "/admin/doctor-schedule/**")
+                .hasRole("ADMIN")
 
                 // Analytics — radiologists get read-only access alongside admins
                 .antMatchers("/admin/analytics", "/admin/analytics/**")
@@ -78,7 +79,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                 // ── Clinic Assistant routes ──
                 .antMatchers("/clinicassistant/**")
-                    .hasAnyRole("ADMIN", "CLINIC_ASSISTANT", "DOCTOR")
+                .hasAnyRole("ADMIN", "CLINIC_ASSISTANT", "DOCTOR")
 
                 // ── Radiographer routes ──
                 .antMatchers("/radiographer/**").hasAnyRole("ADMIN", "RADIOGRAPHER")
@@ -88,9 +89,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                 // ── Communication routes ──
                 .antMatchers("/communication/**")
-                    .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "CLINIC_ASSISTANT")
+                .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "CLINIC_ASSISTANT")
                 .antMatchers("/api/chats/**")
-                    .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "CLINIC_ASSISTANT")
+                .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "CLINIC_ASSISTANT")
                 .antMatchers("/api/messages/**")
                     .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "CLINIC_ASSISTANT")
                 .antMatchers("/api/users/**")
@@ -98,51 +99,43 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                 // ── Radiology routes ──
                 .antMatchers("/radiology", "/radiology/**")
-                    .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST")
+                .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST")
                 .antMatchers("/api/images/**")
-                    .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "PATIENT")
+                .hasAnyRole("ADMIN", "DOCTOR", "RADIOGRAPHER", "RADIOLOGIST", "PATIENT")
 
-                // ── Radiology Request & Scheduling routes (UCR008-UCR015) ──
-                // UCR008 — submit request: Doctor only
+                // ── Radiology Request & Scheduling routes ──
                 .antMatchers("/request-scheduling")
                     .hasAnyRole("ADMIN", "DOCTOR")
                 .antMatchers("/imaging-request-form")
                     .hasAnyRole("ADMIN", "DOCTOR")
-                // UCR009 — manage requests: Radiologist / Radiographer
                 .antMatchers("/manage-requests")
                     .hasAnyRole("ADMIN", "RADIOLOGIST", "RADIOGRAPHER")
-                // UCR010 — appointment scheduling: Radiographer
                 .antMatchers("/appointment-scheduling")
                     .hasAnyRole("ADMIN", "RADIOGRAPHER")
-                // UCR013 — view request status: Admin / Doctor only
                 .antMatchers("/request-status")
                     .hasAnyRole("ADMIN", "DOCTOR")
-                // Notifications: all scheduling module roles
                 .antMatchers("/notifications")
                     .hasAnyRole("ADMIN", "DOCTOR", "RADIOLOGIST", "RADIOGRAPHER")
-                // API: imaging requests — Doctor submits, Radiologist/Radiographer manage/cancel
                 .antMatchers("/api/imaging-requests/**")
                     .hasAnyRole("ADMIN", "DOCTOR", "RADIOLOGIST", "RADIOGRAPHER")
-               // API: appointments — Radiographer schedules, Radiologist/Radiographer cancel/confirm
                 .antMatchers("/api/appointments/**")
                     .hasAnyRole("ADMIN", "RADIOGRAPHER", "RADIOLOGIST")
-                // API: rooms — Radiographer/Radiologist check room availability when scheduling
                 .antMatchers("/api/rooms/**")
                     .hasAnyRole("ADMIN", "RADIOGRAPHER", "RADIOLOGIST")
-                // API: notifications — all scheduling module roles
                 .antMatchers("/api/notifications/**")
                     .hasAnyRole("ADMIN", "DOCTOR", "RADIOLOGIST", "RADIOGRAPHER")
+
                 // ── Shared patient/doctor/admin routes ──
                 .antMatchers("/DiagnosisResult")
-                    .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
+                .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
                 .antMatchers("/predictionHistory")
-                    .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
+                .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
                 .antMatchers("/Health-status/**")
-                    .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
+                .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
                 .antMatchers("/ViewDailyHealthSymptom/**")
-                    .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
+                .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
                 .antMatchers("/viewPatientHealthStatus/**")
-                    .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
+                .hasAnyRole("PATIENT", "ADMIN", "DOCTOR")
 
                 // ── Any other request must be authenticated ──
                 .anyRequest().authenticated()
@@ -157,8 +150,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/login")
 
-               .and()
-.csrf().disable();
+                .and()
+                .csrf().disable();
     }
 
     @Bean

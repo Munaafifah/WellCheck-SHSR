@@ -48,7 +48,7 @@ public class RegisterPatientController {
             Model model) throws ExecutionException, InterruptedException {
 
         // Check if user already exists
-        if (userService.getUser(userId) != null) {
+        if (userService.getUserById(userId) != null) {
             model.addAttribute("error", "User ID already exists.");
             model.addAttribute("patient", new Patient());
             return "registerPatientForm";
@@ -64,8 +64,8 @@ public class RegisterPatientController {
                 email,
                 address,
                 emergencyContact,
-                "",  // sensorDataId
-                "",  // assigned_doctor
+                "",
+                "",
                 "Under Surveillance"
         );
 
@@ -88,7 +88,7 @@ public class RegisterPatientController {
         );
         userService.createUser(user);
 
-        // ✅ Send welcome email to the patient
+        // Send welcome email to the patient
         if (email != null && !email.isEmpty()) {
             String subject = "Welcome to WellCheck!";
             String message = "Dear " + name + ",\n\n"

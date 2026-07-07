@@ -23,48 +23,47 @@ public class SerialReader {
 
     @PostConstruct
     public void init() {
-        new Thread(this::readSerial, "Serial-COM4").start();
+        new Thread(this::readSerial, "Serial-COM5").start();
     }
 
     /* ---------------------------------------------------------------------- */
     private void readSerial() {
-        SerialPort port = SerialPort.getCommPort("COM4");
+        SerialPort port = SerialPort.getCommPort("COM5");
         port.setBaudRate(9600);
         port.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
 
         if (!port.openPort()) {
-            System.out.println("❌  Could NOT open COM4");
+            System.out.println("❌  Could NOT open COM5");
             return;
         }
-        System.out.println("✅  COM4 opened → listening …");
+        System.out.println("✅  COM5 opened → listening …");
 
         try (InputStream in = port.getInputStream();
              Scanner sc = new Scanner(in, StandardCharsets.UTF_8)) {
 
-           while (sc.hasNextLine()) {
-    String raw = sc.nextLine().trim();
+            while (sc.hasNextLine()) {
+                String raw = sc.nextLine().trim();
 
-    System.out.println("Received line: " + raw); // <--- Add this
+                System.out.println("Received line: " + raw);
 
-    if (raw.length() < 3 || raw.charAt(0) != '{') {
-        System.out.println("⚠  Skipped: " + raw);
-        continue;
-    }
-    try {
-        SensorReading r = mapper.readValue(raw, SensorReading.class);
-        upsertSensor("SENSOR_LIWEI_01", r);
-    } catch (Exception ex) {
-        System.err.println("❌  JSON parse error: " + raw);
-        ex.printStackTrace();
-    }
-}
-
+                if (raw.length() < 3 || raw.charAt(0) != '{') {
+                    System.out.println("⚠  Skipped: " + raw);
+                    continue;
+                }
+                try {
+                    SensorReading r = mapper.readValue(raw, SensorReading.class);
+                    upsertSensor("Muna Sensor", r);  // ✅ matches your MongoDB sensorDataId
+                } catch (Exception ex) {
+                    System.err.println("❌  JSON parse error: " + raw);
+                    ex.printStackTrace();
+                }
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             port.closePort();
-            System.out.println("⚠  COM4 closed");
+            System.out.println("⚠  COM5 closed");
         }
     }
 
