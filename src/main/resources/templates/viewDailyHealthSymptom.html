@@ -101,44 +101,47 @@
                     </span>
                 </div>
 
-                <table class="health-table">
-                    <thead>
-                        <tr>
-                            <th style="width:5%;">#</th>
-                            <th style="width:20%;">Date &amp; Time</th>
-                            <th>Symptoms</th>
-                            <th style="width:10%; text-align:center;">Tips</th>
-                        </tr>
-                    </thead>
-                    <tbody id="healthTableBody">
-                        <tr th:if="${healthStatusList == null or healthStatusList.isEmpty()}">
-                            <td colspan="4" class="empty-row">
-                                <i class="fa-solid fa-clipboard-check"
-                                    style="font-size:24px; color: var(--rose-300); margin-bottom:8px; display:block;"></i>
-                                No health status records found.
-                            </td>
-                        </tr>
-                        <tr th:each="entry, stat : ${healthStatusList}">
-                            <td th:text="${stat.count}">1</td>
-                            <td>
-                                <span class="timestamp-text" th:text="${entry.value.timestamp}">Date</span>
-                            </td>
-                            <td>
-                                <span th:each="symptom : ${entry.value.symptomsList}"
-                                      class="symptom-badge"
-                                      th:text="${symptom}">Symptom</span>
-                            </td>
-                            <td style="text-align:center;">
-                                <button class="btn-eye"
-                                        title="View Health Tips"
-                                        th:attr="data-key=${entry.key}"
-                                        onclick="showTips(this.getAttribute('data-key'))">
-                                    <i class="fa-solid fa-eye"></i> View
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-wrap">
+                    <table class="health-table">
+                        <thead>
+                            <tr>
+                                <th style="width:5%;">#</th>
+                                <th style="width:15%;">Date</th>
+                                <th>Symptoms</th>
+                                <th style="width:10%; text-align:center;">Tips</th>
+                            </tr>
+                        </thead>
+                        <tbody id="healthTableBody">
+                            <tr th:if="${healthStatusList == null or healthStatusList.isEmpty()}">
+                                <td colspan="4" class="empty-row">
+                                    <i class="fa-solid fa-clipboard-check"
+                                        style="font-size:24px; color: var(--rose-300); margin-bottom:8px; display:block;"></i>
+                                    No health status records found.
+                                </td>
+                            </tr>
+                            <tr th:each="entry, stat : ${healthStatusList}">
+                                <td th:text="${stat.count}">1</td>
+                                <td>
+                                    <span class="timestamp-text"
+                                          th:text="${#temporals.format(entry.value.timestamp, 'dd MMM yyyy')}">Date</span>
+                                </td>
+                                <td>
+                                    <span th:each="symptom : ${entry.value.symptomsList}"
+                                          class="symptom-badge"
+                                          th:text="${symptom}">Symptom</span>
+                                </td>
+                                <td style="text-align:center;">
+                                    <button class="btn-eye"
+                                            title="View Health Tips"
+                                            th:attr="data-key=${entry.key}"
+                                            onclick="showTips(this.getAttribute('data-key'))">
+                                        <i class="fa-solid fa-eye"></i> View
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
                 <!-- Pagination -->
                 <div class="pagination-wrap" th:if="${totalPage != null and totalPage > 1}">

@@ -299,8 +299,14 @@ body {
     color: var(--text-light);
 }
 
+.table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 .health-table {
     width: 100%;
+    min-width: 600px;
     border-collapse: collapse;
 }
 
@@ -365,6 +371,7 @@ body {
 /* ── PAGINATION ── */
 .pagination-wrap {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
     gap: 6px;
@@ -406,6 +413,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .appt-search-box {
