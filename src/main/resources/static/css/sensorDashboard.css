@@ -326,6 +326,18 @@ body {
     color: var(--primary-500);
 }
 
+.chart-canvas-wrap {
+    position: relative;
+    height: 260px;
+    width: 100%;
+}
+
+@media (max-width: 576px) {
+    .chart-canvas-wrap {
+        height: 220px;
+    }
+}
+
 /* ── FILTER BAR ── */
 .filter-bar {
     display: flex;

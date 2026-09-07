@@ -171,8 +171,8 @@
                     <i class="fa-solid fa-chart-line"></i>
                     Trend (Latest 5 Readings)
                 </h4>
-                <div th:if="${latestFiveReadings != null and !#lists.isEmpty(latestFiveReadings)}">
-                    <canvas id="sensorChart" height="100"></canvas>
+                <div th:if="${latestFiveReadings != null and !#lists.isEmpty(latestFiveReadings)}" class="chart-canvas-wrap">
+                    <canvas id="sensorChart"></canvas>
                 </div>
                 <div th:if="${latestFiveReadings == null or #lists.isEmpty(latestFiveReadings)}" class="no-sensor-state" style="padding:30px;">
                     <i class="fa-solid fa-chart-line"></i>
@@ -267,7 +267,12 @@
     document.addEventListener("DOMContentLoaded", function () {
         const latestFiveReadings = /*[[${latestFiveReadings}]]*/ null;
         if (latestFiveReadings && Array.isArray(latestFiveReadings) && latestFiveReadings.length > 0) {
-            const labels     = latestFiveReadings.map(e => e.timestamp).reverse();
+            const labels = latestFiveReadings.map(e => {
+                const d = new Date(e.timestamp);
+                return isNaN(d) ? e.timestamp : d.toLocaleString('en-GB', {
+                    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                });
+            }).reverse();
             const temps      = latestFiveReadings.map(e => e.bodyTemperature).reverse();
             const heartRates = latestFiveReadings.map(e => e.heart_Rate).reverse();
             const spo2s      = latestFiveReadings.map(e => e.oxygenReading).reverse();
@@ -279,16 +284,31 @@
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'Temp (°C)',   data: temps,      borderColor: '#e05c5c', tension: 0.4, fill: false },
-                        { label: 'Heart Rate',  data: heartRates, borderColor: '#3aaa7a', tension: 0.4, fill: false },
-                        { label: 'SpO₂ (%)',    data: spo2s,      borderColor: '#2e7dd1', tension: 0.4, fill: false },
-                        { label: 'ECG',         data: ecgs,       borderColor: '#e8a838', tension: 0.4, fill: false }
+                        { label: 'Temp (°C)',   data: temps,      borderColor: '#e05c5c', backgroundColor: '#e05c5c', tension: 0.4, fill: false, pointRadius: 3, yAxisID: 'yTemp' },
+                        { label: 'Heart Rate',  data: heartRates, borderColor: '#3aaa7a', backgroundColor: '#3aaa7a', tension: 0.4, fill: false, pointRadius: 3, yAxisID: 'yHr' },
+                        { label: 'SpO₂ (%)',    data: spo2s,      borderColor: '#2e7dd1', backgroundColor: '#2e7dd1', tension: 0.4, fill: false, pointRadius: 3, yAxisID: 'ySpo2' },
+                        { label: 'ECG',         data: ecgs,       borderColor: '#e8a838', backgroundColor: '#e8a838', tension: 0.4, fill: false, pointRadius: 3, yAxisID: 'yEcg' }
                     ]
                 },
                 options: {
                     responsive: true,
-                    plugins: { legend: { position: 'bottom' } },
-                    scales: { y: { beginAtZero: false } }
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 16 }
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 5 } },
+                        // Each vital gets its own hidden y-axis so wildly different
+                        // scales (°C vs %, bpm, mV) don't flatten each other out.
+                        yTemp: { display: false },
+                        yHr:   { display: false },
+                        ySpo2: { display: false },
+                        yEcg:  { display: false }
+                    }
                 }
             });
         }
