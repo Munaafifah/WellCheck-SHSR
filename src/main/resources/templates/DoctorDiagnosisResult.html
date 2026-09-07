@@ -94,7 +94,7 @@
                   <div class="col-md-6">
                     <h5>Symptoms</h5>
                       <ul>
-                        <li th:each="symptom : ${symptoms}" th:text="${symptom}"></li>
+                        <li th:each="symptom : ${symptoms}" style="text-transform:capitalize;" th:text="${#strings.replace(symptom, '_', ' ')}"></li>
                       </ul>
                   </div>
                   <div class="col-md-6">

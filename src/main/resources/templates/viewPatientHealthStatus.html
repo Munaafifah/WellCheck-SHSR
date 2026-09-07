@@ -133,8 +133,8 @@
                         <td>
                             <span th:each="symptom : ${entry.value.symptomsList}"
                                   class="row-badge badge-pending"
-                                  style="margin-right:4px;"
-                                  th:text="${symptom}">Symptom</span>
+                                  style="margin-right:4px; text-transform:capitalize;"
+                                  th:text="${#strings.replace(symptom, '_', ' ')}">Symptom</span>
                         </td>
                         <td>
                             <a th:href="@{/prescription/form(patientId=${patient.userId})}"
