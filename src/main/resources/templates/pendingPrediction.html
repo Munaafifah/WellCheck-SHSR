@@ -47,7 +47,7 @@
                     <td th:text="${iterStat.index + 1}"></td>
                     <td th:text="${entry.key.name}"></td>
                     <td>
-                        <ul><li th:each="s : ${entry.value.symptomsList}" th:text="${s}"></li></ul>
+                        <ul><li th:each="s : ${entry.value.symptomsList}" style="text-transform:capitalize;" th:text="${#strings.replace(s, '_', ' ')}"></li></ul>
                     </td>
                     <td>
                         <ul><li th:each="d : ${entry.value.diagnosisList}" th:text="${d}"></li></ul>

@@ -87,7 +87,7 @@
                 <div>
                     <span th:each="symptom : ${symptoms}"
                           class="symptom-badge"
-                          th:text="${symptom}">Symptom</span>
+                          th:text="${#strings.replace(symptom, '_', ' ')}">Symptom</span>
                 </div>
             </div>
             <div class="info-card">

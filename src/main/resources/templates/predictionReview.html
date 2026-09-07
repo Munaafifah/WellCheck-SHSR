@@ -131,7 +131,7 @@
                         <div>
                             <span th:each="symptom : ${entry.value.symptomsList}"
                                   class="symptom-tag"
-                                  th:text="${symptom}">Symptom</span>
+                                  th:text="${#strings.replace(symptom, '_', ' ')}">Symptom</span>
                         </div>
                     </div>
 

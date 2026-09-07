@@ -1044,6 +1044,7 @@ body {
     font-size: 12px;
     font-weight: 500;
     margin: 2px;
+    text-transform: capitalize;
 }
 
 .disease-row {

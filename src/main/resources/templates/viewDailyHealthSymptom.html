@@ -128,7 +128,7 @@
                                 <td>
                                     <span th:each="symptom : ${entry.value.symptomsList}"
                                           class="symptom-badge"
-                                          th:text="${symptom}">Symptom</span>
+                                          th:text="${#strings.replace(symptom, '_', ' ')}">Symptom</span>
                                 </td>
                                 <td style="text-align:center;">
                                     <button class="btn-eye"

@@ -208,6 +208,7 @@ body {
     font-size: 12px;
     font-weight: 500;
     margin: 3px;
+    text-transform: capitalize;
 }
 .timestamp-value {
     font-size: 15px;
