@@ -275,6 +275,22 @@ body {
     border: 1px solid rgba(46, 125, 82, 0.18);
 }
 
+/* ── GUEST HINT ── */
+.guest-hint {
+    font-size: 12px;
+    color: var(--text-light);
+    background: var(--ochre-50);
+    border: 1px solid var(--ochre-200);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.guest-hint strong {
+    color: var(--text-dark);
+}
+
 /* ── FIELDS ── */
 .field-group {
     margin-bottom: 20px;
